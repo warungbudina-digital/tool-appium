@@ -1,0 +1,6 @@
+node_modules/
+.appiumrc.json
+*.log
+.DS_Store
+.env
+appium.log
