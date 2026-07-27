@@ -747,6 +747,55 @@ benar-benar tuntas.
 > `tvTrashCount` untuk memverifikasi, jangan berhenti di layar
 > "Tidak Ada Proyek".
 
+### Mengosongkan sampah — `DraftManageActivity`
+
+Dibuka dari tab profil lewat `clTrash` @540,1455.
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Kembali | `ivBack` | @75,198 |
+| Pilih Semua | `tvActionAll` | @925,199 |
+| Durasi item | `tvDuration` | @273,538 |
+| Tanggal item | `tvClipAndDuration` | @720,429 |
+| Pulihkan | `tvDraftRecover` | @406,2159 |
+| **Hapus permanen** | `tvDraftDelete` | @735,2159 |
+
+Konfirmasinya memakai dialog yang sama dengan penghapusan proyek
+("Apakah Anda yakin akan menghapus proyek ini?", **OKE** @768,1277).
+
+### Template tidak dapat dihapus lewat UI
+
+Ini kesimpulan setelah menelusuri seluruh jalur yang masuk akal, dan
+semuanya buntu:
+
+- **Tekan-lama** kartu template → membuka `TemplatePreviewActivity`
+  (hanya berisi *Terapkan* @294,2097 dan *Publikasi* @787,2097), bukan
+  menu konteks.
+- **`ivMore`** @984,207 di beranda → hanya "Membuat folder", sama saja
+  ketika tab Templat sedang aktif.
+- **Geser kartu** ke kiri → tidak ada reaksi.
+- **`LocalTemplateActivity`** (profil → `clTemplate` @540,879), yang
+  punya tab `Impor` / `Unduhan` / `Milikmu` → tetap tanpa opsi hapus,
+  dan tekan-lama di sana pun hanya membuka pratinjau.
+
+Berkas template tersimpan di `/sdcard/Android/data/com.frontrow.vlog/`
+(`cache/.current_create_template/`, `files/.template_videos`, dan
+sejenisnya), tetapi registrinya ada di basis data internal aplikasi.
+Menghapus berkasnya saja berisiko meninggalkan keadaan tak konsisten.
+
+**Untuk otomatisasi yang membuat banyak template uji, satu-satunya
+pembersihan yang andal adalah mengosongkan data aplikasi:**
+
+```sh
+adb -s <udid> shell pm clear com.frontrow.vlog
+```
+
+Terverifikasi menghapus proyek, template, dan sampah sekaligus, serta
+mengembalikan izin runtime ke keadaan awal (`READ_EXTERNAL_STORAGE`
+kembali `granted=false`). Konsekuensinya aplikasi kembali seperti baru
+dipasang — `FirstTimeActivity` akan muncul lagi, dan izin perlu
+diberikan ulang.
+
 ---
 
 ## 12. Catatan lain
