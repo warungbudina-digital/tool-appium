@@ -244,11 +244,33 @@ sebelah kanan perlu di-scroll dulu. Urutan sesuai tampilan:
 | 8 | `editor_toolbar_rotate` | memutar | 19 | `editor_toolbar_AIKit` | AI Kits |
 | 9 | `editor_toolbar_flipHorizontal` | Cermin | 20 | `editor_toolbar_story` | Cerita |
 | 10 | `editor_toolbar_flipVertical` | Balik | 21 | `editor_toolbar_toPiP` | Trek Overlay |
-| 11 | *(belum terverifikasi)* | Mengisi | | | |
+| 11 | **tidak ada** (lihat di bawah) | Mengisi | | | |
 
-> Tool ke-11 ("Mengisi") teridentifikasi lewat label, tetapi
-> `content-desc`-nya belum sempat direkam. Jalankan ulang pemeta pada
-> posisi scroll yang memuatnya untuk melengkapi.
+#### Kekecualian: tool "Mengisi" tidak punya `content-desc`
+
+Terverifikasi lewat dua dump terpisah: dari 21 tool, hanya "Mengisi" yang
+simpul induknya bernilai `content-desc=""`. Ini celah pelabelan di VN
+sendiri, bukan kegagalan pembacaan.
+
+Posisinya di antara `flipVertical` dan `background` bersifat tetap, jadi
+selector paling andal adalah lewat saudara-berikutnya — tetap bebas
+bahasa seperti tool lainnya:
+
+```js
+const fill = await $(
+  '//*[@content-desc="editor_toolbar_flipVertical"]/following-sibling::*[1]'
+);
+```
+
+Terverifikasi resolve ke elemen berukuran `165x216`, sama dengan seluruh
+tool toolbar lain.
+
+> **Jangan memilihnya lewat label.** XPath seperti
+> `//android.view.ViewGroup[.//*[@text="Mengisi"]]` memang menemukan
+> elemen, tetapi yang dikembalikan adalah container root berukuran
+> `1080x2156`, karena `.//` cocok dengan leluhur mana pun yang memuat
+> label tersebut. Ketukan akan mendarat di tengah layar, bukan di tool.
+> Selalu verifikasi ukuran elemen hasil XPath sebelum mengetuknya.
 
 Menggeser toolbar:
 
