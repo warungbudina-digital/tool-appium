@@ -561,6 +561,59 @@ diverifikasi**. Semuanya default **mati**.
 > Otomatisasi wajib memilih secara eksplisit; jangan pernah mengetuk
 > berdasarkan posisi relatif atau indeks tombol.
 
+Area ketuk keduanya (bukan sekadar teksnya):
+
+| Tombol | Bounds | Titik ketuk |
+|---|---|---|
+| Buat | `[60,2050][372,2156]` | @216,2103 |
+| Buat dan Publikasikan | `[396,2050][1020,2156]` | @708,2103 |
+
+#### Judul dan sampul
+
+Kolom **Judul** adalah `EditText` pada `[60,324][1020,492]` (@540,408) —
+teks "Judul" hanyalah *hint* di dalamnya, bukan label terpisah.
+**Deskripsi** menyusul di `[60,495][1020,687]` (@540,591).
+
+**Sampul** membuka activity tersendiri saat diketuk di @840,810:
+
+| Elemen (`CoverActivity`) | resource-id | Posisi |
+|---|---|---|
+| Batal | `ivCancel` | @90,236 |
+| Kembalikan | `ivRevert` | @858,228 |
+| Konfirmasi | `ivConfirm` | @1011,228 |
+| Tab Bingkai Video | *(teks)* | @381,1755 |
+| Tab Perpustakaan | *(teks)* | @698,1755 |
+| Penggeser bingkai | `vfFunctionalViews` | @540,1999 |
+
+#### Hasil yang terverifikasi
+
+**"Buat" berhasil.** Aplikasi kembali ke `MainActivity`, tab berubah
+menjadi **"Templat 1"**, dan template muncul di daftar dengan metadata
+yang benar:
+
+| Elemen | resource-id |
+|---|---|
+| Kartu template | `clRoot` |
+| Nama | `tvName` |
+| Durasi | `tvDuration` (mis. `0:06`) |
+| Jumlah klip | `tvClipCount` (mis. `2`) |
+
+`tvDuration` dan `tvClipCount` terbaca sebagai teks, jadi hasil
+pembuatan template **dapat diverifikasi** tanpa membuka templatenya.
+
+> **"Buat dan Publikasikan" tidak menghasilkan apa pun.** Dicoba tiga
+> kali — tanpa judul, dengan judul, lalu dengan judul dan sampul — dan
+> ketiganya tidak memicu navigasi, dialog, galat, maupun entri logcat
+> apa pun. Tombolnya tertekan (koordinat berada di dalam bounds yang
+> `clickable="true"`) tetapi diam sepenuhnya, sementara **"Buat" pada
+> layar yang sama langsung bekerja**.
+>
+> Dugaan terkuat: jalur cloud menuntut akun VN yang login atau
+> berlangganan VN Pro, dan aplikasi menolak tanpa memberi tahu. Belum
+> dikonfirmasi. Untuk otomatisasi, artinya **kegagalannya senyap** —
+> jangan menganggap ketukan berhasil; verifikasi lewat perpindahan
+> activity atau bertambahnya `Templat n` di beranda.
+
 ---
 
 ## 10. Memperbarui dokumen ini
