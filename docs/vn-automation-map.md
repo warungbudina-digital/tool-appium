@@ -307,7 +307,47 @@ lalu pemeta dijalankan lagi di setiap layar baru.
 
 ---
 
-## 9. Catatan lain
+## 9. Membersihkan proyek
+
+Otomatisasi yang berulang kali membuat proyek akan menabrak kuota, jadi
+alur pembersihan sama pentingnya dengan alur pembuatan. Penghapusan
+dilakukan di layar tersendiri, `...ui.folder.batch.BatchOperationActivity`
+("Kelola Proyek"), yang dicapai lewat tombol **Sunting** pada bagian
+*Proyek* di beranda.
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Masuk mode kelola (di `MainActivity`) | `tvEdit` | @788,998 |
+| Pilih semua | `tvSelectAll` | @940,213 |
+| Pindah ke folder | `llMove` | @378,2148 |
+| Hapus | `llDelete` | @686,2148 |
+| Kembali | `ivBack` | @68,213 |
+
+Urutannya: ketuk `tvEdit` → pilih proyek (ketuk `clRoot` masing-masing,
+atau `tvSelectAll` untuk semua) → ketuk `llDelete` → konfirmasi.
+
+Dialog konfirmasi berbunyi *"Apakah Anda yakin akan menghapus proyek
+ini?"* dengan **Batal** di kiri dan **OKE** di kanan (@768,1277).
+Dialognya tidak memakai `resource-id`, jadi pilih berdasarkan teks —
+dan **jangan mengandalkan posisi kiri/kanan saja**, karena tombol
+destruktif berada di sisi yang sama dengan tombol konfirmasi biasa.
+
+Tiap baris proyek membawa `tvDuration` dan `tvTitle` (tanggal), keduanya
+terbaca sebagai teks. Manfaatkan itu untuk memastikan yang dihapus
+memang proyek buatan skrip, bukan karya asli:
+
+```js
+// Verifikasi dulu, jangan menghapus berdasarkan posisi saja.
+const judul = await $('//*[@resource-id="com.frontrow.vlog:id/tvTitle"]').getText();
+```
+
+Setelah proyek terakhir terhapus, layar menampilkan **"Tidak Ada
+Proyek"** — penanda yang bisa dipakai skrip untuk memastikan pembersihan
+benar-benar tuntas.
+
+---
+
+## 10. Catatan lain
 
 **Izin.** VN memasuki alur pemilih media akan meminta akses penyimpanan.
 Pada sesi pemetaan ini `READ_EXTERNAL_STORAGE` berubah menjadi granted.
@@ -322,8 +362,32 @@ adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_MEDIA_AUD
 
 **Kuota proyek.** Versi gratis dibatasi 100 proyek (`tvProjectLimit`).
 Otomatisasi yang membuat proyek berulang kali perlu membersihkannya,
-kalau tidak kuota habis dan alur berhenti di layar upgrade.
+kalau tidak kuota habis dan alur berhenti di layar upgrade. Alurnya ada
+di bagian 9.
 
 **Iklan sisipan.** `MainActivity` dan `CreationActivity` memuat banner
 dengan tombol tutup `ivCloseAds`. Kehadirannya tidak konsisten, jadi
 perlakukan sebagai opsional — periksa keberadaannya, jangan menunggunya.
+
+Yang lebih mengganggu adalah **iklan interstitial**
+(`com.google.android.gms.ads.AdActivity`) yang bisa muncul sewaktu-waktu
+dan mengambil alih seluruh layar. Perilakunya saat diuji:
+
+- Menggeser layar di dekat banner bisa memicunya, jadi mulailah gestur
+  jauh dari area banner.
+- **Tombol Back diabaikan selama beberapa detik pertama.** Perlu jeda
+  lalu Back lagi; sekali tekan sering tidak cukup.
+- Satu-satunya elemen clickable yang terbaca adalah `cbb` (AdChoices),
+  **bukan** tombol tutup. Jangan mengetuknya, dan jangan pernah mengetuk
+  tombol ajakan seperti "PESAN KINI" karena itu membuka pengiklan.
+
+Skrip yang tahan banting sebaiknya memeriksa activity yang aktif setelah
+setiap perpindahan layar, dan menangani `AdActivity` sebagai kondisi yang
+wajar terjadi:
+
+```js
+if ((await browser.getCurrentActivity()).includes("AdActivity")) {
+  await browser.pause(5000);
+  await browser.back();
+}
+```
