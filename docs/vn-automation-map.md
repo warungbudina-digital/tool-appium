@@ -527,9 +527,39 @@ for (let i = 0; i < kotak.length; i++) {
 }
 ```
 
-> Dokumen ini berhenti di layar penandaan klip. Menekan `tvNext`
-> melanjutkan ke tahap publikasi/berbagi yang **belum ditelusuri**,
-> karena langkahnya berpotensi menerbitkan template ke luar.
+Beri jeda memadai sebelum membaca ulang status: dump 2 detik setelah
+ketukan masih menampilkan nilai lama, 3 detik sudah benar.
+
+### Tahap publikasi — `PublishTemplateActivity`
+
+Menekan `tvNext` membuka layar metadata template.
+
+| Elemen | Selector | Posisi |
+|---|---|---|
+| Judul | *(teks)* | @183,408 |
+| Deskripsi | *(teks)* `Deskripsi…` | @229,591 |
+| Sampul | *(teks)* | @206,810 |
+| Tag | *(teks)* | @163,972 |
+| Simpan Rekaman Audio Pengguna | `ui_switch` | @876,1137 |
+| Izinkan untuk Mengedit | `ui_switch` | @876,1302 |
+| Izinkan untuk Mengubah Bingkai | `ui_switch` | @876,1467 |
+| **Buat** | *(teks)* | @216,2123 |
+| **Buat dan Publikasikan** | *(teks)* | @709,2123 |
+
+**Ketiga sakelar memakai `resource-id` yang sama** (`ui_switch`) dan
+hanya dibedakan posisi `y`. Jangan memilih lewat resource-id saja —
+gunakan indeks atau koordinat. Ketiganya berupa `android.view.View`
+namun tetap memaparkan atribut `checked`, jadi statusnya **dapat
+diverifikasi**. Semuanya default **mati**.
+
+> **Dua tombol aksi dengan konsekuensi sangat berbeda.**
+> **Buat** menghasilkan berkas template secara lokal. **Buat dan
+> Publikasikan** menjalankan rangkaian yang tertulis di layar —
+> *1. Simpan file template → 2. Unggah ke cloud → 3. Link unduhan* —
+> jadi mengunggah karya ke server VN dan menghasilkan tautan yang dapat
+> diakses orang lain. Keduanya berdampingan dan hanya dibedakan teks.
+> Otomatisasi wajib memilih secara eksplisit; jangan pernah mengetuk
+> berdasarkan posisi relatif atau indeks tombol.
 
 ---
 
