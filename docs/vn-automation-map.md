@@ -75,7 +75,7 @@ fiturnya — termasuk **"Buat Template"** — membuka dokumentasi di
 
 **Layar ini bukan sekali seumur instalasi.** Ia muncul lagi setiap kali
 proyek habis — terpantau kembali tampil setelah proyek terakhir dihapus.
-Jadi otomatisasi yang membersihkan proyeknya sendiri (bagian 10) akan
+Jadi otomatisasi yang membersihkan proyeknya sendiri (bagian 11) akan
 menemuinya lagi pada siklus berikutnya. Periksa activity yang aktif,
 jangan mengasumsikan salah satunya:
 
@@ -375,6 +375,85 @@ const xUntukNilai = (v) => Math.round(256 + (v / 100) * 688);
 > yang aktif **tidak bisa diverifikasi** lewat selector — yang bisa
 > diverifikasi hanya nilai intensitasnya.
 
+### Transisi antarklip
+
+**Transisi tidak punya selector.** `rvTimeline` adalah satu `View`
+tunggal tanpa anak — timeline digambar sebagai kanvas, sehingga penanda
+transisi tidak muncul di pohon aksesibilitas sama sekali. Satu-satunya
+jalan adalah mengetuk **koordinat titik sambungan** antara dua klip.
+
+Cara menemukan titik itu: gulir timeline sampai kedua klip terlihat,
+lalu baca `waveformViewAudio` masing-masing klip — sambungannya berada
+di antara ujung kanan waveform pertama dan ujung kiri waveform kedua.
+Ketuk pada `y` sekitar `1850`.
+
+Setelah panel terbuka:
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Tab Normal | `tvNormalTransition` | @264,1675 |
+| Tab Matte | `tvMaskTransition` | @568,1675 |
+| Tab Efek | `tvAITransition` | @844,1675 |
+| Nama transisi | `textView_transition_name` | baris @1931 |
+| SeekBar durasi | `seekBar_transition_duration` | track `[194,1970]`–`[921,2084]` |
+| Nilai durasi | `textView_transition_duration` | @986,2027 |
+| Terapkan ke semua | `tvApplyToAll` | @541,2174 |
+| Batal / Terapkan | `ivCancel` / `ivDone` | @189,2174 / @891,2174 |
+
+Daftar transisi pada tab Normal berjarak teratur **192px**: `Tidak ada`
+@144, `Hitam` @336, `Putih` @528, `Perbesar 1` @720, `Zoom 2` @912,
+`Larutkan 1` @1057 — semuanya pada `y = 1931`, dan bergulir horizontal.
+
+Terverifikasi: memilih `Hitam` mengubah durasi dari `0.0s` ke **`0.8s`**
+(nilai default saat transisi dipasang). Rentangnya **0.2s sampai 3.0s**,
+diukur dengan menggeser ke kedua ujung track:
+
+```js
+const xUntukDurasi = (d) => Math.round(194 + ((d - 0.2) / 2.8) * 727);
+```
+
+`tvApplyToAll` memasang transisi yang sama di seluruh sambungan
+sekaligus — jauh lebih murah untuk template daripada mengetuk tiap
+sambungan satu per satu.
+
+### Musik — `MusicManageActivity`
+
+Dibuka lewat `editor_track_music_add`, lalu pilih **Musik** @190,2042
+pada panel *Memasukkan* (opsi lain: **Efek** @540,2042, **Merekam**
+@890,2042; ketiganya tanpa resource-id, pilih lewat teks).
+
+> Tombol trek bergeser mengikuti gulungan timeline. Pada timeline yang
+> tergulir, `editor_track_music_add` pindah dari @450 ke @90. Petakan
+> ulang sebelum mengetuk, jangan menghafal koordinatnya.
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Kembali | `ivBack` | @84,192 |
+| Tab Musik / Favorit / Milikmu | `tvTabName` | @180 / @540 / @900, y 414 |
+| Pencarian | `flSearch` | @540,591 |
+
+Grid genre tiga kolom pada `x` ≈ `200`, `531`, `864` dengan jarak baris
+`372`: Vlog, Pop, Dynamic, Fresh, Acoustic, Electronic, Hip-Hop.
+
+Tab **Milikmu** memuat berkas audio milik sendiri — jalur yang relevan
+bila template harus memakai musik tertentu, bukan katalog bawaan.
+
+### Kecepatan — TIDAK DITEMUKAN
+
+Kontrol kecepatan klip **tidak ada** pada permukaan yang sudah
+ditelusuri di VN 2.17.0. Yang sudah diperiksa dan nihil: seluruh 21 tool
+toolbar (digulir sampai ujung), `VideoTrimActivity`, menu `tvBtnMore`,
+seleksi klip biasa, dan tekan-lama pada klip.
+
+`editor_toolbar_flowStudio` ("Flow") terlihat menjanjikan karena istilah
+*flow* biasa dipakai untuk *speed ramping*, tetapi mengetuknya hanya
+memunculkan dialog **"Silakan instal atau perbarui Flow Studio ke versi
+terbaru"** — Flow Studio adalah aplikasi pendamping terpisah, bukan
+fitur bawaan.
+
+Kemungkinan yang tersisa: fitur ini eksklusif VN Pro, atau memang
+ditiadakan pada versi ini. Perlu penelusuran ulang bila nanti dibutuhkan.
+
 ### Toolbar berubah menurut konteks
 
 Daftar 21 tool di bagian 7 bukan himpunan tetap. Contoh terverifikasi:
@@ -387,7 +466,74 @@ dulu sebelum mengetuk.
 
 ---
 
-## 9. Memperbarui dokumen ini
+## 9. Membuat template — `TemplateCreateActivity`
+
+**Pintu masuknya bukan kartu "Buat Template" di beranda.** Kartu itu
+hanya membuka dokumentasi (lihat bagian 2). Pembuatan template yang
+sesungguhnya berada di dalam editor, lewat menu proyek.
+
+Jalurnya: buka proyek di editor → `tvBtnMore` @729,198 → **`tvCreateTemplate`**
+@540,2045. Menu yang sama juga memuat:
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Nama proyek (dapat diketik) | `etTitle` | @498,1618 |
+| Ganti nama | `ivRename` | @954,1617 |
+| Bagikan File Proyek VN | `tvShare` | @540,1892 |
+| **Buat template** | `tvCreateTemplate` | @540,2045 |
+
+`etTitle` adalah EditText, jadi penamaan proyek bisa diotomasi —
+berguna agar template hasil skrip punya nama yang konsisten.
+
+### Menandai klip yang dapat diganti
+
+Layar `com.frontrow.template.ui.create.TemplateCreateActivity` meminta
+*"Pilih klip yang dapat diganti pengguna"*. Inilah inti sebuah template:
+menentukan klip mana yang menjadi placeholder untuk diisi pengguna.
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Tutup | `ivClose` | @63,171 |
+| Judul | `tvTitle` | @540,172 |
+| **Lanjut** | `tvNext` | @924,171 |
+| Putar / jeda | `ivPlayState` | @99,1560 |
+| Posisi | `tvCurrentProgress` | @204,1561 |
+| Seek bar | `sbProgress` | @612,1560 |
+| Durasi total | `tvTotalTime` | @1021,1561 |
+| Hapus Semua | *(teks)* | @853,1759 |
+
+**Klip ditampilkan sebagai `android.widget.CheckBox`** — dan berbeda
+dengan pilihan filter yang tidak terbaca sama sekali, status di sini
+**bisa diverifikasi** lewat atribut `checked`.
+
+Kotak centang klip ke-*n* (mulai dari 1):
+
+```js
+const kotakKlip = (n) => ({ x: 231 + (n - 1) * 204, y: 2045 });
+// terverifikasi: ketuk (231, 2045) -> checkbox klip 1 menjadi checked="true"
+```
+
+Perhatikan bahwa kotak centangnya **bergeser ke kanan** dari label
+durasi klip: label `3.0s` klip pertama ada di `x` 96–159, sedangkan
+kotaknya di `x` 159–303. Mengetuk label tidak akan mencentang apa pun.
+
+Verifikasi setelah mencentang, jangan berasumsi:
+
+```js
+const kotak = await $$('//android.widget.CheckBox');
+const terpilih = [];
+for (let i = 0; i < kotak.length; i++) {
+  if ((await kotak[i].getAttribute("checked")) === "true") terpilih.push(i + 1);
+}
+```
+
+> Dokumen ini berhenti di layar penandaan klip. Menekan `tvNext`
+> melanjutkan ke tahap publikasi/berbagi yang **belum ditelusuri**,
+> karena langkahnya berpotensi menerbitkan template ke luar.
+
+---
+
+## 10. Memperbarui dokumen ini
 
 Gunakan `tests/ui-map.js`. Spec ini bersifat baca-saja: ia memotret layar
 yang sedang aktif dan mengubah pohon aksesibilitas menjadi inventaris
@@ -411,7 +557,7 @@ lalu pemeta dijalankan lagi di setiap layar baru.
 
 ---
 
-## 10. Membersihkan proyek
+## 11. Membersihkan proyek
 
 Otomatisasi yang berulang kali membuat proyek akan menabrak kuota, jadi
 alur pembersihan sama pentingnya dengan alur pembuatan.
@@ -479,7 +625,7 @@ benar-benar tuntas.
 
 ---
 
-## 11. Catatan lain
+## 12. Catatan lain
 
 **Izin.** VN memasuki alur pemilih media akan meminta akses penyimpanan.
 Pada sesi pemetaan ini `READ_EXTERNAL_STORAGE` berubah menjadi granted.
@@ -495,7 +641,7 @@ adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_MEDIA_AUD
 **Kuota proyek.** Versi gratis dibatasi 100 proyek (`tvProjectLimit`).
 Otomatisasi yang membuat proyek berulang kali perlu membersihkannya,
 kalau tidak kuota habis dan alur berhenti di layar upgrade. Alurnya ada
-di bagian 10.
+di bagian 11.
 
 **Iklan sisipan.** `MainActivity` dan `CreationActivity` memuat banner
 dengan tombol tutup `ivCloseAds`. Kehadirannya tidak konsisten, jadi
