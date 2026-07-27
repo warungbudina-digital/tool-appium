@@ -608,11 +608,44 @@ pembuatan template **dapat diverifikasi** tanpa membuka templatenya.
 > `clickable="true"`) tetapi diam sepenuhnya, sementara **"Buat" pada
 > layar yang sama langsung bekerja**.
 >
-> Dugaan terkuat: jalur cloud menuntut akun VN yang login atau
-> berlangganan VN Pro, dan aplikasi menolak tanpa memberi tahu. Belum
-> dikonfirmasi. Untuk otomatisasi, artinya **kegagalannya senyap** —
-> jangan menganggap ketukan berhasil; verifikasi lewat perpindahan
-> activity atau bertambahnya `Templat n` di beranda.
+> **Sebabnya sudah dikonfirmasi: aplikasi tidak dalam keadaan login.**
+> Tab profil menampilkan `clVisitor` dan `tvLoginOrRegister`
+> ("Silahkan masuk/daftar"), jadi VN berjalan sebagai tamu dan menolak
+> mengunggah tanpa memberi tahu sama sekali.
+>
+> Untuk otomatisasi, artinya **kegagalannya senyap** — jangan
+> menganggap ketukan berhasil. Periksa status login lebih dulu, dan
+> verifikasi hasil lewat perpindahan activity atau bertambahnya
+> `Templat n` di beranda.
+
+#### Memeriksa status login
+
+Tab profil ada di `flItemMine` @972,2191 pada navigasi bawah.
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Wadah status login | `clLoginState` | @540,417 |
+| Keadaan tamu | `clVisitor` | @540,417 |
+| Ajakan masuk | `tvLoginOrRegister` | @625,394 |
+| Avatar tamu | `ivVisitorAvatar` | @171,393 |
+| Pengaturan | `ivSetting` | @996,204 |
+| Pindai QR | `ivScanQRCode` | @858,204 |
+| Credit Center (nilai) | `tvCreditCenterCount` | @921,676 |
+| Sampah Proyek (jumlah) | `tvTrashCount` | @956,1456 |
+
+Cara paling ringkas memastikan sebelum mencoba publikasi:
+
+```js
+const tamu = await $('//*[@resource-id="com.frontrow.vlog:id/clVisitor"]');
+if (await tamu.isExisting()) {
+  throw new Error("VN belum login — publikasi ke cloud akan gagal diam-diam");
+}
+```
+
+Catatan: VN **tidak** mendaftarkan akun ke `AccountManager` Android.
+`dumpsys account` hanya menampilkan `VendorKeyAccountService` sebagai
+authenticator, tanpa entri akun, jadi status login hanya bisa dibaca
+dari UI ini.
 
 ---
 
@@ -705,6 +738,14 @@ const judul = await $('//*[@resource-id="com.frontrow.vlog:id/tvTitle"]').getTex
 Setelah proyek terakhir terhapus, layar menampilkan **"Tidak Ada
 Proyek"** — penanda yang bisa dipakai skrip untuk memastikan pembersihan
 benar-benar tuntas.
+
+> **Menghapus tidak benar-benar membuang.** Proyek yang dihapus pindah
+> ke **Sampah Proyek**, terlihat di tab profil sebagai `clTrash` dengan
+> penghitung `tvTrashCount` @956,1456. Setelah satu proyek dihapus lewat
+> alur di atas, penghitung itu terbaca `1` — jadi pembersihan yang
+> benar-benar tuntas perlu mengosongkan sampahnya juga. Pakai
+> `tvTrashCount` untuk memverifikasi, jangan berhenti di layar
+> "Tidak Ada Proyek".
 
 ---
 
