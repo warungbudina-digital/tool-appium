@@ -2,7 +2,10 @@ export const config = {
   runner: "local",
   hostname: process.env.APPIUM_HOST || "localhost",
   port: parseInt(process.env.APPIUM_PORT, 10) || 4723,
-  specs: ["./tests/**/*.js"],
+  // Hanya *.test.js yang ikut suite reguler. Berkas lain di tests/ (mis.
+  // pemeta UI) dijalankan eksplisit dengan --spec supaya tidak mengotori
+  // hasil `npm test`.
+  specs: ["./tests/**/*.test.js"],
   maxInstances: 1,
   capabilities: [
     {

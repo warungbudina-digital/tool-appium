@@ -56,6 +56,14 @@ services:
       # Di-mount read-only supaya test bisa diedit lalu langsung dijalankan
       # ulang tanpa rebuild image. node_modules sengaja TIDAK di-mount agar
       # tidak menimpa yang sudah ada di dalam image.
+      #
+      # tests/ adalah mount DIREKTORI, jadi berkas baru langsung terlihat.
+      # wdio.conf.js adalah mount BERKAS TUNGGAL - dan itu putus begitu
+      # berkasnya ditulis-ulang (kebanyakan editor mengganti inode, bukan
+      # menyunting di tempat), sehingga container tetap membaca isi lama
+      # tanpa error apa pun. Setelah mengubah wdio.conf.js WAJIB jalankan
+      # `docker compose up -d --force-recreate`, atau verifikasi dengan
+      # `docker compose exec appium cat /app/wdio.conf.js`.
       - ./tests:/app/tests:ro
       - ./wdio.conf.js:/app/wdio.conf.js:ro
 
