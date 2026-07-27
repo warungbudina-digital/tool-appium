@@ -13,19 +13,31 @@ export const config = {
       "appium:appPackage": process.env.APP_PACKAGE,
       "appium:appActivity": process.env.APP_ACTIVITY,
       "appium:noReset": true,
-      "appium:androidInstallTimeout": 400000,
-      "appium:uiautomator2ServerInstallTimeout": 400000,
-      "appium:adbExecTimeout": 400000,
+      // Tanpa ini test tidak deterministik: noReset membuat Appium
+      // melanjutkan Settings di layar terakhir, jadi run yang sebelumnya
+      // sukses mengklik "Manajemen aplikasi" meninggalkan aplikasi di
+      // sub-halaman dan run berikutnya gagal menemukan item itu di daftar.
+      // forceAppLaunch memaksa restart activity tanpa menghapus data.
+      // Bisa dimatikan (FORCE_APP_LAUNCH=false) saat perlu menempel ke
+      // aplikasi yang sudah terbuka di layar tertentu.
+      "appium:forceAppLaunch": process.env.FORCE_APP_LAUNCH !== "false",
+      // Server UiAutomator2 berukuran 18MB dan dikirim ke perangkat lewat
+      // tunnel WireGuard, jadi default 20 detik milik Appium terlalu ketat.
+      // Terukur dari VPS: ~4 detik. Kelonggaran di bawah untuk berjaga saat
+      // perangkat berpindah ke jaringan seluler yang lebih lambat.
+      "appium:androidInstallTimeout": 120000,
+      "appium:uiautomator2ServerInstallTimeout": 120000,
+      "appium:adbExecTimeout": 60000,
     },
   ],
   logLevel: "info",
   waitforTimeout: 10000,
-  connectionRetryTimeout: 600000,
+  connectionRetryTimeout: 180000,
   connectionRetryCount: 3,
   framework: "mocha",
   reporters: ["spec"],
   mochaOpts: {
     ui: "bdd",
-    timeout: 600000,
+    timeout: 180000,
   },
 };

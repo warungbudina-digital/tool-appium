@@ -1,0 +1,71 @@
+# =====================================================================
+# Service Appium, dipisah dari docker-compose.reference.yml milik akses-vps
+# supaya repo ini tetap portabel (bisa jalan di mesin lain tanpa membawa
+# seluruh stack GenieACS/RADIUS). Kalau ingin dikelola satu pintu bersama
+# infra lain, blok `appium:` di bawah bisa dipindah ke compose itu apa adanya.
+#
+# Jalankan:  docker compose up -d --build
+# Test:      docker compose exec appium npx wdio run ./wdio.conf.js
+# =====================================================================
+
+services:
+  appium:
+    build: .
+    restart: unless-stopped
+
+    # Batas memori mengikuti pola service lain di VPS ini. Angkanya lebih
+    # besar karena satu sesi menjalankan tiga proses Node sekaligus (server
+    # Appium + launcher wdio + worker). Fungsi utamanya: kalau sesi
+    # UiAutomator2 membengkak, yang dibunuh OOM killer adalah container ini,
+    # BUKAN mongodb/genieacs yang berbagi RAM 1.9GB di host yang sama.
+    mem_limit: 768m
+    cpus: 1.0
+
+    # WAJIB host: adb harus menjangkau HP di 10.66.66.2 lewat interface wg0
+    # milik host. Dari bridge network biasa, subnet 10.66.66.0/24 tidak
+    # terlihat. Konsekuensinya service ini tidak bisa ikut edge-net/app-net
+    # dan tidak memakai port publishing - Appium diikat ke 127.0.0.1 di
+    # Dockerfile supaya tidak ikut terekspos ke peer WireGuard lain.
+    #
+    # CATATAN: adb server di dalam container memakai port 5037. Pastikan
+    # tidak ada `adb` yang jalan langsung di host (`adb kill-server`),
+    # kalau tidak keduanya berebut port yang sama.
+    network_mode: host
+
+    user: "1001:1001"
+    security_opt: ["no-new-privileges:true"]
+
+    # read_only:true SENGAJA tidak dipakai di sini, beda dari service lain.
+    # Appium memperlakukan direktori proyek (/app) sebagai APPIUM_HOME dan
+    # menulis manifest ekstensinya ke situ setiap start - dengan rootfs
+    # read-only dia mati dengan EROFS. Mengarahkan APPIUM_HOME ke tmpfs juga
+    # tidak bisa: Appium mencari driver di APPIUM_HOME/node_modules, jadi
+    # uiautomator2 malah tidak ketemu. Pengerasan lain tetap jalan (user
+    # non-root, no-new-privileges, mem_limit), dan isi /app hanya kode test
+    # yang bisa dibangun ulang dari image.
+
+    env_file: [.env]
+
+    volumes:
+      # adbkey host - identitas adb yang SUDAH terotorisasi di HP Infinix
+      # sejak audit 2026-07-20. Harus rw: adb menulis file lock adb.5037
+      # di sini saat server start. Tanpa mount ini container bikin key baru
+      # dan HP memunculkan dialog otorisasi yang harus ditekan manual.
+      - /home/warungbudina/.android:/home/appium/.android
+
+      # Di-mount read-only supaya test bisa diedit lalu langsung dijalankan
+      # ulang tanpa rebuild image. node_modules sengaja TIDAK di-mount agar
+      # tidak menimpa yang sudah ada di dalam image.
+      - ./tests:/app/tests:ro
+      - ./wdio.conf.js:/app/wdio.conf.js:ro
+
+    # read_only:true bikin filesystem image tidak bisa ditulis, padahal
+    # Appium menulis manifest ekstensi ke node_modules/.cache dan wdio
+    # memakai /tmp. Keduanya murni sementara, jadi cukup diarahkan ke tmpfs
+    # (hilang saat container restart, memang tidak perlu persisten).
+    #
+    # uid/gid WAJIB ditulis eksplisit: tanpa itu tmpfs dibuat milik root dan
+    # proses yang jalan sebagai 1001 gagal dengan EACCES saat Appium start.
+    tmpfs:
+      - /tmp:mode=1777,uid=1001,gid=1001
+      - /app/node_modules/.cache:mode=0755,uid=1001,gid=1001
