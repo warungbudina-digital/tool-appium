@@ -73,8 +73,11 @@ Layar pertama setelah instalasi menyamar sebagai beranda. Seluruh kartu
 fiturnya — termasuk **"Buat Template"** — membuka dokumentasi di
 `InternalBrowserActivity`, **bukan** alat yang sesungguhnya.
 
-Layar ini hanya muncul sekali. Skrip yang tahan banting sebaiknya
-memeriksa activity yang aktif, bukan mengasumsikan salah satunya:
+**Layar ini bukan sekali seumur instalasi.** Ia muncul lagi setiap kali
+proyek habis — terpantau kembali tampil setelah proyek terakhir dihapus.
+Jadi otomatisasi yang membersihkan proyeknya sendiri (bagian 10) akan
+menemuinya lagi pada siklus berikutnya. Periksa activity yang aktif,
+jangan mengasumsikan salah satunya:
 
 ```js
 const act = await browser.getCurrentActivity();
@@ -283,7 +286,108 @@ await browser.action("pointer")
 
 ---
 
-## 8. Memperbarui dokumen ini
+## 8. Pola editing dan parameternya
+
+Bagian ini merekam pola edit yang **benar-benar dijalankan dan
+diverifikasi**, bukan sekadar tombol yang terlihat.
+
+### Verifikasi hasil edit — pakai durasi, bukan asumsi
+
+Timeline memaparkan durasi sebagai teks yang bisa dibaca balik, dan
+inilah cara paling murah memastikan sebuah langkah otomatisasi
+benar-benar berhasil:
+
+- `total_textView` — durasi seluruh proyek
+- `tvTimelineItemDuration` — durasi **per klip**, satu simpul per klip
+
+Contoh terverifikasi: proyek dua klip @3 detik menunjukkan
+`total_textView` = `6.00` dengan dua `tvTimelineItemDuration` bernilai
+`3.00`. Setelah klip pertama dipangkas jadi 1 detik, nilainya berubah
+menjadi `4.00` dengan `1.00` dan `3.00`. Bandingkan nilai sebelum dan
+sesudah, jangan percaya bahwa ketukan pasti berhasil.
+
+### Trim — `VideoTrimActivity`
+
+Membuka Trim berpindah ke **activity tersendiri**, jadi periksa
+perpindahannya sebelum mencari elemen panel.
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Klip sebelumnya | `ivPreSlice` | @84,1337 |
+| Indikator klip ke-n | `tvSliceIndex` (mis. `1/2`) | @541,1337 |
+| Klip berikutnya | `ivNextSlice` | @996,1337 |
+| **Durasi (dapat diketik)** | `etTotalRangeTimeS` | @930,1521 |
+| Durasi asli klip | `tvTotalRangeTimeUs` | @543,1807 |
+| Batal | `ivCancel` | @189,2174 |
+| Terapkan | `ivDone` | @891,2174 |
+
+Preset durasi: `tvTrimOriginal` (Asli), `tvTrim01s` (0.1s),
+`tvTrim03s` (0.3s), `tvTrim1s` (1s), `tvTrim25s` (2.5s).
+
+`etTotalRangeTimeS` adalah **EditText**, jadi durasi bisa diketik persis
+alih-alih digeser — jalur paling akurat untuk template yang menuntut
+panjang klip tertentu. `tvSliceIndex` memberi tahu sedang di klip ke
+berapa dari total berapa, berguna untuk melooping seluruh klip.
+
+Terverifikasi: menekan `tvTrim1s` mengubah `etTotalRangeTimeS` dari
+`3,00s` menjadi `1,00s`, dan setelah `ivDone` durasi total proyek turun
+dari `6.00` ke `4.00`.
+
+> **Jebakan pemisah desimal.** Panel Trim memakai **koma** (`1,00s`)
+> mengikuti lokal Indonesia, sementara timeline memakai **titik**
+> (`1.00`). Dalam satu aplikasi yang sama. Normalkan sebelum parsing:
+> `parseFloat(teks.replace(",", "."))`.
+
+### Filter dan intensitas
+
+Panel Filter berupa *bottom sheet* di dalam `EditorActivity` (bukan
+activity baru).
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Tab Filter | `tvFilter` | @316,1448 |
+| Tab Menyesuaikan | `tvFilterManual` | @677,1448 |
+| Bandingkan sebelum/sesudah | `ivExamine` | @999,1607 |
+| SeekBar intensitas | `sbIntensity` | track `[256,1970]`–`[944,2084]` |
+| Nilai intensitas | `tvIntensity` | @990,2027 |
+| **Terapkan ke semua klip** | `tvApplyToAll` | @541,2174 |
+| Batal / Terapkan | `ivCancel` / `ivDone` | @189,2174 / @891,2174 |
+
+`tvApplyToAll` menerapkan filter ke seluruh klip sekaligus — jauh lebih
+murah daripada melooping tiap klip untuk template bergaya seragam.
+
+**Menyetel intensitas.** Track membentang `x` dari `256` sampai `944`
+(lebar `688`) pada `y = 2027`, dan pemetaannya linear:
+
+```js
+const xUntukNilai = (v) => Math.round(256 + (v / 100) * 688);
+// nilai 50 -> x 600 (terverifikasi: tvIntensity berubah 100 -> 50)
+```
+
+> **Durasi geseran penting.** Geseran 300 ms tidak mengubah apa pun;
+> 900 ms berhasil. SeekBar mengabaikan gestur yang terlalu cepat, dan
+> kegagalannya senyap — nilainya sekadar tidak berubah. Selalu baca
+> `tvIntensity` untuk memastikan.
+
+> **Pilihan filter tidak terbaca.** Seluruh thumbnail (`Asli`, `A1`…`A4`)
+> tetap `selected="false"` meskipun sudah dipilih; VN menggambar
+> penandanya tanpa memaparkannya ke pohon aksesibilitas. Jadi filter mana
+> yang aktif **tidak bisa diverifikasi** lewat selector — yang bisa
+> diverifikasi hanya nilai intensitasnya.
+
+### Toolbar berubah menurut konteks
+
+Daftar 21 tool di bagian 7 bukan himpunan tetap. Contoh terverifikasi:
+`editor_toolbar_delete` **hanya muncul ketika proyek berisi lebih dari
+satu klip** — masuk akal, karena klip tunggal tidak dapat dihapus.
+
+Konsekuensinya, skrip tidak boleh mengasumsikan posisi indeks pada
+toolbar. Selalu pilih lewat `~content-desc`, dan periksa keberadaannya
+dulu sebelum mengetuk.
+
+---
+
+## 9. Memperbarui dokumen ini
 
 Gunakan `tests/ui-map.js`. Spec ini bersifat baca-saja: ia memotret layar
 yang sedang aktif dan mengubah pohon aksesibilitas menjadi inventaris
@@ -307,13 +411,41 @@ lalu pemeta dijalankan lagi di setiap layar baru.
 
 ---
 
-## 9. Membersihkan proyek
+## 10. Membersihkan proyek
 
 Otomatisasi yang berulang kali membuat proyek akan menabrak kuota, jadi
-alur pembersihan sama pentingnya dengan alur pembuatan. Penghapusan
-dilakukan di layar tersendiri, `...ui.folder.batch.BatchOperationActivity`
-("Kelola Proyek"), yang dicapai lewat tombol **Sunting** pada bagian
-*Proyek* di beranda.
+alur pembersihan sama pentingnya dengan alur pembuatan.
+
+### Cara termurah: jangan sampai proyeknya tersimpan
+
+Menutup editor memunculkan dialog tiga pilihan:
+
+| Pilihan | resource-id | Posisi |
+|---|---|---|
+| Simpan Proyek dan Keluar | `tvBtnSaveAndExit` | @540,1777 |
+| **Keluar secara langsung** | `tvExit` | @540,1953 |
+| Batal | `tvBtnCancel` | @540,2099 |
+
+Terverifikasi: keluar lewat `tvExit` membuat proyek **tidak pernah
+tersimpan sama sekali** — beranda kembali ke keadaan kosong
+("Semua kreasimu akan muncul di sini", folder `0 Barang`), tanpa perlu
+menghapus apa pun. Untuk skrip uji yang hanya menjelajah UI, ini jalur
+paling bersih sekaligus paling murah.
+
+Gunakan alur hapus di bawah hanya bila proyek memang perlu disimpan
+dulu, misalnya untuk diekspor.
+
+### Menghapus proyek yang sudah tersimpan
+
+Penghapusan dilakukan di layar tersendiri,
+`...ui.folder.batch.BatchOperationActivity` ("Kelola Proyek"), yang
+dicapai lewat tombol **Sunting** pada bagian *Proyek* di beranda.
+
+> **Tombol Sunting hanya ada saat proyek tersimpan tidak kosong**, dan
+> posisinya bergeser mengikuti tata letak beranda. Petakan ulang, jangan
+> menghafal koordinatnya. Pastikan juga sedang berada di `MainActivity`:
+> setelah keluar dari editor, aplikasi mendarat di `CreationActivity`,
+> dan koordinat yang sama di sana justru membuka `PremiumActivity`.
 
 | Fungsi | resource-id | Posisi |
 |---|---|---|
@@ -347,7 +479,7 @@ benar-benar tuntas.
 
 ---
 
-## 10. Catatan lain
+## 11. Catatan lain
 
 **Izin.** VN memasuki alur pemilih media akan meminta akses penyimpanan.
 Pada sesi pemetaan ini `READ_EXTERNAL_STORAGE` berubah menjadi granted.
@@ -363,7 +495,7 @@ adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_MEDIA_AUD
 **Kuota proyek.** Versi gratis dibatasi 100 proyek (`tvProjectLimit`).
 Otomatisasi yang membuat proyek berulang kali perlu membersihkannya,
 kalau tidak kuota habis dan alur berhenti di layar upgrade. Alurnya ada
-di bagian 9.
+di bagian 10.
 
 **Iklan sisipan.** `MainActivity` dan `CreationActivity` memuat banner
 dengan tombol tutup `ivCloseAds`. Kehadirannya tidak konsisten, jadi
