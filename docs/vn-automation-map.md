@@ -573,7 +573,7 @@ Kategori terverifikasi di 2.17.0: **Default (14)**, **Penutup (12)**,
 `tvBody` = jalur tercepat menambah teks polos tanpa memilih template
 (padanan "text with animations" di ebook).
 
-### 8e. Freeze frame & Kecepatan — TIDAK ADA di 2.17.0 (butuh Flow Studio)
+### 8e. Freeze frame & Kecepatan — TIDAK ADA di VN 2.17.0
 
 Ebook mencantumkan **freeze frame** sebagai editing lanjutan, tapi
 penelusuran menyeluruh (2026-07-28) memastikan **fitur ini tidak tersedia
@@ -589,14 +589,31 @@ dan semuanya buntu:
 - Menu proyek **`tvBtnMore`** — hanya `ivRename`/`etTitle` (rename),
   `tvCreateTemplate`, `tvShare` ("Bagikan File Proyek VN").
 
-**Akar penyebab:** freeze & kecepatan (speed ramp) di VN tergabung dalam
-fitur **"Flow"** (`editor_toolbar_flowStudio`). Mengetuknya di build ini
-memunculkan dialog **"Silakan instal atau perbarui Flow Studio ke versi
-terbaru"** (Batal/OKE) — jadi seluruh suite time-remap (termasuk freeze
-frame) di-gate di balik aplikasi pendamping **Flow Studio** yang terpisah,
-konsisten dengan temuan "Kecepatan — TIDAK DITEMUKAN" di bagian 8. Untuk
-mengotomasi freeze/speed, Flow Studio harus dipasang lebih dulu (di luar
-cakupan peta ini sampai aplikasi itu tersedia di perangkat uji).
+**Kesimpulan: freeze frame & kecepatan (speed) benar-benar tidak ada di
+build ini.** Konsisten dengan temuan "Kecepatan — TIDAK DITEMUKAN" di
+bagian 8.
+
+> **KOREKSI (2026-07-28):** dugaan awal bahwa freeze/speed "di-gate di
+> balik Flow Studio" **SALAH** dan sudah dibuktikan langsung. Tool **"Flow"**
+> (`editor_toolbar_flowStudio`) BUKAN suite time-remap. Setelah memasang
+> Flow Studio (`com.frontrow.flow` v1.8.1) dan mengetuk "Flow" di editor,
+> yang terbuka adalah **editor desain grafis Flow Studio**
+> (`com.frontrow.flow/.ui.editor.FlowEditorActivity`) — tool: Foto, Frames,
+> Shapes, Teks, Tempel, dengan tombol **"Apply to VN"** dan dialog keluar
+> **"Back to VN / Stay at Flow Studio"**. Jadi "Flow" = **integrasi desain
+> grafis** (buat grafik/overlay di Flow Studio → terapkan ke video VN),
+> mirip Canva; sama sekali tidak berhubungan dengan speed/freeze. Freeze &
+> speed tidak dipindah ke mana pun — memang absen dari VN 2.17.0.
+
+**Flow Studio (`com.frontrow.flow`) — companion desain grafis, dipetakan singkat:**
+- Developer sama (Ubiquiti Labs, LLC), Play Store, 128MB, kategori Seni & Desain.
+- `FirstTimeActivity`: `flCreateNewProject` ("Create Design") + galeri template
+  berkategori (Happy Birthday, Filter, Travel, Eid al-Fitr, "Baru (100)").
+- `CreationActivity`: pilihan ukuran kanvas — `1080x1080`/`1080x1920`/`5120x1080`
+  px + ukuran cetak inci (7x9/8x6/8x8) + `tvCustomSize` + pemilih foto (`rvAlbum`).
+- `FlowEditorActivity`: toolbar desain — Elemen, Foto, Frames, Gaya, Graphics,
+  Grids, Impor, Latar belakang, Layouts, Teks (kanvas gambar statik, bukan
+  timeline video).
 
 ---
 
