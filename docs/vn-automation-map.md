@@ -1458,6 +1458,40 @@ Number of images) yang tak ada di enhance/restyle.
 
 ---
 
+## 19. Alur Overlay (kit) — template frame multi-slot
+
+Dipetakan 2026-07-28, VN 2.17.0.
+
+> **Beda dari tool `editor_toolbar_toPiP` (§8c).** toPiP hanya memindahkan
+> klip terpilih ke trek overlay/PiP. Kartu FirstTime **"Overlay"** adalah
+> galeri **template frame overlay jadi** (bentuk berlubang multi-slot) yang
+> diisi beberapa klip sekaligus.
+
+**1. `com.frontrow.videoeditor.overlay.list.OverlayListActivity`** — galeri
+grid 2 kolom template overlay. `ivBack` @75,198, `tvTitle` "Overlay",
+`ivAddOverlayMaterial` @984,198 (impor overlay kustom). Template (`rootView`
++ `tvOverlay`): **Camera** @293,597, **Circular** @788,597, **Heart** @293,1155,
+**Photo** @788,1155, **Rectangle** @293,1713, **Rectangle2** @788,1713 (+ lagi,
+scroll). Konteks `NATIVE_APP`.
+
+**2. `...overlay.preview.OverlayPreviewActivity`** — preview template terpilih
+(Lynx). Pemutar (`ivPlayState`, `sbProgress`, `ivSetupFullScreen`) + metadata:
+`tvDuration` ("0:02") & **`tvColorCount`** ("3") berlabel `tvDurationText`
+"Durasi" / `tvColorCountText` "Warna" (= jumlah **slot** overlay). Tombol
+utama **`tvUse` "Menggunakan"** @762,2137.
+
+**3. `...overlay.select.OverlaySelectActivity`** — pemilih media utk mengisi
+slot. Instruksi **"Silahkan pilih N rekaman (0/N)"** (Camera = 3), slot
+**berkode warna Blue/Green/Red**. Grid media standar: `ivAlbum` "Semua"
+@540,183 (pilih album), kolom x **179/540/901**, tiap sel `check_view` +
+`media_thumbnail` + `ivPreview`. Setelah cukup terpilih → **"LANJUT"** →
+editor dgn overlay terpasang (belum ditelusuri lebih jauh).
+
+**Catatan otomasi:** jumlah media yang wajib dipilih = `tvColorCount` template
+(slot berkode warna). Verifikasi lewat counter "(k/N)" sebelum "LANJUT".
+
+---
+
 ## 18. Alur Cerita (Storyline) — pintu masuk standalone
 
 Dipetakan 2026-07-28, VN 2.17.0.
