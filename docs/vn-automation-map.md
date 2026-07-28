@@ -1339,3 +1339,58 @@ gerbang login **bersama** utk semua fitur cloud VN):
 `clVisitor`). Alur "pakai template komunitas" mentok di `LoginActivity`
 selama tamu; sesudah login, "Unduh" mengunduh template lalu masuk alur
 terapkan (belum dipetakan karena butuh akun).
+
+---
+
+## 17. Alur AI gambar: Teks ke Gambar & Perbesar Gambar
+
+Dipetakan 2026-07-28, VN 2.17.0. Dua **kit AI berbasis kredit** di grid
+FirstTime. Pola sama: ketuk kartu → **splash intro** ("… Coba Sekarang",
+opsi "Jangan tampilkan lagi") → activity AI (punya resource-id) dengan
+**nama model**, **catatan kredit** (`tvBalance`), **riwayat** (`ivHistory`),
+dan tombol generate. **Generate belum dieksekusi** (pakai kredit + kemungkinan
+butuh login).
+
+### 17a. Teks ke Gambar — `com.frontrow.ai.ui.photo.TextToPhotoActivity`
+
+Kartu grid FirstTime "Teks ke Gambar" (cover @334,1277 di baris-2). Splash
+"Coba Sekarang" @540,2003 → activity:
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Kembali | `ivBack` | @90,198 |
+| Judul "Text to Image" | `tvTitle` | @498,166 |
+| Nama model (mis. "Official · Nano Banana (Gemini)") | `tvModelName` | @540,237 |
+| Ide/inspirasi | `ivIdea` | @855,198 |
+| Riwayat generasi | `ivHistory` | @1005,198 |
+| Lihat Inspirasi | `tvViewInspirations` | @540,1443 |
+| Catatan kredit | `tvBalance` | @540,1679 |
+| **Prompt** (EditText) | `etPrompt` | @540,1904 |
+| Pengaturan | `flSetting` | @129,2135 |
+| **Hasilkan** (generate) | `tvGenerate` | @771,2135 |
+
+Panel **Pengaturan** (`flSetting`): **Ratio** (`tvSize`: `1:1` @169 / `3:4`
+@421 / `9:16` @673 / `4:5` @925, semua @y1765) + **Number of images**
+(`etValue`/`sbValue`). Tutup `ivClose` @90,1328 / konfirmasi `ivConfirm` @990,1317.
+
+### 17b. Perbesar Gambar — `com.frontrow.ai.ui.enhance.EnhancePhotoActivity`
+
+Kartu grid FirstTime "Perbesar Gambar" (cover @744,1277). AI upscale
+(tingkatkan resolusi, ada preview "Sebelum/Setelah" di splash). Splash "Coba
+Sekarang" @540,2003 → **media picker** (`VideoEditorMatisseActivity`; tab
+"Kamera"/"Semua"/"Stok" — **tile pertama = "Kamera"** membuka kamera, foto
+asli mulai kolom ke-2) → pilih 1 foto → activity:
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Kembali | `ivBack` | @90,198 |
+| Judul "Upscale Image" | `tvTitle` | @499,166 |
+| Nama model (mis. "Official · SeedVR 2") | `tvModelName` | @541,237 |
+| Riwayat | `ivHistory` | @1005,198 |
+| Catatan kredit | `tvBalance` | @540,1967 |
+| Ganti/pilih foto | `flSelectPhoto` | @129,2135 |
+| **Mulai** (generate) | `tvGenerate` | @771,2135 |
+
+> **Batas input terverifikasi:** foto **> 3120×4160 DITOLAK** dengan dialog
+> "Resolusi lebih dari 3120x4160 tidak didukung." (`tvErrorOk` "OK"). Siapkan
+> gambar ≤ batas ini sebelum alur upscale.
