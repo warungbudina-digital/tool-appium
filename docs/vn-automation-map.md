@@ -1142,3 +1142,55 @@ if ((await browser.getCurrentActivity()).includes("AdActivity")) {
   await browser.back();
 }
 ```
+
+---
+
+## 13. Alur AutoCut (sinkron klip ke ketukan musik)
+
+Dipetakan end-to-end 2026-07-28, VN 2.17.0. AutoCut = fitur otomatis yang
+memotong & menyinkronkan klip ke beat musik. **Butuh minimal 4 klip.**
+
+**1. Masuk — dari `FirstTimeActivity`.** Kartu `flAutoCutCard` @793,744
+(bounds `[552,624][1035,864]`). Mengetuknya membuka **splash intro**
+(pemutar `exo_*` + teks "Impor 4 klip atau lebih untuk menyinkronkannya
+secara otomatis dengan ketukan musik") dgn tombol **"Pilih Media"** @540,2042.
+
+**2. Pilih media — `...template.ui.autocut.AutoCutSelectMediaActivity`.**
+Sama pola pemilih media biasa: filter `button_all` ("Semua") / `button_video`
+("Video") / "Foto", grid `check_view`+`media_thumbnail`. **Wajib ≥4**
+("Pilih minimal 4 item"; counter berubah jadi "N dipilih"). Tombol **"LANJUT"**
+(bounds `[810,1856][1002,1946]`, @906,1901).
+
+**3. Editor AutoCut — `...template.ui.autocut.AutoCutEditorActivity`.**
+Layar **Lynx (TANPA resource-id — selektor by-text/koordinat)**, konteks
+`NATIVE_APP`. VN langsung auto-generate video musik. Elemen:
+- Top bar: **"Save"** @858,192, **"Export"** (ikon ↑) @990,192, judul/mode "AutoCut" @540,193.
+- Pemutar: "Play" @96,1562, waktu "0:00"/"0:05", "Full screen" @984,1562.
+- **Mode (tab):** `AutoCut` (aktif) · **`Template`** @318,1722 · **`BeatsClips`** @751,1722.
+- **Pemilih musik** (scroll horizontal, label "Selected"): chip `Discover` @168,2108, `Echoing Steps` @420, `Save Me` @672, `West Coast Groove` @924, dst.
+
+**4. Export → action-sheet.** Ketuk "Export" (@990,192) → sheet 3 opsi:
+- **Selesai** (`[60,1727][1020,1871]`, @540,1799) — lanjut ke setelan ekspor.
+- **Edit** (`[60,1873][1020,2017]`, @540,1945) — buka hasil AutoCut di editor VN penuh utk edit manual.
+- **Batal** (`[60,2047][1020,2156]`, @540,2101).
+
+**5. Setelan ekspor — `...ui.generate.option.VideoGenerateOptionActivity`**
+(layar ekspor umum VN, dipakai juga oleh export biasa):
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Tutup | `ivClose` | @90,198 |
+| Mode Auto (radio, "Mobil"=Auto mistranslation) | `rbAuto` | @720,1373 |
+| Mode Manual (radio) | `rbManual` | @891,1373 |
+| Nilai setelan (mis. "1080p / 24fps", tap utk ubah di Manual) | `tvExportSettingValue` | @203,1446 |
+| Ekspor Audio Saja (toggle) | `sbExportAudioOnly` | @917,1600 |
+| Perkiraan Ukuran File | `tvFileSize` | @725,1790 |
+| **Ekspor** ("Selesai") | `export_export` | @540,1943 |
+
+Menekan `export_export` merender video ke galeri (TIDAK dieksekusi saat
+pemetaan agar tak menghasilkan berkas). Untuk otomasi: verifikasi hasil
+via perpindahan activity / file baru di galeri, bukan asumsi.
+
+> **Catatan:** BeatsClips (kit terpisah di FirstTime) juga muncul sebagai
+> *mode* di dalam editor AutoCut — ketiganya (AutoCut/Template/BeatsClips)
+> berbagi editor yang sama, hanya beda gaya sinkronisasi.
