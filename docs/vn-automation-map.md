@@ -1394,3 +1394,35 @@ asli mulai kolom ke-2) → pilih 1 foto → activity:
 > **Batas input terverifikasi:** foto **> 3120×4160 DITOLAK** dengan dialog
 > "Resolusi lebih dari 3120x4160 tidak didukung." (`tvErrorOk` "OK"). Siapkan
 > gambar ≤ batas ini sebelum alur upscale.
+
+### 17c. AI Cutout — `com.frontrow.ai.ui.restyle.RestylePhotoActivity`
+
+Kartu grid FirstTime "AI Cutout" (cover @129,985, baris-1). AI background
+removal ("Smartly detects the main subject… fast and accurate background
+removal"). Splash "Coba Sekarang" @540,2003 → **media picker** → pilih foto
+→ **`RestylePhotoActivity`** (struktur identik dgn EnhancePhotoActivity 17b,
+punya resource-id):
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Kembali | `ivBack` | @90,198 |
+| Judul "AI Cutout" | `tvTitle` | @498,166 |
+| Nama model (mis. "Official · BiRefNet") | `tvModelName` | @540,237 |
+| Riwayat | `ivHistory` | @1005,198 |
+| Catatan biaya kredit + saldo | `tvBalance` | @540,1967 |
+| Ganti/pilih foto | `flSelectPhoto` | @129,2135 |
+| **Mulai** (generate) | `tvGenerate` | @771,2135 |
+
+> **Temuan kredit penting:** `tvBalance` berbunyi *"Generasi ini akan
+> menggunakan **2,00 kredit**. (Saldo **100,00**)"* — jadi (a) kit AI foto
+> berbiaya kredit tetap (AI Cutout = 2 kredit), dan (b) **akun ini punya
+> saldo 100 kredit** (kredit percobaan tersedia bahkan tanpa login penuh,
+> beda dari template komunitas §16 yang mentok di `LoginActivity`).
+> **`tvGenerate` TIDAK ditekan** saat pemetaan agar tak menghabiskan kredit
+> milik user.
+
+> **`RestylePhotoActivity` = activity restyle bersama.** Kemungkinan besar
+> jalur yang sama melayani efek foto AIKit lain (Anime Style, Era Look,
+> Figurine Maker, dst — lihat 8f) karena semuanya "restyle foto berbasis
+> model+kredit". Pola generik: `tvModelName` (model), `tvBalance` (biaya),
+> `flSelectPhoto` (input), `tvGenerate` (jalankan), `ivHistory` (hasil lampau).
