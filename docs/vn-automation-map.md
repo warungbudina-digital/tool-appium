@@ -1426,3 +1426,40 @@ punya resource-id):
 > Figurine Maker, dst — lihat 8f) karena semuanya "restyle foto berbasis
 > model+kredit". Pola generik: `tvModelName` (model), `tvBalance` (biaya),
 > `flSelectPhoto` (input), `tvGenerate` (jalankan), `ivHistory` (hasil lampau).
+
+---
+
+## 18. Alur Cerita (Storyline) — pintu masuk standalone
+
+Dipetakan 2026-07-28, VN 2.17.0.
+
+> **Kartu FirstTime "Cerita" membuka activity yang SAMA dengan tool
+> `editor_toolbar_story` (§8g): `com.frontrow.videoeditor.storyline.
+> StorylineComposeActivity`** — hanya **pintu masuk berbeda**. Dari editor
+> (§8g) storyline dibangun atas klip yang sudah ada; dari kartu FirstTime
+> "Cerita" ia **mulai kosong** ("Ceritaku") lalu kamu susun bagian dari nol.
+
+**1. Masuk.** Kartu grid FirstTime "Cerita" (cover @129,1277, baris-2) →
+`StorylineComposeActivity` kosong. Elemen awal: `ivBack` @75,198,
+`tvTitle` "Ceritaku" @540,198, `ivMore` @1005,198, dan `llAddStory`
+**"Tambah Bagian"** @269,393.
+
+**2. Tambah bagian.** Ketuk `llAddStory` → muncul field judul bagian
+**`etStoryTitle`** ("Masukkan judul cerita") @540,393 + `tvStoryNext`
+"Lanjut". Isi judul → bagian terbentuk.
+
+**3. Komposer bagian** (setelah judul diisi) — identik pola §8g:
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Judul bagian | `tvTitle` | @176,405 |
+| "Gunakan judul sebagai transisi" (toggle) | `sbTitleAsTransition` | @921,531 |
+| Tambahkan klip (→ pemilih media) | *(teks)* | @422,726 |
+| Tambah Bagian (bagian berikutnya) | `llAddStory` | @269,951 |
+| **Simpan Cerita** (endpoint standalone) | `tvStorySave` | @245,2159 |
+| **Lanjut** (→ lanjut ke editor/generate) | `tvStoryNext` | @740,2159 |
+
+Tiap bagian bisa diberi judul + klip (lewat "Tambahkan klip") + deskripsi
+(`etMediaDescription`, lihat §8g). **Dua endpoint:** `tvStorySave`
+("Simpan Cerita") menyimpan storyline; `tvStoryNext` ("Lanjut") meneruskan
+ke tahap berikut (editor/generate — belum dieksekusi).
