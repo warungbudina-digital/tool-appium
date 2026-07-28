@@ -1231,3 +1231,59 @@ Instagram / YouTube / Facebook** (@y906). **Catatan otomasi:** Export di
 Kolase **menulis berkas gambar ke galeri seketika** (beda dari AutoCut/video
 yang punya layar setelan dulu) — hati-hati saat menguji berulang, tiap Export
 = 1 file baru.
+
+---
+
+## 15. Alur Teleprompter (naskah + gulir saat merekam)
+
+Dipetakan end-to-end 2026-07-28, VN 2.17.0. Teleprompter = tampilkan naskah
+bergulir saat merekam (bisa floating overlay di app lain, atau mode 2
+perangkat: satu tampil naskah, satu kontrol jarak jauh).
+
+**1. Masuk — dari `FirstTimeActivity`.** Kartu "Teleprompter" (judul
+`tvTitle` di `[250,1081][419,1157]`; ketuk kartu/cover @~334,1000) →
+`com.frontrow.ai.ui.teleprompter.TeleprompterActivity` (Lynx, `NATIVE_APP`,
+mayoritas **tanpa resource-id**).
+
+**2. Beranda Teleprompter.** Teks selamat-datang + daftar **"Skrip Saya"**
+@176,785 (entri skrip berlabel tanggal, mis. "2026-07-28 12:44"), tombol
+**"Buat Skrip"** @540,549, dan **"Mulai Gunakan Teleprompter"** @412,902.
+
+**3. Editor skrip** (dari "Buat Skrip"). "Edit Skrip"; field **"Judul
+(Opsional)"** @281,348 + **body** (EditText, "Silakan tempel atau masukkan
+skrip", **maks 5000 char**, counter "0/5000" @975,1910). **"AI Writer"**
+@189,1910 = generate skrip via AI. Dua tombol launch:
+**"Teleprompter"** @291,2153 (mode penuh) & **"Teleprompter Mengambang"**
+@790,2153 (floating overlay di app mana pun).
+
+**4. Runtime teleprompter.** Menekan "Teleprompter" bisa lewat 1 layar promo
+("Ubah ponsel Anda menjadi teleprompter" → **"Coba Sekarang"** @541,2133)
+dulu, lalu runtime: naskah besar bergulir + **"Ganti Skrip"** @271,2133 &
+**"Mulai"** @763,2133 (mulai gulir). **Toolbar atas berupa IKON tanpa label**
+(mapper melewatkannya — pakai koordinat/screenshot):
+
+| Ikon | Fungsi | Posisi |
+|---|---|---|
+| ‹ | Kembali | @82,174 |
+| broadcast | Mode 2-perangkat (remote control) | @454,174 |
+| ⚙ | Pengaturan | @588,174 |
+| A+ | Perbesar font | @720,174 |
+| A− | Perkecil font | @844,174 |
+| mirror | Cermin teks (utk kaca teleprompter) | @966,174 |
+
+**5. Panel Pengaturan** (ikon ⚙) — bottom sheet "Pengaturan", label
+terbaca sbg teks (bisa diselect by-text):
+
+| Setelan | Tipe | Contoh nilai |
+|---|---|---|
+| Ukuran Font | slider | 36 |
+| Kecepatan Gulir | slider | 19 |
+| Warna Teks | deretan swatch (putih/merah/pink/magenta/ungu/hijau…) | putih (default) |
+| Jarak Baris | slider | 56 |
+| Margin | slider | 20 |
+| Ulangi (loop skrip) | toggle | off |
+| Kunci Arah (arah teks terkunci) | toggle | off |
+
+**Catatan otomasi:** skrip yang dibuat tersimpan di "Skrip Saya" (bertahan
+sampai `pm clear`). Teleprompter = alat tampilan/rekam, **tidak** menulis
+berkas video sendiri (perekaman pakai kamera terpisah).
