@@ -1514,12 +1514,24 @@ AutoCut §13 — ketiganya AutoCut/Template/BeatsClips berbagi editor itu.)
   "Dear Autumn", "Do It" …). Pilih track → lanjut ke pemilihan klip + sinkron
   beat → **editor AutoCut mode BeatsClips** (§13).
 
-**3. Jalur video-first** ("Buat Template Video") — belum ditelusuri; pola
-kebalikan (pilih klip dulu, lalu sinkron ke musik), bermuara ke editor
-BeatsClips yang sama.
+**3. Jalur video-first** ("Buat Template Video" @400,2114) — dipetakan
+2026-07-28. Ini **authoring template beat-sync dari video**, bukan sekadar
+pilih musik:
+- → **media picker** (`VideoEditorMatisseActivity`) → pilih video.
+- → **`com.frontrow.videoeditor.ui.template.create.video.VideoTemplateCreatingActivity`**
+  (Lynx) — layar **trim + penanda beat**:
+  - Trim: `tvSliceIndex` "Trim", `tvDurationTitle` "Durasi",
+    `etTotalRangeTimeS` (total range detik, editable), seek
+    (`multiple_video_seekBar`, `current_textView`/`total_textView`).
+  - **`ivAddBeat`** @540,2162 — taruh **penanda beat** di posisi playhead
+    (marker manual, tempat klip nanti dipotong/berganti mengikuti irama).
+  - Tab bawah `llTrimCell` "Trim"; bar `ivCancel` @189,2174 /
+    `ivEditorPlay` @540,2174 / `ivDone` @891,2174.
+  - `ivDone` mengunci trim → muncul aksi **"Membuat"** (lanjut buat template).
 
-**Catatan:** endpoint editor & ekspornya identik AutoCut (§13:
-`AutoCutEditorActivity` → Export → `VideoGenerateOptionActivity`).
+**Catatan:** endpoint editor & ekspor jalur music-first identik AutoCut
+(§13: `AutoCutEditorActivity` → Export → `VideoGenerateOptionActivity`);
+jalur video-first bermuara ke pembuatan template ("Membuat", pola §9).
 
 ---
 
