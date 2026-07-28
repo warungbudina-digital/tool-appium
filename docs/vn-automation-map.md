@@ -615,6 +615,52 @@ bagian 8.
   Grids, Impor, Latar belakang, Layouts, Teks (kanvas gambar statik, bukan
   timeline video).
 
+### 8f. Sub-panel tool klip lain (FX, Background, AIKit, Mosaik, Pembesar)
+
+Dipetakan 2026-07-28, VN 2.17.0. Semua muncul saat **klip dipilih** lalu
+tool diketuk dari toolbar (banyak butuh scroll horizontal — pilih via
+`~content-desc`, jangan indeks). Pola umum panel: `ivCancel` @189,2174 (batal)
+dan `ivDone` @891,2174 (terapkan); beberapa punya `tvApplyToAll`
+("Terapkan semua").
+
+**FX** (`editor_toolbar_FX`, @362,2156 posisi awal) — galeri efek gerak,
+di-scroll horizontal. Efek lewat `tvName`: `None`, `Spin 01`–`04`, `Drop 01`,
+dst. Ada navigasi antar-klip: `ivPreSlice` @84,1337 / `tvSliceIndex` ("1/1")
+/ `ivNextSlice` @996,1337. Bar bawah: `ivCancel`, `ivEditorPlay` @334,2174,
+`tvApplyToAll` @613,2174, `ivDone`.
+
+**Background** (`editor_toolbar_background`) — latar kanvas di belakang klip
+(saat klip tak memenuhi frame). Tab: `tvImage` "Gambar" @228,1747,
+`tvColor` "Warna" @543,1747, `tvGradient` "Gradien" @856,1747. + `tvApplyToAll`.
+
+**AIKit** (`editor_toolbar_AIKit`) — bottom sheet (`viewDragTop`) berisi grid
+efek **AI generatif/enhancement** (label teks, TANPA resource-id — selektor
+by-text/koordinat): Enhance Photo, Enhance Portrait, Upscale Image, Image
+Generation, Image to Image, Era Look, Figurine Maker, Expression Sticker,
+Artistic Styles, Anime Style, AI Portrait Duo, Halloween, Lighting Style,
+HairSwap Women/Men. (Ini AI berbasis gambar; AI caption ada di jalur subtitle
+8d, AI cutout/bg-removal di 8b.) Tutup sheet: `KEYCODE_BACK`.
+
+**Mosaik** (`editor_toolbar_mosaic`) — sensor/piksel. Gaya (`tvName`):
+`Mosaik` @252,1741, `Segitiga`, `Segi enam`, `Blur` @828,1741. Slider
+`sbSize` (label `tvSizeLabel` "Ukuran", nilai `tvSizeValue`, default 20).
+
+**Pembesar/Magnifier** (`editor_toolbar_magnifier`) — efek lensa lup. Bentuk
+(`tvName`): `Bulat`, `Persegi 1`, `Persegi 2`, `Gaya 1`, `Gaya 2`. Dua slider:
+`sbZoom` (`tvZoomLabel` "Zoom", default 25) & `sbBorder` (`tvBorderLabel`
+"Berbatasan", default 40).
+
+> **Coach-mark "Snap ke Objek Terdekat":** saat pertama memilih klip di sesi
+> baru bisa muncul tip `tvSnapSetting` dgn tombol `tvGotIt` ("Mengerti"
+> @540,2135). Tutup dulu sebelum melanjutkan — kalau tidak, ketukan tool
+> berikutnya nyasar ke dialog tip ini.
+
+**Belum dipetakan (tool sisa, umumnya sepele/aksi-langsung):** `crop`,
+`rotate`, `flipHorizontal`, `flipVertical`, `Mengisi` (fill), `imageBorder`,
+`imageBlur`, `alpha` (kegelapan), `clipZoom`, `story`. Rotate/flip = aksi
+satu-ketuk tanpa panel; sisanya panel sederhana (slider tunggal) — petakan
+saat dibutuhkan.
+
 ---
 
 ## 9. Membuat template — `TemplateCreateActivity`
