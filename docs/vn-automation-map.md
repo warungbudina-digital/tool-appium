@@ -1524,8 +1524,30 @@ konfigurasi track:
   `ivMusicPlay` @933,900.
 - Rentang & beat: `tvBegin` @150,1332 / **`tvBeatCount`** ("0" jumlah beat)
   @541,1332 / `tvEnd` @910,1332.
-- **`flEditBeats` "Edit Beats"** @540,1802 (sunting titik beat manual).
+- **`flEditBeats` "Edit Beats"** @540,1802 (sunting titik beat — lihat 2b-i).
 - **`flCreateProject` "Buat Proyek"** @540,1982.
+
+**2b-i. Edit Beats** (ketuk `flEditBeats`) — panel penanda beat muncul
+*in-place* di `MusicDetailActivity` (dipetakan 2026-07-28):
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Judul "Ketukan Musik" | `textView_title` | @540,1217 |
+| Waktu main / durasi | `tvBeatPlayingTime` / `tvBeatClipDuration` | @95,1217 / — |
+| Kecepatan lambat 0.5x | `tvBeatSlowSpeed` | @861,1220 |
+| Kecepatan normal 1x | `tvBeatOriginalSpeed` | @963,1220 |
+| **Beat Otomatis** (deteksi auto) | `tvAutoBeat` + toggle `swAutoBeat` | @308,1362 / @924,1363 |
+| Status/jumlah beat | `tvBeatCount` ("Mati"/angka) | @644,1362 |
+| Waveform metronom (letak beat) | `waveformView_metronome_track` | @792,1671 |
+| **Tambah beat** (ketuk seirama) | `layout_metronome_add_beat` | @540,1982 |
+| Batal / Play / Selesai | `ivCancel` / `ivEditorPlay` / `ivDone` | @189 / @657 / @891 ,2174 |
+
+Cara pakai: aktifkan **`swAutoBeat`** untuk auto-deteksi, atau putar lagu
+(pakai **0.5x** biar presisi) dan **ketuk `layout_metronome_add_beat`
+mengikuti irama** → tiap ketukan menaruh penanda di `waveformView_metronome_track`.
+`ivDone` menyimpan pola beat (dipakai saat klip disinkronkan ke musik nanti),
+`ivCancel` membuang. **Catatan:** posisi @540,1982 dipakai bersama —
+"Buat Proyek" saat normal, "Tambah beat" saat mode Edit Beats.
 
 **2c. "Buat Proyek" → `EditorActivity` STANDAR** (bukan AutoCut editor) —
 proyek dibuka dengan **track musik sudah ter-load** (`editor_track_music`
