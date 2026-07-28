@@ -153,6 +153,11 @@ skrip bisa memilih mode secara eksplisit di setiap proyek. Sekali
 dicentang, mode terkunci ke preferensi dan hanya bisa diubah lewat
 *Pengaturan > Preferensi*.
 
+> **Mengetuk `clVideoBase`/`clMusicBase` hanya _memilih_ mode, belum
+> melanjutkan.** Harus disusul ketukan **`tvSave` ("Simpan", @540,2032)**
+> untuk membuka pemilih media. Terverifikasi 2026-07-28: tap mode saja →
+> dialog tetap terbuka; tap mode lalu Simpan → `VideoEditorMatisseActivity`.
+
 ---
 
 ## 6. Pemilih media (`VideoEditorMatisseActivity`)
@@ -463,6 +468,135 @@ satu klip** — masuk akal, karena klip tunggal tidak dapat dihapus.
 Konsekuensinya, skrip tidak boleh mengasumsikan posisi indeks pada
 toolbar. Selalu pilih lewat `~content-desc`, dan periksa keberadaannya
 dulu sebelum mengetuk.
+
+---
+
+> **Seksi 8a–8d dipetakan mengikuti kurikulum ebook _"VN Video Editor
+> User Guide for Beginners"_ (Sawyer Kline, KDP 2026):** editing lanjutan
+> (keyframe/freeze), green screen, overlay, dan teks/caption. Semua
+> selector di bawah terverifikasi di VN 2.17.0 pada sesi 2026-07-28.
+
+### 8a. Deret aksi cepat klip — keyframe, kunci, duplikat
+
+Saat sebuah klip **dipilih** (ketuk klip di trek utama, mis. @620,1850),
+muncul deret tombol melayang tepat di atas toolbar (y≈1611–1672) yang
+**tidak ada** saat tidak ada klip terpilih. Inilah pintu keyframe.
+
+| Fungsi | resource-id | Label (id) | Posisi |
+|---|---|---|---|
+| Ganti klip | `ivReplace` | "Menggantikan" | @210,1627 |
+| **Keyframe (tambah/hapus di playhead)** | `ivKeyframe` | `tvKeyframeState` = "Bingkai utama" | @342,1627 |
+| **Kurva keyframe** | `flKeyframeCurve` | `tvKeyframeCurve` = "Melengkung" | @474,1627 |
+| Kunci trek | `flLock` | `tvLock` = "Kunci" | @606,1611 |
+| Duplikat | `ivDuplicate` | "Duplikat" | @738,1611 |
+| Hapus klip | `ivSliceDelete` | "Hapus" | @870,1611 |
+
+- `ivKeyframe` bersifat **toggle di posisi playhead**: ketukan pertama
+  menambah keyframe untuk state transform saat ini, ketukan berikutnya di
+  titik yang sama menghapusnya. Verifikasi lewat `tvKeyframeState`.
+- **`flKeyframeCurve` ("Melengkung") tidak membuka panel** kecuali
+  playhead **tepat berada di atas sebuah keyframe** yang sudah ada.
+  Diketuk tanpa keyframe di playhead → tidak terjadi apa-apa (tetap di
+  layar editor, tidak ada dialog). Untuk otomatisasi kurva: tambah
+  keyframe dulu, pindahkan playhead ke keyframe itu, baru ketuk.
+- **Freeze frame TIDAK ADA sebagai fitur diskrit di VN 2.17.0** (ditelusuri
+  menyeluruh 2026-07-28, lihat 8e).
+- Deselect klip: **tekan `KEYCODE_BACK` satu kali** (bukan mengetuk area
+  pratinjau — itu tidak men-deselect). Back di sini hanya melepas seleksi,
+  tidak keluar editor.
+
+### 8b. Green screen / potong latar — `editor_toolbar_BGRemove`
+
+Tool toolbar #6 ("Memotong", @884,2156 pada layout awal). Ini **cutout
+berbasis AI**, padanan green-screen VN (chroma-key warna murni tidak
+ditemukan sebagai tool terpisah di 2.17.0). Membuka panel penuh
+(bukan dialog); `count` node ~26.
+
+| Fungsi | resource-id | Posisi |
+|---|---|---|
+| Tutup (batal) | `ivClose` | @90,165 |
+| Selesai (terapkan) | `tvDone` | @950,166 |
+| Toggle warna latar | `ivToggleBackgroundColor` | @78,1694 |
+| Toggle visibilitas hasil | `ivRemoveBgVisible` | @1002,1694 |
+| Undo / Redo | `ivUndo` / `ivRedo` | @72,1849 / @216,1849 |
+| Pulihkan pintar | `tvSmartRestore` | @981,1849 |
+| **Penghapusan Cepat** | `tvSmartRemoval` | @168,2041 |
+| **Ubah Area** | `tvModifyArea` | @354,2006 |
+| **Stroke Pemotongan** | `tvCutoutStroke` | @540,2023 |
+| **Balik seleksi** | `tvInvert` | @726,2006 |
+| **AI Potongan** | `tvAICutout` | @912,2023 |
+| Simpan guntingan ke perpustakaan | `llSaveMaterial` | @540,2195 |
+
+### 8c. Overlay / PiP — `editor_toolbar_toPiP`
+
+Tool toolbar #21 ("Trek Overlay"), ada di **ujung kanan** — toolbar
+bergulir horizontal, perlu 3× swipe kiri (`input swipe 950 2156 150 2156
+400`) dari posisi awal untuk memunculkannya. Bounds setelah discroll:
+@988,2102.
+
+Mengetuknya **tidak membuka panel** — ia langsung **memindahkan klip
+terpilih dari trek utama ke trek overlay/PiP baru**. Sesudahnya elemen
+overlay itu jadi klip aktif dengan deret aksi cepat sendiri (lihat 8a)
+dan bisa diposisikan/diskalakan lewat gestur di pratinjau. Verifikasi
+keberhasilan: `tvTimelineItemDuration` tetap ada dan toolbar berubah
+konteks (mis. `editor_toolbar_story` muncul menggantikan tool lama).
+
+### 8d. Teks & caption — `editor_track_subtitle_add`
+
+Tombol "+" pada lajur subjudul di penambah trek (@450,1559, bounds
+`[402,1511][498,1607]`). **Harus tanpa klip terpilih** agar tak tertutup
+deret aksi 8a. Mengetuknya memunculkan popup kecil (dengan
+`flDimmedBackground`) berisi dua pilihan:
+
+| Pilihan | resource-id | Posisi |
+|---|---|---|
+| Tambah teks manual | `flAddSubtitle` | @292,1952 |
+| Impor subtitle dari SRT | `flAddAddSubtitlesFormSRT` | @787,1952 |
+
+`flAddSubtitle` membuka **panel pemilih gaya teks** (bottom sheet,
+`viewDragTop` + `touch_outside`). UI-nya **beranimasi** → `uiautomator
+dump` mentah gagal (`ERROR: could not get idle state`); **wajib pakai
+`tests/ui-map.js`** (yang men-set `waitForIdleTimeout: 100`).
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Cari template teks | `etSearch` | @594,291 |
+| Tambahkan judul | `tvHead` | @540,658 |
+| Tambahkan subjudul | `tvSubHead` | @540,865 |
+| Tambahkan sedikit teks isi | `tvBody` | @540,1042 |
+| Kategori + jumlah | `tvTitle` / `tvCount` | mis. "Default (14)" @147,1209 |
+| Lihat Selengkapnya (per kategori) | `tvSeeAll` | @833,1209 (dst) |
+| Kartu template teks | `rootView` | grid 3 kolom @240/648/978, baris @1459/1969 |
+
+Kategori terverifikasi di 2.17.0: **Default (14)**, **Penutup (12)**,
+**Judul (12)** — masing-masing dengan `tvSeeAll`. `tvHead`/`tvSubHead`/
+`tvBody` = jalur tercepat menambah teks polos tanpa memilih template
+(padanan "text with animations" di ebook).
+
+### 8e. Freeze frame & Kecepatan — TIDAK ADA di 2.17.0 (butuh Flow Studio)
+
+Ebook mencantumkan **freeze frame** sebagai editing lanjutan, tapi
+penelusuran menyeluruh (2026-07-28) memastikan **fitur ini tidak tersedia
+sebagai tombol diskrit di VN 2.17.0 Android**. Surface yang sudah dicek
+dan semuanya buntu:
+
+- Toolbar 21-tool (tidak ada content-desc/label freeze maupun kecepatan).
+- Deret aksi cepat klip (8a) — hanya replace/keyframe/curve/lock/duplicate/delete.
+- **Tekan-lama klip** (`input swipe x y x y 900`) — masuk mode drag-reorder,
+  bukan context-menu.
+- Layar **Trim** (`VideoTrimActivity`) — hanya pengatur durasi ("Asli",
+  preset 0.1s/0.3s/1s/2.5s/3.00s), tanpa freeze/kecepatan.
+- Menu proyek **`tvBtnMore`** — hanya `ivRename`/`etTitle` (rename),
+  `tvCreateTemplate`, `tvShare` ("Bagikan File Proyek VN").
+
+**Akar penyebab:** freeze & kecepatan (speed ramp) di VN tergabung dalam
+fitur **"Flow"** (`editor_toolbar_flowStudio`). Mengetuknya di build ini
+memunculkan dialog **"Silakan instal atau perbarui Flow Studio ke versi
+terbaru"** (Batal/OKE) — jadi seluruh suite time-remap (termasuk freeze
+frame) di-gate di balik aplikasi pendamping **Flow Studio** yang terpisah,
+konsisten dengan temuan "Kecepatan — TIDAK DITEMUKAN" di bagian 8. Untuk
+mengotomasi freeze/speed, Flow Studio harus dipasang lebih dulu (di luar
+cakupan peta ini sampai aplikasi itu tersedia di perangkat uji).
 
 ---
 
@@ -803,9 +937,21 @@ diberikan ulang.
 **Izin.** VN memasuki alur pemilih media akan meminta akses penyimpanan.
 Pada sesi pemetaan ini `READ_EXTERNAL_STORAGE` berubah menjadi granted.
 Skrip otomatisasi sebaiknya menyiapkan izin lebih dulu agar tidak
-terhalang dialog:
+terhalang dialog.
+
+> **Perhatikan versi Android.** `READ_MEDIA_VIDEO/IMAGES/AUDIO` baru ada
+> di **Android 13 (API 33)+**. Perangkat uji Infinix X662 = **Android 11
+> (API 30)** → grant permission itu ditolak `IllegalArgumentException:
+> Unknown permission`. Di Android 11 pakai `READ_EXTERNAL_STORAGE`
+> (terverifikasi 2026-07-28). Deteksi runtime: `adb shell getprop
+> ro.build.version.sdk`.
 
 ```sh
+# Android 11 (API 30) — Infinix X662:
+adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_EXTERNAL_STORAGE
+adb -s <udid> shell pm grant com.frontrow.vlog android.permission.WRITE_EXTERNAL_STORAGE
+
+# Android 13+ (API 33+):
 adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_MEDIA_VIDEO
 adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_MEDIA_IMAGES
 adb -s <udid> shell pm grant com.frontrow.vlog android.permission.READ_MEDIA_AUDIO
