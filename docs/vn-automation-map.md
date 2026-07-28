@@ -688,9 +688,38 @@ Foto ini") + `ivDelete`, `llAddStory` ("Tambah Bagian"), dan `tvStoryNext`
 ("Selesai" @548,2159). Dipakai untuk menyusun video jadi bagian-bagian
 berdeskripsi (bahan narasi/AI).
 
-**Tersisa (belum dipetakan, sepele/aksi-langsung):** `crop`, `rotate`,
-`flipHorizontal`, `flipVertical`, `Mengisi` (fill). Rotate/flip = aksi
-satu-ketuk tanpa panel; crop & fill panel sederhana — petakan saat perlu.
+### 8h. crop, rotate, flip, fill — 21/21 tool toolbar TUNTAS
+
+Dipetakan 2026-07-28, VN 2.17.0. Melengkapi seluruh 21 tool.
+
+**crop** (`editor_toolbar_crop`) — buka activity penuh
+**`...editorwidget.crop.CropActivity`**. Rasio (`tvFrameTypeName`, scroll):
+`Asli`, `Bebas` (free-crop lewat handle di pratinjau), `9:16`, `1:1`, `16:9`
+(+ lainnya). Ada `ivMirror` ("Cermin") @858,228 & `ivFlip` ("Balik") @996,228,
+scrubber `sbProgress`, dan bar bawah `imageView_crop_cancel` @177,2159 /
+`imageView_crop_reset` @540,2159 / `imageView_crop_done` @903,2159.
+
+**rotate** (`editor_toolbar_rotate`) — **aksi instan +90°** tiap ketuk
+(terverifikasi via screenshot: watermark klip ikut miring). Karena rotasi
+bisa membuat area kosong, VN langsung memunculkan **panel background-fill**
+(tab Gambar/Warna/Gradien, sama dgn tool Background di 8f) + `tvApplyToAll`.
+
+**flipHorizontal / flipVertical** (`editor_toolbar_flipHorizontal` /
+`editor_toolbar_flipVertical`) — **mirror instan** (horizontal/vertikal).
+Hanya memunculkan bar minimal `ivCancel` @189,2174 / `ivDone` @891,2174
+(tanpa panel background, karena flip tak membuat area kosong).
+
+**fill (Mengisi/Cocok)** — tool #11, **satu-satunya tool TANPA `content-desc`**
+(celah pelabelan VN). Ambil via `following-sibling` dari
+`editor_toolbar_flipVertical`, atau ketuk celah antara flipVertical &
+`editor_toolbar_background`. **Aksi instan tanpa panel**: toggle skala klip
+antara **"Mengisi"** (Fill — perbesar isi frame, tepi terpotong) dan
+**"Cocok"** (Fit — muat utuh, bisa ada letterbox); label tombol berganti
+mengikuti mode aktif.
+
+> **Status peta toolbar: 21/21 tool klip terdokumentasi** (8f–8h + filter/trim/
+> BGRemove/toPiP/FX/split/flowStudio di §8 & 8a–8e). Tool tanpa panel
+> (rotate/flip/fill) = aksi instan; sisanya panel/activity seperti di atas.
 
 ---
 
