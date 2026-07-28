@@ -1492,6 +1492,37 @@ editor dgn overlay terpasang (belum ditelusuri lebih jauh).
 
 ---
 
+## 20. Alur BeatsClips (kit) — template beat-sync, dua jalur masuk
+
+Dipetakan 2026-07-28, VN 2.17.0. BeatsClips = video yang klipnya dipotong &
+disinkronkan ke **ketukan musik**. (Ini juga muncul sebagai *mode* di editor
+AutoCut §13 — ketiganya AutoCut/Template/BeatsClips berbagi editor itu.)
+
+**1. Masuk.** Kartu grid FirstTime "BeatsClips" (cover @539,985, baris-1) →
+**bottom sheet** (`design_bottom_sheet`, item `ivItem`/`tvItem`) dgn 2 pilihan:
+- **"Buat Template Musik"** @403,1934 (jalur **music-first**)
+- **"Buat Template Video"** @400,2114 (jalur **video-first**)
+
+**2. Jalur music-first → `com.frontrow.videoeditor.music.ui.MusicManageActivity`**
+(pustaka musik bersama — sama dgn tool Musik §8):
+- Tab (`tvTabName`): **Musik** @180,414 · **Favorit** @540,414 · **Milikmu** @900,414.
+- `flSearch` / `tvSearch` "Mencari" @540,591.
+- Grid kategori (`tvTitle`, 3 kolom): **Vlog** @200,981, **Pop** @531,981,
+  **Dynamic** @864,981, **Fresh** @199,1353, **Acoustic** @531,1353,
+  **Electronic** @863,1353, **Hip-Hop** @199,1725 (+ lagi).
+- Ketuk kategori → **daftar track** (nama + durasi, mis. "Balloon" 3:49,
+  "Dear Autumn", "Do It" …). Pilih track → lanjut ke pemilihan klip + sinkron
+  beat → **editor AutoCut mode BeatsClips** (§13).
+
+**3. Jalur video-first** ("Buat Template Video") — belum ditelusuri; pola
+kebalikan (pilih klip dulu, lalu sinkron ke musik), bermuara ke editor
+BeatsClips yang sama.
+
+**Catatan:** endpoint editor & ekspornya identik AutoCut (§13:
+`AutoCutEditorActivity` → Export → `VideoGenerateOptionActivity`).
+
+---
+
 ## 18. Alur Cerita (Storyline) — pintu masuk standalone
 
 Dipetakan 2026-07-28, VN 2.17.0.
