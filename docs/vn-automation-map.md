@@ -1287,3 +1287,55 @@ terbaca sbg teks (bisa diselect by-text):
 **Catatan otomasi:** skrip yang dibuat tersimpan di "Skrip Saya" (bertahan
 sampai `pm clear`). Teleprompter = alat tampilan/rekam, **tidak** menulis
 berkas video sendiri (perekaman pakai kamera terpisah).
+
+---
+
+## 16. Alur Talking Videos — kategori template, bukan kit (+ preview & login gate)
+
+Dipetakan 2026-07-28, VN 2.17.0.
+
+> **Koreksi ekspektasi:** "Talking Videos" **BUKAN** alat/kit edit tersendiri
+> (beda dari AutoCut/Kolase/Teleprompter). Ia adalah **header kategori
+> template** di beranda FirstTime: `tvTitle` "Talking Videos" + `tvCount`
+> "(5)", diikuti sebuah **`RecyclerView` horizontal** berisi 5 kartu template
+> jadi. Pola yang sama berlaku utk baris kategori lain (Learn & How-to,
+> Lifestyle & Fun, dst).
+
+**Menemukan kartunya (jebakan navigasi):** kartu kit di grid atas **tidak
+membungkus judul dalam satu node clickable**, dan "Talking Videos" di sini
+malah **section header** (bukan kartu). Judul header tidak launchable —
+yang diketuk adalah **item template di RecyclerView di bawahnya**
+(mis. @180,1075). Jangan andalkan mengetuk `tvTitle`; scroll halaman
+(swipe vertikal) lalu ketuk kartu di dalam RecyclerView kategori.
+
+**1. Preview template — `com.frontrow.template.ui.preview.TemplatePreviewActivity`**
+(Lynx, `NATIVE_APP`, tanpa resource-id). Isi: nama template (mis. "30 Days
+Transformation") @322,1677, **"Usage"** (mis. "2.5w") @119/172, **"Biaya"**
+(kredit, mis. "1/min") @352/423 — sebagian template berbayar/pakai kredit,
+pemutar preview (scrubber "0:08 … 0:13"), dan tombol utama **"Unduh"** @540,2097.
+
+**2. Unduh → GERBANG LOGIN.** Menekan "Unduh" saat **belum login** membuka
+**`com.frontrow.account.ui.login.LoginActivity`** (bukan mengunduh). Ini
+konfirmasi eksplisit pola yang sama dgn "Buat dan Publikasikan" (§9): fitur
+cloud/komunitas VN **butuh akun**.
+
+**Peta `LoginActivity`** (punya resource-id, beda dari layar Lynx —
+gerbang login **bersama** utk semua fitur cloud VN):
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Tutup | `ivSignInExit` | @132,135 |
+| Daftar | `tvSignUp` | @883,133 |
+| Nama Pengguna / Email | `etUsername` | @498,756 |
+| Kata sandi | `etPassword` | @486,938 |
+| Tampilkan kata sandi | `cbPasswordVisible` | @903,938 |
+| **Masuk** (login) | `tvBtnLogin` | @540,1138 |
+| Lupa kata sandi | `tvForgetPassword` | @540,1280 |
+| Centang kebijakan | `cbPolicy` | @27,1403 |
+| Login Facebook | `btnFacebook` | @393,2108 |
+| Login Google | `btnGoogle` | @687,2108 |
+
+**Untuk otomasi:** cek status login dulu (§9 "Memeriksa status login" —
+`clVisitor`). Alur "pakai template komunitas" mentok di `LoginActivity`
+selama tamu; sesudah login, "Unduh" mengunduh template lalu masuk alur
+terapkan (belum dipetakan karena butuh akun).
