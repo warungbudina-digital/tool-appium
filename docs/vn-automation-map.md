@@ -1194,3 +1194,40 @@ via perpindahan activity / file baru di galeri, bukan asumsi.
 > **Catatan:** BeatsClips (kit terpisah di FirstTime) juga muncul sebagai
 > *mode* di dalam editor AutoCut — ketiganya (AutoCut/Template/BeatsClips)
 > berbagi editor yang sama, hanya beda gaya sinkronisasi.
+
+---
+
+## 14. Alur Kolase (collage foto statik)
+
+Dipetakan end-to-end 2026-07-28, VN 2.17.0. Kolase = penyusun **kolase foto
+1–9** yang menghasilkan **gambar statik** (bukan video).
+
+**1. Masuk — dari `FirstTimeActivity`.** Kartu `flCollageCard` @286,744
+(bounds `[45,624][528,864]`). **Langsung** membuka `CollageActivity` (tanpa
+splash intro, beda dgn AutoCut).
+
+**2. `com.frontrow.collage.ui.CollageActivity`** — layar **Lynx (TANPA
+resource-id, konteks `NATIVE_APP`)**, semua selektor **by-text/koordinat**.
+Kondisi awal: teks "Pilih 1-9 foto untuk membuat kolase." + slot **"Add
+photo"** kosong. Top bar: **"Export"** @996,192.
+
+Tiga tab panel bawah (@y1574): **"Foto"** @171 · **"Tata Letak"** @500 ·
+**"Berbatasan"** @818, plus **"Close panel"** @990,1579 & **"Reset"** @90,1579.
+
+- **Foto** — grid slot foto. **"Add photo"** (tap slot kosong menambah foto;
+  counter judul jadi "Pilih 1-9 Foto (N)"), **"Remove photo"** (slot terisi),
+  tiap foto berlabel indeks angka. **"Shuffle Layout"** @996,1438 mengacak.
+- **Tata Letak** — preset layout (thumbnail **tanpa label/id** → pilih
+  by-koordinat di baris ~y1700–2100). Instruksi "Tekan lama dan seret untuk…"
+  = rearrange foto via long-press-drag. + "Shuffle Layout".
+- **Berbatasan** — 3 slider (label kiri, nilai kanan @x945, default 0):
+  **Inner Border** @y1804 · **Outer Border** @y1948 · **Round Corner** @y2092.
+
+**3. Export → simpan instan.** Ketuk "Export" @996,192 → **langsung
+tersimpan** (output gambar statik, TANPA layar `VideoGenerateOptionActivity`)
+→ `com.frontrow.collage.ui.export.CollageExportSuccessActivity`: status
+**"Tersimpan"** @576,192, **"Selesai"** @965,193, dan share **Lainnya /
+Instagram / YouTube / Facebook** (@y906). **Catatan otomasi:** Export di
+Kolase **menulis berkas gambar ke galeri seketika** (beda dari AutoCut/video
+yang punya layar setelan dulu) — hati-hati saat menguji berulang, tiap Export
+= 1 file baru.
