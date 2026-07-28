@@ -725,6 +725,13 @@ mengikuti mode aktif.
 
 ## 9. Membuat template — `TemplateCreateActivity`
 
+> **Alur di-re-verify end-to-end 2026-07-28 (VN 2.17.0), dgn proyek 2 klip:**
+> editor → `tvBtnMore` → `tvCreateTemplate` → `TemplateCreateActivity` (tandai
+> klip) → `tvNext` → `PublishTemplateActivity` (Judul/Deskripsi/Sampul/Tag +
+> 3 switch) → **Buat** → sukses, `MainActivity` menampilkan tab "Templat 1" +
+> kartu (`clRoot`, `tvDuration` "6.00"). Semua selector di bawah masih valid.
+> Layar **Tag** (`InputTagActivity`) baru dipetakan sesi ini — lihat di bawah.
+
 **Pintu masuknya bukan kartu "Buat Template" di beranda.** Kartu itu
 hanya membuka dokumentasi (lihat bagian 2). Pembuatan template yang
 sesungguhnya berada di dalam editor, lewat menu proyek.
@@ -841,6 +848,30 @@ teks "Judul" hanyalah *hint* di dalamnya, bukan label terpisah.
 | Tab Bingkai Video | *(teks)* | @381,1755 |
 | Tab Perpustakaan | *(teks)* | @698,1755 |
 | Penggeser bingkai | `vfFunctionalViews` | @540,1999 |
+
+#### Tag — `InputTagActivity`
+
+Mengetuk baris **Tag** (@540,972 di layar publish) membuka activity
+tersendiri **`com.frontrow.common.ui.input.InputTagActivity`** (dipetakan
+2026-07-28).
+
+| Elemen | resource-id | Posisi |
+|---|---|---|
+| Batal | `tvCancel` ("Membatalkan") | @192,174 |
+| Sisa kuota tag | `tvRemain` ("Sisa 10") | @540,174 |
+| Selesai (konfirmasi) | `tvComplete` ("Selesai") | @949,174 |
+
+- **Maksimal 10 tag** — `tvRemain` menampilkan sisa kuota ("Sisa 10" →
+  berkurang tiap tag dipilih); pakai ini untuk verifikasi.
+- Isi layar = **grid chip tag saran** (semua `TextView` `clickable`, TANPA
+  resource-id — pilih by-text/koordinat), di-scroll vertikal. Contoh
+  terverifikasi: `plog`, `fyp`, `edit`, `transition`, `slomo`, `anime`,
+  `idol`, `travel`, `comedy`, `funny`, `talent`, `fitness`, `art`,
+  `storytime`, `daily`, `pet`, `studying`, `chatting`, `cuisine`,
+  `unpacking`, `game`, `KPOP`, `dance`, `sing`, … (ada input teks untuk tag
+  kustom di bagian atas — keyboard muncul saat diketik).
+- Ketuk chip untuk memilih → `tvComplete` untuk kembali ke layar publish
+  dengan tag terpasang.
 
 #### Hasil yang terverifikasi
 
