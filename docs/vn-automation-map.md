@@ -1427,6 +1427,35 @@ punya resource-id):
 > model+kredit". Pola generik: `tvModelName` (model), `tvBalance` (biaya),
 > `flSelectPhoto` (input), `tvGenerate` (jalankan), `ivHistory` (hasil lampau).
 
+### 17d. Tingkatkan Potret — `EnhancePhotoActivity` (model GFPGAN)
+
+Kartu grid FirstTime "Tingkatkan Potret" (cover @539,1277, baris-2; splash
+berjudul "Perbaiki Potret" — AI sesuaikan warna kulit, tingkatkan detail,
+hapus noda). Splash "Coba Sekarang" @540,2003 → **media picker** → pilih foto
+→ **`EnhancePhotoActivity`** — **activity & elemen PERSIS SAMA dengan Perbesar
+Gambar (17b)**, hanya beda `tvTitle` ("Enhance Portrait") & `tvModelName`
+("Official · **GFPGAN**"). Biaya `tvBalance` = 2 kredit (Saldo 100).
+`tvGenerate` TIDAK ditekan.
+
+### 17e. Ringkasan pola kit AI foto (17a–17d)
+
+Semua kit AI foto berbagi **dua activity generik** berstruktur identik
+(`ivBack`/`tvTitle`/`tvModelName`/`ivHistory`/`tvBalance`/`flSelectPhoto`/
+`tvGenerate`) + splash intro "Coba Sekarang":
+
+| Kit | Activity | Model | Input |
+|---|---|---|---|
+| Teks ke Gambar | `TextToPhotoActivity` | Nano Banana (Gemini) | prompt teks (`etPrompt`) |
+| Perbesar Gambar | `EnhancePhotoActivity` | SeedVR 2 | foto (picker, ≤3120×4160) |
+| Tingkatkan Potret | `EnhancePhotoActivity` | GFPGAN | foto (picker) |
+| AI Cutout | `RestylePhotoActivity` | BiRefNet | foto (picker) |
+
+**Pola otomasi:** kenali kit dari `tvTitle`/`tvModelName`; input via `etPrompt`
+(text-to-image) atau `flSelectPhoto`/media-picker (berbasis foto); jalankan
+`tvGenerate`. Semua berbiaya kredit (`tvBalance`, saldo tampil) — akun tamu
+punya kredit percobaan (100). `TextToPhotoActivity` punya `flSetting` (Ratio +
+Number of images) yang tak ada di enhance/restyle.
+
 ---
 
 ## 18. Alur Cerita (Storyline) — pintu masuk standalone
