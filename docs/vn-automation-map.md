@@ -1510,9 +1510,29 @@ AutoCut §13 — ketiganya AutoCut/Template/BeatsClips berbagi editor itu.)
 - Grid kategori (`tvTitle`, 3 kolom): **Vlog** @200,981, **Pop** @531,981,
   **Dynamic** @864,981, **Fresh** @199,1353, **Acoustic** @531,1353,
   **Electronic** @863,1353, **Hip-Hop** @199,1725 (+ lagi).
-- Ketuk kategori → **daftar track** (nama + durasi, mis. "Balloon" 3:49,
-  "Dear Autumn", "Do It" …). Pilih track → lanjut ke pemilihan klip + sinkron
-  beat → **editor AutoCut mode BeatsClips** (§13).
+- Ketuk kategori → **daftar track** (baris: ikon, nama, durasi, ikon **unduh**
+  di kanan; mis. "We Go (Remix)" 4:03, "Story", "Save Me", "Do It" …).
+
+**2a. Pilih track.** Ketuk baris track → **preview main** (waveform +
+play/pause) dan muncul di baris itu: ikon **bintang (favorit)** + tombol
+**"Menggunakan"** (Lynx, ~@930,1835 — tanpa node teks, ketuk by-koordinat).
+
+**2b. `...music.ui.detail.MusicDetailActivity`** (setelah "Menggunakan") —
+konfigurasi track:
+- `ivChooseMusic` @90,180 (ganti musik) · `ivFavorite` @828,180 · `ivMore` @990,180.
+- `textView_music_name` ("Do It"), `tvOriginalDuration` ("Ikson · 2:31"),
+  `ivMusicPlay` @933,900.
+- Rentang & beat: `tvBegin` @150,1332 / **`tvBeatCount`** ("0" jumlah beat)
+  @541,1332 / `tvEnd` @910,1332.
+- **`flEditBeats` "Edit Beats"** @540,1802 (sunting titik beat manual).
+- **`flCreateProject` "Buat Proyek"** @540,1982.
+
+**2c. "Buat Proyek" → `EditorActivity` STANDAR** (bukan AutoCut editor) —
+proyek dibuka dengan **track musik sudah ter-load** (`editor_track_music`
+ada, `total_textView` = durasi track, mis. 2:31.59). Dari sini tambah klip
+(`editor_track_main_add`) di timeline musik itu, lalu ekspor/`tvCreateTemplate`
+seperti biasa (§9). **Koreksi:** jalur music-first BeatsClips TIDAK bermuara
+ke `AutoCutEditorActivity`; itu editor VN standar dengan musik sebagai basis.
 
 **3. Jalur video-first** ("Buat Template Video" @400,2114) — dipetakan
 2026-07-28. Ini **authoring template beat-sync dari video**, bukan sekadar
@@ -1529,9 +1549,11 @@ pilih musik:
     `ivEditorPlay` @540,2174 / `ivDone` @891,2174.
   - `ivDone` mengunci trim → muncul aksi **"Membuat"** (lanjut buat template).
 
-**Catatan:** endpoint editor & ekspor jalur music-first identik AutoCut
-(§13: `AutoCutEditorActivity` → Export → `VideoGenerateOptionActivity`);
-jalur video-first bermuara ke pembuatan template ("Membuat", pola §9).
+**Catatan:** dua jalur bermuara berbeda — **music-first** → `EditorActivity`
+standar (musik ter-load; ekspor via `VideoGenerateOptionActivity`, template
+via §9); **video-first** → `VideoTemplateCreatingActivity` → "Membuat"
+(pembuatan template, pola §9). Keduanya BUKAN `AutoCutEditorActivity` (itu
+jalur kit AutoCut §13, tempat "BeatsClips" muncul sebagai *mode* terpisah).
 
 ---
 
