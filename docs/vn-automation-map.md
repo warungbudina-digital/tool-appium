@@ -655,11 +655,42 @@ HairSwap Women/Men. (Ini AI berbasis gambar; AI caption ada di jalur subtitle
 > @540,2135). Tutup dulu sebelum melanjutkan — kalau tidak, ketukan tool
 > berikutnya nyasar ke dialog tip ini.
 
-**Belum dipetakan (tool sisa, umumnya sepele/aksi-langsung):** `crop`,
-`rotate`, `flipHorizontal`, `flipVertical`, `Mengisi` (fill), `imageBorder`,
-`imageBlur`, `alpha` (kegelapan), `clipZoom`, `story`. Rotate/flip = aksi
-satu-ketuk tanpa panel; sisanya panel sederhana (slider tunggal) — petakan
-saat dibutuhkan.
+### 8g. Sub-panel tool klip: clipZoom, imageBorder, imageBlur, alpha, story
+
+Dipetakan 2026-07-28, VN 2.17.0. Semua saat **klip dipilih**, di ujung
+kanan toolbar (perlu beberapa swipe). Pola panel sama: `ivCancel` @189,2174,
+`ivDone` @891,2174, sebagian ada `tvApplyToAll`.
+
+**clipZoom** (`editor_toolbar_clipZoom`, "Perbesar") — gerak preset ala Ken
+Burns pada klip. Opsi (`tvName`, di-scroll horizontal): `Tidak ada`,
+`Perkecil`, `Perbesar`, `Pindah ke kanan`, `Pindah ke kiri`, `Pindah ke
+bawah` (+ atas). + `tvApplyToAll`.
+
+**imageBorder** (`editor_toolbar_imageBorder`, "Berbatasan") — bingkai/border
+klip. Slider `sbBorderWidth` (label `tvBorderWidthLabel` "Lebar", nilai
+`tvBorderWidth`, default 0). + `tvApplyToAll`.
+
+**imageBlur** (`editor_toolbar_imageBlur`, "Blur") — buramkan klip. Tipe
+(`tvType`): `Tidak ada`, `Dasar`, `Horizontal`, `Vertikal`, `Radioaktif`
+(radial). Intensitas: `sbBlur` (label `tvBlurTitle`) + `etBlurSize` (nilai
+%-editable, default 30%).
+
+**alpha** (`editor_toolbar_alpha`, "Kegelapan") — opasitas klip. Slider
+tunggal `sbAlpha` (label `tvAlpha` "Kegelapan", nilai `tvAlphaValue`,
+default 100%).
+
+**story** (`editor_toolbar_story`, "Cerita") — BUKAN panel bawah, membuka
+activity penuh **`...storyline.StorylineComposeActivity`** (komposer
+storyboard/narasi). Elemen: `ivBack` @75,198, `ivMore` @1005,198, toggle
+`sbTitleAsTransition` ("Gunakan judul sebagai transisi"), per-klip
+`ivThumbnail` + `tvDuration` + `etMediaDescription` ("Jelaskan Video atau
+Foto ini") + `ivDelete`, `llAddStory` ("Tambah Bagian"), dan `tvStoryNext`
+("Selesai" @548,2159). Dipakai untuk menyusun video jadi bagian-bagian
+berdeskripsi (bahan narasi/AI).
+
+**Tersisa (belum dipetakan, sepele/aksi-langsung):** `crop`, `rotate`,
+`flipHorizontal`, `flipVertical`, `Mengisi` (fill). Rotate/flip = aksi
+satu-ketuk tanpa panel; crop & fill panel sederhana — petakan saat perlu.
 
 ---
 
