@@ -1,0 +1,126 @@
+# Flow Studio — UI Automation Map (`com.frontrow.flow` v1.8.1)
+
+Companion graphic-design app to VN (same developer, Ubiquiti Labs LLC). Role:
+create graphics/overlays in Flow Studio, then **"Apply to VN"** (see VN map,
+tool `editor_toolbar_flowStudio`). Category: Seni & Desain (~128 MB).
+
+**Good news for automation:** unlike VN's newer Lynx screens, Flow's screens map
+so far are **`NATIVE_APP` with proper resource-ids** — selectors are stable and
+reliable (no coordinate-only guessing needed for most elements).
+
+## How this was mapped
+
+Mapped from the VPS via the `tool-appium` container + `tests/ui-map.js` against
+the Infinix (WireGuard `10.66.66.2`). Per-exec ANDROID_UDID override is required
+(the container bakes `.env` ANDROID_UDID at start; the wireless-debug port
+changes each toggle):
+
+```sh
+cd ~/tool-appium
+docker compose exec -T -e ANDROID_UDID=10.66.66.2:<port> -e APP_PACKAGE=com.frontrow.flow \
+  -e FORCE_APP_LAUNCH=false -e MAP_NAME=<label> appium npx wdio run ./wdio.conf.js --spec tests/ui-map.js
+# result JSON: /tmp/uimap-<label>.json  (keys: pkg, activity, contexts, count, nodes[]; each node: id,label,class,clickable,scrollable,x/y/w/h,tapX,tapY)
+```
+
+Launch fresh: `adb shell am force-stop com.frontrow.flow; adb shell monkey -p com.frontrow.flow -c android.intent.category.LAUNCHER 1`.
+
+---
+
+## §1 FirstTimeActivity — `com.frontrow.flow/.ui.firsttime.FirstTimeActivity`
+
+Home / launcher screen. NATIVE_APP.
+
+| Element | id | Action |
+|---------|----|--------|
+| Close | `ivClose` @90,150 | exit Flow |
+| **Create Design** | `flCreateNewProject` @540,465 (label "Create Design") | → **CreationActivity** |
+| Template collections | `rvList` (scroll) → cards `tvCollection`: "Happy Birthday" @221,1091, "Filter" @590,1091, "Travel" @941,1091 | open a template collection |
+| Recently used | section `tvTitle` "Baru-baru ini Gunakan" + `tvCount`, card `clRoot` @261,1451 | reopen recent design |
+| New templates | section "Baru" `tvCount` "(100)", `tvSeeAll` "Lihat Selengkapnya" @847,1694; cards `clRoot`/`ivCover` @…,2001 | open a template |
+
+## §2 CreationActivity — `com.frontrow.flow/.ui.creation.CreationActivity`
+
+New-design canvas/size chooser. NATIVE_APP. Three top tabs via `viewPager`:
+
+- Tabs (`title_container`): **"Create"** @125,276 · **"AI Kits"** @323,276 · **"AI Market"** @547,276.
+- Close: `ivClose` @90,168.
+
+**Create tab:**
+- `rvCreationPackage` (GridView) — preset packages, e.g. `flCover`/`ivCover`/`tvTitle` "Brand Kit" @130.
+- **`tvCustomSize` "Ukuran Khusus:"** @540,798 — custom size entry.
+- Size-preset list `rvList` (scroll) — rows `ivLogo`+`tvTitle`+`tvSize`, e.g.:
+  - "Instagram Story" `1080 x 1920 px` @…,1078
+  - "Photobook (Portrait)" `7 x 9 in`, "Photobook" `8 x 8 in`, "Photobook (Landscape)" `8 x 6 in` …
+  - section headers `tvTitle` "Baru-baru ini digunakan", "Disarankan" (`ivIcon` @984,1339)
+- `clMoreWays` "More ways to create" — `rvAlbum` photo cards `cardView`/`ivImage` @…,2101 + `tvViewAllPhoto` "Lihat semua" @903,1916 (create from a photo).
+
+Tapping a size preset (e.g. Instagram Story @540,1078) → **FlowEditorActivity** with a blank canvas of that size.
+
+> TODO: map **AI Kits** and **AI Market** tabs (new in v1.8.1, not previously documented).
+
+## §3 FlowEditorActivity — `com.frontrow.flow/.ui.editor.FlowEditorActivity`
+
+The core design editor. NATIVE_APP. Three regions:
+
+### §3.1 Top bar (`clTopViews`, y≈183)
+| id | @tap | Function |
+|----|------|----------|
+| `ivClose` | 62,183 | exit editor (may show "Back to VN / Stay at Flow Studio" dialog — TODO verify) |
+| `ivHelp` | 177,183 | help |
+| `ivUndo` | 285,183 | undo |
+| `ivRedo` | 393,183 | redo |
+| `ivSetting` | 603,183 | editor settings (TODO map) |
+| `ivFullScreen` | 711,183 | fullscreen preview |
+| `ivSave` | 843,183 | save draft |
+| **`tvExport`** | 981,183 | **Export / Apply to VN** (TODO map flow) |
+
+### §3.2 Canvas
+- `vpDraftPage` (ViewPager, **scrollable = multi-page design**) → `editorPanel` → `clPlayerGroup` → `editorVideoView`/`glVideoView` (GL render surface). Elements are placed/selected on this surface (no per-element resource-ids; selection is by coordinate tap on the canvas).
+
+### §3.3 Bottom tool menu (`vgMenu`, y≈2156)
+- **`ivMenuAdd`** @96,2156 — opens the **asset-picker bottom sheet** (see §3.4).
+- **`hsvRootMenu`** (horizontal-scroll RecyclerView) — tool buttons `ivIcon`+`tvName`. Full ordered list (scroll left to reveal):
+
+  1. **Foto** (Photo) @272,2204
+  2. **Teks** (Text) @446,2204
+  3. **Tempel** (Paste/stickers) @620,2204
+  4. **Shapes** @794,2204
+  5. **Frames** @968,2204
+  6. **Grids** @246,2204
+  7. **Latar belakang** (Background) @420,2221
+  8. **Gaya** (Style) @594,2204
+  9. **Layer** @816,2204
+  10. **Mosaik** (Mosaic) @990,2204
+  11. **Pembesar** (Magnifier) @293,2204
+  12. **Hapus** (Delete) @467,2204
+  13. **Duplikat** (Duplicate) @641,2204
+  14. **Kunci** (Lock) @815,2204
+  15. **Sembunyikan** (Hide) @989,2221
+
+  (Tap points after 5 assume the toolbar has been scrolled so the tool is on-screen;
+  `tvName` selector is reliable — prefer `//*[@resource-id="…tvName"][@text="Teks"]`.)
+  Note: Hapus/Duplikat/Kunci/Sembunyikan/Pembesar are element-context actions (apply
+  to the currently selected element).
+
+### §3.4 Asset-picker bottom sheet (`design_bottom_sheet`)
+Opens over the editor (e.g. on `ivMenuAdd`, or when adding first element). NATIVE_APP.
+- Dismiss: `KEYCODE_BACK` once (closes sheet, stays in editor — verified; does NOT exit editor).
+- Search: `etSearch` "Mencari" @594,291.
+- Tabs (`tabLayout`, `ivTabName`): **Graphics** @144 · **Frames** @417 · **Layouts** @682 · **Grids** @926.
+- Content `recyclerView` (GridView, scroll): collections with `tvTitle`+`tvCount`+`tvSeeAll` "Lihat Selengkapnya", e.g. "Baru-baru ini digunakan (2)", **"Shapes (36)"** @833,1008, **"Components (174)"** @833,1435; item cards `rootView`/`ivCover`.
+
+---
+
+## Remaining to map (TODO — next sessions)
+- §3.1 **Export / Apply-to-VN flow** (`tvExport`) — the whole point of Flow↔VN integration.
+- Individual **tool panels**: Foto, Teks (text styling), Gaya, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
+- **Element selection context menu** (tap an element on canvas → what actions appear).
+- CreationActivity **AI Kits** / **AI Market** tabs.
+- Template **open** flow (from FirstTime collections / "Baru" cards) → does it go straight to editor?
+- `ivSetting` editor settings; `ivClose` exit dialog ("Back to VN / Stay").
+- Custom size (`tvCustomSize`) input screen.
+
+## Quick reference
+- Package: `com.frontrow.flow` · Activities: `.ui.firsttime.FirstTimeActivity`, `.ui.creation.CreationActivity`, `.ui.editor.FlowEditorActivity`.
+- All screens mapped so far are **NATIVE_APP with resource-ids** → selector-based automation is reliable (contrast with VN's Lynx screens that need `waitForIdleTimeout:100` + coordinates).
+- Multi-page designs live in `vpDraftPage` (swipe between pages).
