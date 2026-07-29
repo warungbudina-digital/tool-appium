@@ -200,9 +200,47 @@ resource-id selector over coordinates. Active sub-panel renders in `vfSubtitle`.
 
 > TODO Teks: FontSize slider, TextSpacing, SubtitleType presets, Color style sub-tabs.
 
+## §6 Style tool ("Gaya") + context-sensitive toolbar
+
+### §6.1 The bottom toolbar is context-sensitive
+- **No selection** → *add* tools (§3.3): Foto, Teks, Tempel, Shapes, Frames,
+  Grids, Latar belakang, Gaya, Layer, Mosaik, Pembesar, Hapus, Duplikat, Kunci, Sembunyikan.
+- **Element selected** (e.g. tap a text box on canvas) → the toolbar switches to
+  **element-transform** tools:
+  - **Gaya** (Style) @240,2204 · **Posisi** (Position) @462 · **Ukuran** (Size) @636 · **memutar** (Rotate) @810 · **Mengatur** (Arrange/order) @984 (+ scroll for Hapus/Duplikat/Kunci/Sembunyikan).
+  - Selector: `//*[@resource-id="…tvName"][@text="Gaya"]` — the whole toolbar is `hsvRootMenu`/`hsvSubtitleMenu` (scrollable), `ivIcon`+`tvName` items.
+
+### §6.2 Gaya (Style) — for a TEXT element = style presets
+Tapping **Gaya** with a text element selected opens the **text style-presets**
+panel (`rvSubtitleTypesPage`, same as the Teks sub-tab `llSubtitleType`; the
+`subtitleIndicator` row is present with `llSubtitleType` active). NATIVE_APP.
+- Preset category tabs (`tabLayout`, HorizontalScrollView, by text):
+  **Title** @108,1415 · **Funky** @324 · **Watermark** @567 · **Note** @809 ·
+  **Introduction** @928 · `ivMore` @999 (more categories).
+- `viewPager` @540,1865 — grid of preset-style thumbnails for the selected
+  category (image thumbnails, no ids → tap by position).
+- Confirm with `flSubtitleConfirm` @975.
+
+> For non-text elements (shape/image/frame), "Gaya" is expected to show
+> different style options (fill/stroke/effects) — TODO map with a shape selected.
+
+## §7 Editor exit dialog
+From the base editor, `KEYCODE_BACK` (or `ivClose`) opens an exit bottom sheet
+(`design_bottom_sheet`) — **when Flow was launched standalone** (not from VN):
+- `tvOperation1` "Simpan Proyek dan Keluar" @540,1799 (save project + exit)
+- `tvOperation2` "Keluar secara langsung" @540,1945 (exit without saving)
+- `tvOperationCancel` "Batal" @540,2119 (cancel → stay)
+
+> When Flow is entered **from VN**, the exit dialog is instead "Back to VN / Stay
+> at Flow Studio" (per earlier note) — TODO verify that variant.
+> **Tip:** to close a tool sub-panel without triggering exit, use its confirm
+> button (`flSubtitleConfirm` etc.), not double-BACK (2× BACK from a sub-panel
+> reaches this exit dialog).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format done; FontSize/Spacing/Type pending). Still: Foto, Gaya, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). Still: Foto, Latar belakang, Layer, Mosaik, Shapes/Frames pickers, and element-transform Posisi/Ukuran/memutar/Mengatur.
+- ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
 - CreationActivity **AI Kits** / **AI Market** tabs.
 - Template **open** flow (from FirstTime collections / "Baru" cards) → does it go straight to editor?
