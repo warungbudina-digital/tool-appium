@@ -237,9 +237,37 @@ From the base editor, `KEYCODE_BACK` (or `ivClose`) opens an exit bottom sheet
 > button (`flSubtitleConfirm` etc.), not double-BACK (2× BACK from a sub-panel
 > reaches this exit dialog).
 
+## §8 Element transform tools (Posisi / Ukuran / memutar)
+
+Appear in the **element-selected** context toolbar (§6.1): Gaya · **Posisi** @462
+· **Ukuran** @636 · **memutar** @810 · Mengatur @984. Each opens a small overlay
+panel with a top-right `ivClose`. All NATIVE_APP, resource-id addressable.
+
+> **Gotcha:** if a text-edit/style modal (Gaya) is open, tapping a transform tool
+> in the bottom menu does **not** switch the panel — close the modal first
+> (`flSubtitleConfirm` @975), keeping the element selected, then tap the tool.
+
+### §8.1 Posisi (Position) — `ivClose` @981,1571
+Two tabs (`tabLayout`, `ivTabName`): **"Meluruskan"** (Align) @330 · **"Dorongan"** (Nudge) @750.
+- Align (`viewPager`): `llAlignLeft` "Kiri" @171,1766 · `llAlignCenter` "Tengah" @540,1766 · `llAlignRight` "Benar" @893,1766 · `llAlignTop` "Atas" @180,1976 · `llAlignMiddle` "Tengah" @540,1976 · `llAlignBottom` "Bawah" @900,1976.
+- Dorongan = nudge (arrow) controls — TODO detail.
+
+### §8.2 Ukuran (Size) — `tvTitle` "Ukuran", `ivClose` @981,1547
+- Width: "W" + **`etWidth`** @254,1744 (e.g. "702") · **`ivLockRatio`** @413,1744 (lock aspect) · Height: "H" + **`etHeight`** @626,1744 (e.g. "492").
+- **Skala** (uniform scale): `ivZoomOut` @146,1979 · `ivZoomIn` @304,1979.
+- **Directional scale**: Horisontal `ivHorizontalScaleOut` @530 / `ivHorizontalScaleIn` @674 · Vertikal `ivVerticalScaleOut` @860 / `ivVerticalScaleIn` @1004.
+
+### §8.3 memutar (Rotate) — `tvTitle` "memutar", `ivClose` @993,1535
+- **Rotasi** + **`etRotate`** @945,1703 (angle, e.g. "0°").
+- `rotateRuleView` @540,1922 — draggable rotation ruler/dial.
+- `flRotationLeft` @200,2095 · `flRotationRight` @540,2095 (rotate ±90°) · `flReset` @880,2095 (reset to 0°).
+
+> `Mengatur` (Arrange/z-order) @984 — TODO map.
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). Still: Foto, Latar belakang, Layer, Mosaik, Shapes/Frames pickers, and element-transform Posisi/Ukuran/memutar/Mengatur.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). Still: Foto, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
+- Element transform: ~~Posisi/Ukuran/memutar~~ ✅ (§8). Still `Mengatur` (z-order), Posisi "Dorongan" nudge detail.
 - ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
 - CreationActivity **AI Kits** / **AI Market** tabs.
