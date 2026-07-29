@@ -271,9 +271,30 @@ Four layering actions:
 
 > Element-transform tool set (Gaya/Posisi/Ukuran/memutar/Mengatur) now fully mapped.
 
+## §9 Photo tool ("Foto") — ADD toolbar
+
+Open: with **no element selected** (deselect by tapping empty canvas → ADD
+toolbar returns), tap **Foto** `tvName` @272,2204. Opens a **media-picker bottom
+sheet** (`design_bottom_sheet`, NATIVE_APP; Flow already holds media permission —
+no prompt). Tapping a thumbnail adds that image/video to the canvas.
+
+- `viewDragTop` @540,1161 — drag handle (drag down / BACK to dismiss).
+- **`ivAlbum`** "Semua" @540,1318 — album selector (dropdown of device albums).
+- Filter bar (`filterBar`, CheckBoxes): **`button_all`** "Semua" @282,1453 ·
+  **`button_photo`** "Foto" @554,1453 · **`button_video`** "Video" @811,1453.
+- Media grid `recyclerview` (GridView, scroll):
+  - first tile = **`hint` "Kamera"** @179,1800 (`media_thumbnail` @540,1761) — opens the camera to shoot a new photo.
+  - device media tiles `media_thumbnail` (@…,1761 / @…,2153 rows) — each has `ivPreview` (long-press/preview) and, for videos, `video_duration` (e.g. "00:03").
+  - real photos start after the Kamera tile.
+
+> Automation: filter with `button_photo`, then tap the target `media_thumbnail`
+> by grid position (thumbnails have no per-item id/text). Selecting inserts the
+> media as a new element and returns to the editor (element then selected → §6/§8
+> transform tools apply).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). Still: Foto, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9, media picker). Still: Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
 - Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8, full set). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
 - ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
