@@ -304,9 +304,27 @@ tabs/search, unlike the §3.4 asset picker).
 - Shape cells have **no per-item id/text** → tap by grid position.
 - Tap a shape → inserts it as a new element on the canvas (element then selected → §6/§8 tools).
 
+## §11 Frames tool — ADD toolbar
+
+Open: ADD toolbar (no selection) → **Frames** `tvName` @968,2204. Opens a
+**searchable asset-picker bottom sheet** (`design_bottom_sheet`, NATIVE_APP).
+Unlike the §3.4 asset picker (which has Graphics/Frames/Layouts/Grids tabs),
+this view has **no top category tabs** — just search + collections.
+
+- `viewDragTop` @540,1161 (drag handle).
+- Search: `ivSearch` + **`etSearch`** "Mencari" @594,1318.
+- Collections grid `recyclerView` (GridView, scroll), each a `tvTitle` + `tvCount`
+  + `tvSeeAll` "Lihat Selengkapnya" header over a row of `rootView` item cells:
+  - "Baru - baru ini digunakan (3)" — recently used, cells @185/483/781,1686.
+  - "Shapes (36)" — `tvSeeAll` @833,1900, cells @185/483/781/1017,2113.
+  - (more collections on scroll.)
+- Item cells (`rootView`) have **no per-item id** → tap by grid position;
+  `tvSeeAll` opens the full collection.
+- Tap a frame/item → inserts to canvas (element then selected → §6/§8 tools).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10). Still: Latar belakang, Layer, Mosaik, Frames picker.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11). Still: Latar belakang, Layer, Mosaik, Tempel, Grids.
 - Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8, full set). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
 - ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
