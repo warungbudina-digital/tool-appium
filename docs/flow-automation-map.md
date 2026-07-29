@@ -262,12 +262,19 @@ Two tabs (`tabLayout`, `ivTabName`): **"Meluruskan"** (Align) @330 · **"Doronga
 - `rotateRuleView` @540,1922 — draggable rotation ruler/dial.
 - `flRotationLeft` @200,2095 · `flRotationRight` @540,2095 (rotate ±90°) · `flReset` @880,2095 (reset to 0°).
 
-> `Mengatur` (Arrange/z-order) @984 — TODO map.
+### §8.4 Mengatur (Arrange / z-order) — `tvTitle` "Mengatur", `ivClose` @981,1742
+Four layering actions:
+- **`tvFront`** "Bawa ke depan" @169,1965 (bring to front)
+- **`tvBack`** "Kirim ke Belakang" @416,1965 (send to back)
+- **`tvForward`** "Memajukan" @664,1964 (bring forward one step)
+- **`tvBackward`** "Kirim Mundur" @911,1965 (send backward one step)
+
+> Element-transform tool set (Gaya/Posisi/Ukuran/memutar/Mengatur) now fully mapped.
 
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
 - Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). Still: Foto, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
-- Element transform: ~~Posisi/Ukuran/memutar~~ ✅ (§8). Still `Mengatur` (z-order), Posisi "Dorongan" nudge detail.
+- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8, full set). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
 - ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
 - CreationActivity **AI Kits** / **AI Market** tabs.
