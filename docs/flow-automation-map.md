@@ -322,9 +322,28 @@ this view has **no top category tabs** — just search + collections.
   `tvSeeAll` opens the full collection.
 - Tap a frame/item → inserts to canvas (element then selected → §6/§8 tools).
 
+## §12 Background tool ("Latar belakang") — ADD toolbar
+
+Open: ADD toolbar (scroll right ~1×) → **Latar belakang** `tvName` @497,2221.
+Canvas-level tool (sets the **page background**, not an element). Opens a
+searchable picker bottom sheet (`design_bottom_sheet`, NATIVE_APP).
+
+- `viewDragTop` @540,1161 · search `etSearch` "Mencari" @594,1318.
+- `recyclerView` (GridView, scroll) with three sections:
+  - **"Warna"** (solid colors) — swatch cells `cardView`/`viewUnselected` @468/636/804/972/1074,1630.
+  - **"Gradien"** (Gradient) `tvCount` "(28)", `tvSeeAll` @833,1803 — `gradientColorView` cells @185/483/781/1017,2016.
+  - **"Texture"** `tvCount` "(87)", `tvSeeAll` @833,2228 — texture thumbnails (scroll for more).
+- Tap a swatch / gradient / texture → applies it as the page background. `tvSeeAll`
+  opens the full category. Cells have no per-item id → tap by position.
+
+> **ADD-toolbar tool order** (fuller, incl. previously-missed **Layouts**):
+> Foto · Teks · Tempel · Shapes · Frames · **Layouts** · Grids · Latar belakang ·
+> Gaya · Layer · Mosaik · (element-action) Pembesar · Hapus · Duplikat · Kunci · Sembunyikan.
+> Use the `tvName` text selector; scroll `hsvRootMenu` to bring a tool on-screen.
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11). Still: Latar belakang, Layer, Mosaik, Tempel, Grids.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12). Still: Layer, Mosaik, Tempel, Grids, Layouts.
 - Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8, full set). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
 - ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
