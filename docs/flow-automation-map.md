@@ -102,6 +102,44 @@ The core design editor. NATIVE_APP. Three regions:
   Note: Hapus/Duplikat/Kunci/Sembunyikan/Pembesar are element-context actions (apply
   to the currently selected element).
 
+### §4 Export / Apply-to-VN flow (from `tvExport` @981,183)
+
+Tapping **`tvExport`** opens the **Export bottom sheet** (`design_bottom_sheet`,
+stays in FlowEditorActivity, NATIVE_APP). Three actions:
+
+| Element | id | @tap | Action |
+|---------|----|------|--------|
+| **Buat Video dengan VN** | `tvExportVideoToVn` | 541,1751 | **Apply to VN** — render design → hand off to VN |
+| Ekspor | `tvExport` | 540,1888 | export image/file to device |
+| Membuat | `flCreateTemplate` (label "Membuat") | 540,2050 | create a Flow template from this design |
+| (help) | `tvWhatAreTemplate` "Apa itu template?" | 541,2210 | what-are-templates help |
+| close | `ivClose` | 90,198 | dismiss sheet |
+| (header) | `ivVNLogo` @540,375, `tvVN` "Editor Video Cepat dan Pro" @540,550 | VN promo |
+
+**Apply-to-VN path (verified end-to-end 2026-07-29):**
+
+1. `tvExport` (top bar) → Export sheet.
+2. **`tvExportVideoToVn` "Buat Video dengan VN"** @541,1751 → **"Pengaturan Durasi
+   Video"** sheet (video duration settings — each Flow page becomes a video segment):
+   - `tvTitle` "Pengaturan Durasi Video" @541,1498
+   - "Durasi" + **`etDuration`** "3.0s" @933,1645 (editable per-page default duration)
+   - `rvDuration` (duration picker wheel)
+   - `tvTip` "Atur durasi video default setiap halaman…"
+   - **`btSave` "Simpan"** @540,2176 → renders and hands off.
+3. `btSave` → Flow renders the design to video and **launches VN**, landing in
+   **`com.frontrow.vlog/com.frontrow.videoeditor.editor.EditorActivity`** (VN's
+   standard editor, see vn-automation-map.md) with the Flow graphic imported as a
+   video clip. This is the Flow↔VN integration endpoint.
+
+> **Automation note:** the full chain is selector-driven and reliable —
+> `tvExport` → `tvExportVideoToVn` → (optionally set `etDuration`) → `btSave`.
+> After `btSave` the automation context switches to the **VN** app (different
+> package); continue with the VN map from EditorActivity.
+> **Side effect:** this creates a VN draft/project (VN autosaves). Reliable
+> cleanup: `adb shell pm clear com.frontrow.vlog` (per vn-automation-map notes).
+> This standalone run (Flow launched via launcher, not from within VN) still
+> reached VN fine — "Buat Video dengan VN" launches VN itself.
+
 ### §3.4 Asset-picker bottom sheet (`design_bottom_sheet`)
 Opens over the editor (e.g. on `ivMenuAdd`, or when adding first element). NATIVE_APP.
 - Dismiss: `KEYCODE_BACK` once (closes sheet, stays in editor — verified; does NOT exit editor).
@@ -112,7 +150,7 @@ Opens over the editor (e.g. on `ivMenuAdd`, or when adding first element). NATIV
 ---
 
 ## Remaining to map (TODO — next sessions)
-- §3.1 **Export / Apply-to-VN flow** (`tvExport`) — the whole point of Flow↔VN integration.
+- ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
 - Individual **tool panels**: Foto, Teks (text styling), Gaya, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
 - **Element selection context menu** (tap an element on canvas → what actions appear).
 - CreationActivity **AI Kits** / **AI Market** tabs.
