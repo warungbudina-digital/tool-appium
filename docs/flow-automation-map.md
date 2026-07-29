@@ -149,9 +149,60 @@ Opens over the editor (e.g. on `ivMenuAdd`, or when adding first element). NATIV
 
 ---
 
+## §5 Text tool ("Teks") — editor bottom toolbar
+
+Open: editor bottom toolbar → **Teks** `tvName` @446,2204 (toolbar at start
+position; scroll right to reset). Tapping it **adds a text box** to the canvas
+(placeholder "Masukkan Judul") and opens the text-edit panel. Stays in
+FlowEditorActivity, NATIVE_APP.
+
+**The text panel reuses VN's subtitle component** (ids are `subtitle*` /
+`llTextFormat` etc.) — same component as VN's caption editor.
+
+### §5.1 Panel structure
+- Text input: **`etTextInput1`** "Masukkan Judul" @132,1325 — the editable text content.
+- Sub-tool tabs — two synced representations:
+  - icon row `subtitleIndicator` (ids below), and
+  - labeled bar `hsvSubtitleMenu` (`tvName` labels), scrollable.
+
+| Tab id | Label | @tap* | Opens |
+|--------|-------|-------|-------|
+| `llInput` | Memasukkan (Input) | 62,1280 | keyboard/text entry |
+| `llFonts` | Huruf (Fonts) | 186,1280 | §5.2 font list |
+| `llFontSize` | Ukuran huruf (Font size) | 310,1280 | size slider (TODO detail) |
+| `llColor` | Warna (Color) | 434,1280 | §5.3 colors |
+| `llTextFormat` | Format | 558,1280 | §5.4 format |
+| `llTextSpacing` | (Spacing) | 683,1280 | line/letter spacing (TODO) |
+| `llSubtitleType` | (Type) | 808,1280 | text style presets (TODO) |
+| `flSubtitleConfirm` | ✓ confirm | 975,1280 | apply/close |
+
+\*tap Y shifts with panel height (≈1280–1410 depending on sub-panel); prefer the
+resource-id selector over coordinates. Active sub-panel renders in `vfSubtitle`.
+
+### §5.2 Fonts ("Huruf")
+- `etSearch` "Cari font" @543 — search fonts.
+- `tvAdd` "Tambahkan Font" @719 — add a font.
+- Font list `recyclerView` (scroll), sections "Font dokumen" (current e.g.
+  **"Inter"** `tvFonts`, `ivSelected` marks active) and "Brand Kit"; items
+  `flRoot`/`flFontState`/`tvFonts`.
+
+### §5.3 Color ("Warna")
+- `rvTextColorTheme` (scroll) swatches: `ivAdd` @123 (custom color), `ivMute`
+  @273 (none/transparent), `textColorThemeView` swatch cells @423,573,723,873,1020.
+- `textStyleIndicator` — style sub-tabs (fill/outline/background/shadow — TODO detail).
+
+### §5.4 Format
+- **Daftar Gaya** (list style): `rlListStyleDefault` @108, `rlListPoint` (bullet) @234, `rlListNumber` @360.
+- **Gaya Teks**: `rlBold` @650, `rlItalics` @776.
+- **Posisi** (3×3 canvas anchor grid): `vPositionTopLeft`@118,1738 · `…TopCenter`@270 · `…TopRight`@421 · `…CenterLeft/Center/Right`@…,1822 · `…BottomLeft/Center/Right`@…,1906.
+- **Penyelarasan** (align): `rlAlignNormal` @650 · `rlAlignCenter` @776 · `rlAlignOpposite` @902.
+- **Kasus** (case): `tvTextCase` @653,1901.
+
+> TODO Teks: FontSize slider, TextSpacing, SubtitleType presets, Color style sub-tabs.
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: Foto, Teks (text styling), Gaya, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format done; FontSize/Spacing/Type pending). Still: Foto, Gaya, Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
 - **Element selection context menu** (tap an element on canvas → what actions appear).
 - CreationActivity **AI Kits** / **AI Market** tabs.
 - Template **open** flow (from FirstTime collections / "Baru" cards) → does it go straight to editor?
