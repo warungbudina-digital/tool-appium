@@ -292,9 +292,21 @@ no prompt). Tapping a thumbnail adds that image/video to the canvas.
 > media as a new element and returns to the editor (element then selected → §6/§8
 > transform tools apply).
 
+## §10 Shapes tool — ADD toolbar
+
+Open: ADD toolbar (no selection) → **Shapes** `tvName` @794,2204. Opens a
+**shapes bottom sheet** (`design_bottom_sheet`, NATIVE_APP) — a flat grid (no
+tabs/search, unlike the §3.4 asset picker).
+
+- `viewDragTop` @540,1161 (drag handle) · `ivClose` @90,1318 · `tvTitle` "Shapes" @540,1318.
+- `rvList` (RecyclerView, scroll) — **3-column grid** of shape thumbnails
+  (`rootView` cells @188 / 540 / 892 per row; rows @1566, 1918, 2203, …).
+- Shape cells have **no per-item id/text** → tap by grid position.
+- Tap a shape → inserts it as a new element on the canvas (element then selected → §6/§8 tools).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9, media picker). Still: Latar belakang, Layer, Mosaik, Shapes/Frames pickers.
+- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10). Still: Latar belakang, Layer, Mosaik, Frames picker.
 - Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8, full set). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
 - ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
 - **Element selection context menu** (tap an element on canvas → what actions appear).
