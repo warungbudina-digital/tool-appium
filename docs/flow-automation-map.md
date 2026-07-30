@@ -579,12 +579,48 @@ Element selected → **Posisi** → `design_bottom_sheet` with tabs **Meluruskan
   `ivNudgeLeft` @688,1874 · `ivNudgeRight` @934,1874 · `ivNudgeBottom` @811,1997
   (`ivCircle1`/`ivCircle2` center @811,1874).
 
+## §23 Color panel sub-tabs & from-VN exit dialog
+
+### Color panel sub-tabs (text color example)
+Text element → text-edit strip → **Warna** (`llColor` @434). The color panel
+(`vfSubtitle`/`textStyleFrameLayout`) has:
+- Color-style **sub-tabs** (`title_container`, which text part to color): **Teks** @162,1610 ·
+  **Stroke** @331,1610 · **Bayangan** @545,1610 · **Latar Belakang** @832,1610.
+- Theme row `rvTextColorTheme`: `ivAdd` @123,1460 (add) · `ivMute` @273 (none/transparent) ·
+  `textColorThemeView` preset-theme swatches @423/573/723/873/1020,1460.
+- Swatch row `ccvTextColorPanel` (`cVColor`/`ivItemColor`; **first cell `ivItemType` @114 =
+  custom picker**) @114…1029,1745.
+- Opacity: `tvTextOpacityLabel` "Kegelapan" + `etTextOpacity` "100%" @945,1877 + `sbTextOpacity` @528,1964.
+- (The text-edit icon strip localizes as `tvName`: Memasukkan/Huruf/Ukuran huruf/**Warna**/Format.)
+
+**Custom color picker** (tap `ivItemType` @114,1745) → `design_bottom_sheet`
+`frameLayout_color_picker`: `colorPickerView` @540,1529 (2D SV field) · `sbHue` @540,1909 ·
+hex `etRGB` "000000" @264,2006 · RGB `etR` @512 / `etG` @733 / `etB` @952 ·
+`ivCancel` @189,2174 · `ivDone` @891,2174. (Same custom-picker widget backs the
+`ivItemType` cell in every color row — Mosaik/Pembesar/Bayangan/Stroke/etc.)
+
+### From-VN exit dialog (the "launched from VN" variant)
+When Flow is opened from **VN**'s editor tool `editor_toolbar_flowStudio` (label "Flow",
+@710,2156 in VN's `EditorActivity`), Flow runs in a **new task**; its exit is a standard
+**AlertDialog** (not the standalone bottom-sheet of §18):
+- `alertTitle` **"Tips"** · `message` "The project does not save the draft after…".
+- `button1` **"Back to VN"** @829,1193 · `button2` **"Stay at Flow Studio"** @754,1337 ·
+  `button3` **"Batal"** @873,1481.
+
+> Reaching it: VN → FirstTime `createKit_create_newProject` @540,420 → "Mode Edit Proyek"
+> sheet (tap `clVideoBase` then **`tvSave`** @540,2032) → grant storage (`pm grant
+> com.frontrow.vlog android.permission.READ_EXTERNAL_STORAGE`) → `VideoEditorMatisseActivity`
+> media picker (`check_view` to select, `material_next` "Lanjut" @945) → `EditorActivity` →
+> tap Flow tool → `FlowEditorActivity` (new task). BACK / `ivClose` → this dialog.
+> Cleanup after: `pm clear com.frontrow.vlog` (restores VN's clean baseline).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
 - Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6 text presets; **non-text/brand-style Gaya** §19), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§19), ~~Pembesar~~ ✅ (§19).
-- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8); ~~Posisi Meluruskan/Dorongan sub-tabs~~ ✅ (§22). Still: Color style sub-tabs.
+- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8); ~~Posisi Meluruskan/Dorongan sub-tabs~~ ✅ (§22).
+- ~~Color style sub-tabs~~ ✅ (§23, Teks/Stroke/Bayangan/Latar Belakang + custom HSV/hex/RGB picker).
 - ~~Template-open flow~~ ✅ (§22, Preview → FillEdit; not straight to editor).
-- ~~Editor exit dialog~~ ✅ (§18, standalone). Still: **from-VN exit variant** ("Back to VN / Stay").
+- ~~Editor exit dialog~~ ✅ (§18 standalone bottom-sheet; §23 from-VN AlertDialog "Back to VN / Stay").
 - ~~Element selection context menu~~ ✅ (§18: Menggantikan/Duplikat/Salin/Hapus).
 - ~~CreationActivity AI Kits / AI Market tabs~~ ✅ (§14). ~~Custom size~~ ✅ (§15).
 - ~~Shape/graphic element tools: Potong, Cocok, Bayangan, Cermin, Balik~~ ✅ (§20).
