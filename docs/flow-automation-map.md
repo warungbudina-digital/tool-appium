@@ -521,6 +521,29 @@ Insert a shape: Elemen sheet (§16) → Graphics/Shapes → tap a cell @185,1221
 - **Cermin** (Mirror) = **instant action, no panel** — mirrors the element horizontally.
 - **Balik** (Flip) = **instant action, no panel** — flips the element vertically.
 
+## §21 AI Kits (per-element) & ivSetting project-settings panel
+
+### AI Kits (per-element) — shape/graphic element strip → **AI Kits**
+Opens a `design_bottom_sheet` whose content is a **`composeView`** (Jetpack Compose —
+**no resource-ids**; tap by grid position). `viewDragTop` @540,134. Same catalog as the
+CreationActivity AI Kits tab (§14), 3-col grid (@202/540/878), grouped by header:
+- *Enhance Photo*: **Enhance Portrait** @202,487 · **Upscale Image** @540,487.
+- *Image Generation*: **AI Inpaint** @202,1020 · **Image Editing** @540,1020 · **Era Look** @878,1020.
+- (more, scroll): Figurine Maker · Expression Sticker · Artistic Styles · Anime Style ·
+  AI Portrait Duo · Halloween · Lighting Style · …
+- Picking a kit → generation/run flow (credits + login gate) — **not exercised** (mirrors
+  VN's AI kits; still TODO to map the run screen).
+
+### ivSetting gear → project/canvas settings panel
+Top bar `ivSetting` @603,183 → `design_bottom_sheet` (**tap with nothing selected** — with an
+element selected the tap instead toggles the top bar / context menu, see §18):
+- `etTitle` "Jul 30, 2026" @540,836 (editable project title) · `tvSize` "1080 x 1080px" @189,932.
+- `llRename` "Ganti nama" @540,1118 · `llResize` "Ubah ukuran" @540,1256.
+- View mode toggles: `clScrollingView` "Tampilan bergulir" (+`ivScrollingViewCheck` @978,1394) ·
+  `clThumbnailView` "Tampilan gambar kecil" @540,1532 · `llGridView` "Tampilan bergaris" @540,1670.
+- `clShowMargin` "Tampilkan margin" (toggle `ivShowMargins`) @540,1871 ·
+  `clShowPrintBleed` "Tampilkan pendarahan cetak" @540,2009 · `clShare` "Membagikan" @540,2147.
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
 - Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6 text presets; **non-text/brand-style Gaya** §19), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§19), ~~Pembesar~~ ✅ (§19).
@@ -529,9 +552,8 @@ Insert a shape: Elemen sheet (§16) → Graphics/Shapes → tap a cell @185,1221
 - ~~Element selection context menu~~ ✅ (§18: Menggantikan/Duplikat/Salin/Hapus).
 - ~~CreationActivity AI Kits / AI Market tabs~~ ✅ (§14). ~~Custom size~~ ✅ (§15).
 - ~~Shape/graphic element tools: Potong, Cocok, Bayangan, Cermin, Balik~~ ✅ (§20).
-  Still: **AI Kits** (per-element, on a shape/graphic — likely mirrors VN AI kits).
-- **`ivSetting` gear panel** — tapping expanded the top bar (§18); a dedicated settings
-  dialog was not observed with an element selected — re-check with nothing selected.
+  ~~AI Kits (per-element)~~ ✅ (§21, panel; run/generate flow still TODO).
+- ~~`ivSetting` gear panel~~ ✅ (§21, project settings — needs nothing selected).
 - Template **open** flow (from FirstTime collections / "Baru" cards) → straight to editor?
 - **AI Kit / AI Market app** run flow (credits, login gate) — likely mirrors VN's AI kits.
 
