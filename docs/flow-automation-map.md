@@ -544,18 +544,54 @@ element selected the tap instead toggles the top bar / context menu, see §18):
 - `clShowMargin` "Tampilkan margin" (toggle `ivShowMargins`) @540,1871 ·
   `clShowPrintBleed` "Tampilkan pendarahan cetak" @540,2009 · `clShare` "Membagikan" @540,2147.
 
+## §22 Template-open flow & Posisi sub-tabs (Meluruskan / Dorongan)
+
+### Template-open flow (does **not** go straight to the editor)
+`MainActivity` **Designs** tab (`flItemDesigns` @324,2191) is the **template gallery**
+(same content as FirstTimeActivity §1): `llSearch` "Cari Template" @540,318 ·
+`tvCollection` cards "Happy Birthday" @221 / "Filter" @590 / "Travel" @941,1275 ·
+"Baru-baru ini Gunakan" recents · "Baru (100)" + `tvSeeAll` · template cards
+`clRoot`/`ivCover` (@187/494/801/1031,2024). Tapping a template card:
+
+1. → **`com.frontrow.template.ui.preview.TemplatePreviewActivity`** — swipeable preview
+   (`viewPager`/`cvThumbnail`/`ivThumbnail`), `tvClipCount` "16" @163,1916,
+   `ivShare`/`tvShare` "Membagikan" @120, `ivStar`/`tvStar` "Favorit" @308,
+   **`progressButton`** @755,2158 (Use), `ivBack` @90,181, `ivAvatar` @968,181.
+2. `progressButton` → **`com.frontrow.template.ui.filledit.TemplateFillEditActivity`** —
+   a guided **placeholder-fill** screen (distinct from `FlowEditorActivity`):
+   top bar `ivClose` @84,192 · `ivImageFullScreen` @711 · `ivSave` @843 · `ivExport` @981;
+   `editorVideoView` preview; **`rvSlice`** filmstrip of slots (`clRoot`/`rlThumbnailContent`/
+   `ivThumbnail`/`ivSelectState`/`tvIndex` 1,2,3…; selected slot shows `ivEdit`+`tvDuration`
+   "edit" to replace its media). Fill slots → `ivExport`.
+
+   > Exit quirk: `ivClose` on TemplateFillEditActivity did **not** cleanly leave in one tap
+   > (stayed on-activity, likely a confirm dialog not captured). `am force-stop` +
+   > relaunch is the reliable reset.
+
+### Posisi transform — two sub-tabs (`ivTabName`)
+Element selected → **Posisi** → `design_bottom_sheet` with tabs **Meluruskan** (Align)
+@330,1569 · **Dorongan** (Nudge) @750,1569 · `ivClose` @981,1571.
+- **Meluruskan** (Align): 3×2 button grid — `llAlignLeft` "Kiri" @171,1766 · `llAlignCenter`
+  "Tengah" @540,1766 · `llAlignRight` "Benar" @893,1766 · `llAlignTop` "Atas" @180,1976 ·
+  `llAlignMiddle` "Tengah" @540,1976 · `llAlignBottom` "Bawah" @900,1976.
+- **Dorongan** (Nudge): precise position — `etXCoordinate` @292,1790 (label "X") +
+  `etYCoordinate` @292,1958 (label "Y"); directional D-pad `ivNudgeTop` @811,1752 ·
+  `ivNudgeLeft` @688,1874 · `ivNudgeRight` @934,1874 · `ivNudgeBottom` @811,1997
+  (`ivCircle1`/`ivCircle2` center @811,1874).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
 - Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6 text presets; **non-text/brand-style Gaya** §19), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§19), ~~Pembesar~~ ✅ (§19).
-- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
+- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8); ~~Posisi Meluruskan/Dorongan sub-tabs~~ ✅ (§22). Still: Color style sub-tabs.
+- ~~Template-open flow~~ ✅ (§22, Preview → FillEdit; not straight to editor).
 - ~~Editor exit dialog~~ ✅ (§18, standalone). Still: **from-VN exit variant** ("Back to VN / Stay").
 - ~~Element selection context menu~~ ✅ (§18: Menggantikan/Duplikat/Salin/Hapus).
 - ~~CreationActivity AI Kits / AI Market tabs~~ ✅ (§14). ~~Custom size~~ ✅ (§15).
 - ~~Shape/graphic element tools: Potong, Cocok, Bayangan, Cermin, Balik~~ ✅ (§20).
   ~~AI Kits (per-element)~~ ✅ (§21, panel; run/generate flow still TODO).
 - ~~`ivSetting` gear panel~~ ✅ (§21, project settings — needs nothing selected).
-- Template **open** flow (from FirstTime collections / "Baru" cards) → straight to editor?
 - **AI Kit / AI Market app** run flow (credits, login gate) — likely mirrors VN's AI kits.
+- Template **fill → Export** end state; `TemplateFillEditActivity` `ivExport` flow + its `ivClose` confirm dialog.
 
 ## Quick reference
 - Package: `com.frontrow.flow` · Activities: `.ui.firsttime.FirstTimeActivity`, `.ui.creation.CreationActivity`, `.ui.editor.FlowEditorActivity`.
