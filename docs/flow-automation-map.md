@@ -614,6 +614,55 @@ When Flow is opened from **VN**'s editor tool `editor_toolbar_flowStudio` (label
 > tap Flow tool → `FlowEditorActivity` (new task). BACK / `ivClose` → this dialog.
 > Cleanup after: `pm clear com.frontrow.vlog` (restores VN's clean baseline).
 
+## §24 AI-Kit generate run-flow (credit gate) & template Export end-flow
+
+### Account / credit state
+Mine tab (`flItemMine`): `tvLoginOrRegister` "Silahkan login/daftar" → **guest, not logged
+in**; `clCreditCenter` "Pusat Kredit" `tvCreditCenterCount` **"0.0"** → **0 credits** (unlike
+VN's guest which carries 100). So guests can browse AI kits but cannot generate.
+
+### AI-Kit generate run-flow (Enhance Portrait example)
+CreationActivity **AI Kits** tab → tap a kit (Compose, tap by position) → intro
+`design_bottom_sheet` (`tvBefore`/`tvAfter`, `tvTitle` "Perbaiki Potret", `tvContinue`
+**"Coba Sekarang"** @540,2003, `ivClose` @90,479) → photo picker
+**`com.frontrow.mediaselector.ui.MatisseActivity`** (`ivAlbum` "Semua"; first tile
+"Kamera", real photos from col-2; needs `pm grant com.frontrow.flow
+android.permission.READ_EXTERNAL_STORAGE`) → pick a photo →
+**`com.frontrow.ai.ui.enhance.EnhancePhotoActivity`** — **the same shared AI activity as VN's
+AI kits** (`tvTitle` "Enhance Portrait", `tvModelName` "VN / Flow · GFPGAN", `ivHistory`,
+`flSelectPhoto` @129,2135, `tvGenerate` **"Mulai"** @771,2135; `tvBalance` "Generasi ini
+akan menggunakan **2,00** kredit. (Saldo 0,00)").
+
+Tapping **Mulai** with 0 balance → **"Kredit Tidak Cukup"** dialog (`tvAIApp`), showing
+`tvCreditCost` "Biaya Kredit" 2,00 / `tvBalance`, `tvTip` "Kredit tidak mencukupi…", and two
+CTAs: `tvSubscribePro` **"Berlangganan Flow Pro"** @540,1973 · `tvTopUpCredits` **"Isi Ulang"**
+@540,2135. **No login gate — the gate is credits, not sign-in.**
+- **Isi Ulang** → **`com.frontrow.credit.ui.topup.TopUpActivity`** (Compose): "Credit Balance"
+  breakdown (Flow Pro / Top-up and promo); packages **100 = Rp 16.000 · 300 = Rp 47.000 ·
+  500 = Rp 79.000 · 1000 = Rp 159.000**; terms checkbox; "Isi Ulang" purchase button @541,2148;
+  top bar "Aturan" @971,193. **Purchase not completed** (real Play billing).
+
+### Template Export end-flow (image template)
+`TemplateFillEditActivity` (§22) → **`ivExport`** @981,192 → action-sheet
+`design_bottom_sheet`: `tvOperation1` **"Selesai"** @540,1799 · `tvOperation2` "Edit" @540,1945
+(→ opens full editor) · `tvOperationCancel` "Batal". "Selesai" →
+**`com.frontrow.template.ui.export.ImageTextTemplateExportActivity`**:
+- `ivClose` @90,258; `rvMultiPagePreview`/`ivThumbnail` + `tvCount` "1 of 1".
+- `tvFileTypeTitle` "Jenis berkas" + `clType`/`tvType` **"PNG"** @540,1166 (file-type select).
+- `tvSizeTitle` "Ukuran x" + `clSize`/`tvSizeLabel` "1080 x 1920 px" + `etSize` "1.0" +
+  `seekBarSize` (scale multiplier).
+- Toggles: `tvTransparentBackground` "Latar belakang transparan" · `tvCompressFile`
+  "Kompres file (kualitas lebih rendah)" · `tvSplitImage` "Bagi gambar".
+- **`tvExport` "Selesai"** @540,2165 → renders. **No login / watermark gate** — writes a PNG to
+  **`/sdcard/DCIM/FLOW/<yyyymmdd_hhmmss>.png`** then shows the success view: `tvDone` "Selesai"
+  @941,259, `ivCover` preview, share `ivIns` Instagram / `ivFacebook` / `ivOther` "Lainnya",
+  and **`tvExportVideoToVn` "Buat Video dengan VN"** @541,1309 (hand-off to VN, cf §4).
+
+> `ivClose` on `TemplateFillEditActivity` → standard exit bottom-sheet (same as §18):
+> "Simpan Proyek dan Keluar" / "Keluar secara langsung" / "Batal" (this was the earlier
+> "didn't exit in one tap" quirk — just the confirm sheet).
+> **Cleanup after an export test:** `rm /sdcard/DCIM/FLOW/<file>.png` + media rescan.
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
 - Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6 text presets; **non-text/brand-style Gaya** §19), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§19), ~~Pembesar~~ ✅ (§19).
@@ -626,8 +675,10 @@ When Flow is opened from **VN**'s editor tool `editor_toolbar_flowStudio` (label
 - ~~Shape/graphic element tools: Potong, Cocok, Bayangan, Cermin, Balik~~ ✅ (§20).
   ~~AI Kits (per-element)~~ ✅ (§21, panel; run/generate flow still TODO).
 - ~~`ivSetting` gear panel~~ ✅ (§21, project settings — needs nothing selected).
-- **AI Kit / AI Market app** run flow (credits, login gate) — likely mirrors VN's AI kits.
-- Template **fill → Export** end state; `TemplateFillEditActivity` `ivExport` flow + its `ivClose` confirm dialog.
+- ~~AI Kit generate run-flow~~ ✅ (§24, credit gate → TopUp; shared `EnhancePhotoActivity` with VN; no login gate).
+- ~~Template fill → Export end-flow + `ivClose` confirm~~ ✅ (§24, `ImageTextTemplateExportActivity` → PNG + share/VN handoff).
+- AI **Market** vendor install flow (`tvInstallStatus` "Pasang", §14) — not yet exercised.
+- Credit **TopUp purchase** completion & **Flow Pro** subscription screen — intentionally not completed (real billing).
 
 ## Quick reference
 - Package: `com.frontrow.flow` · Activities: `.ui.firsttime.FirstTimeActivity`, `.ui.creation.CreationActivity`, `.ui.editor.FlowEditorActivity`.
