@@ -341,16 +341,128 @@ searchable picker bottom sheet (`design_bottom_sheet`, NATIVE_APP).
 > Gaya · Layer · Mosaik · (element-action) Pembesar · Hapus · Duplikat · Kunci · Sembunyikan.
 > Use the `tvName` text selector; scroll `hsvRootMenu` to bring a tool on-screen.
 
+## §13 MainActivity — `com.frontrow.flow/.ui.main.MainActivity`
+
+Home / project browser. Shown on launch **when saved projects exist** (a true
+first run instead opens FirstTimeActivity §1). NATIVE_APP.
+
+- Top: `tvListTitle` "Proyek di Ponsel Ini" @275,207 · `ivScanQRCode` @852,207 · `ivMore` @1005,207.
+- Content tabs `title_container`: **"Proyek N"** @143,483 · **"Aset AI N"** @369,483.
+- Search: `llSearch` @540,345 (label "Mencari").
+- **Folder** section (`tvTitle` "Folder" + `tvProjectCount`): `rvList` cells
+  `ivFolder`/`tvFolder`/`tvFolderSize` — "Bawaan" @235,968, "Impor" @555,968.
+- **Proyek** section (`tvTitle` + `tvProjectCount`, layout toggle `ivLayout`/`ivLayoutSelected` @927/990,1169):
+  grouped by date (`tvTitle` "HARI INI"). Project card `clRoot` @540,1494:
+  `ivCover` + `llTitle`/`tvTitle` (e.g. "Jul 29, 2026") + `llMore`/`ivMore` @951,1494 (per-project menu).
+- **`ivCreate`** @942,1979 — FAB → **CreationActivity** (§2).
+- Bottom nav `bottomNavigationView`: `flItemHome` @108 · `flItemDesigns` @324 ·
+  `flItemTitorials` @540 · `flItemPro` @756 · `flItemMine` @972 (all @y2191).
+
+## §14 CreationActivity tabs — Create / AI Kits / AI Market
+
+`CreationActivity` (§2) has three top tabs (`title_container`): **Create**
+@125,276 · **AI Kits** @323,276 · **AI Market** @547,276. Close `ivClose` @90,168.
+
+- **Create** tab: `tvCustomSize` "Ukuran Khusus:" @540,798 (→ §15 CustomSizeActivity);
+  `rvCreationPackage` package covers (`flCover`/`ivCover`/`tvTitle` e.g. "Brand Kit");
+  `rvList` preset sizes (`ivLogo`/`tvTitle`/`tvSize`, sections "Baru - baru ini
+  digunakan" & "Disarankan" — e.g. "Instagram Story"/"1080 x 1920 px");
+  `clMoreWays`/`tvMoreWays` "More ways to create" → `rvAlbum` device photo `cardView`s
+  @180/444/708/966,2101 + `tvViewAllPhoto` "Lihat semua" @903,1916 (start from a photo).
+- **AI Kits** tab: 3-col grid (cols @202/540/878) of AI photo tools, grouped by
+  section headers. Cells are label-only (`View`+`TextView`, **no id** → tap by grid pos):
+  - *Enhance Photo*: Enhance Portrait, Upscale Image.
+  - *Image Generation*: Text to Image, AI Inpaint, Image Editing.
+  - (more): Era Look, Figurine Maker, Expression Sticker, Artistic Styles,
+    Anime Style, AI Portrait Duo, Halloween, Lighting Style, … (scroll).
+- **AI Market** tab: `rvList` of **vendor cards** (`root`), each: `ivVendor` icon +
+  `tvVendorName` ("OpenAI"/"Stability AI"/"Fal AI"/…) + **`tvInstallStatus`** "Pasang"
+  @879 (clickable, install vendor) + nested `rvList` of that vendor's apps
+  (`cvCover`/`ivCover`/`tvAIVendorApp` e.g. "Text to Image", "AI Inpainting").
+
+## §15 CustomSizeActivity — `com.frontrow.flow/.ui.size.customsize.CustomSizeActivity`
+
+From CreationActivity Create tab → `tvCustomSize`. NATIVE_APP.
+
+- `ivBack` @93,183 · `tvTitle` "Ukuran Khusus:".
+- **`etWidth`** "Lebar" @185,474 · **`etHeight`** "Tinggi" @506,474 ·
+  unit `clSize`/`tvSizeHint` "px" @840/716,473 · `cbLock` "Rasio ukuran kunci" @273,603.
+- **`etResolution`** "144.0" @345,849 · unit `clResolution`/`tvResolutionHint` "px / in" @840/757,848 · `tvResolutionTip` hint.
+- **`btCreate`** "Buat desain baru" @540,1243 → **FlowEditorActivity** (blank canvas).
+  Requires non-empty width/height (tapping Buat with empty fields is a no-op).
+
+## §16 Blank-canvas "Elemen" bottom sheet (auto-opens on new blank design)
+
+Creating a blank design auto-opens a large content bottom sheet (`design_bottom_sheet`,
+NATIVE_APP). This is the full **ADD picker** — the collapsed `tvName` toolbar (§3.3)
+is its minimized form. `viewDragTop` @540 drag-handle; close = BACK once (2× BACK →
+exit dialog §18).
+
+- **Bottom tab bar** (`ivTabIcon`/`ivTabName`, @y2213): **Elemen** @98 · **Teks** @294 ·
+  **Foto** @490 · **Latar belakang** @686 · **Gaya** @882 · **Impor** @1060 (scroll for more).
+- **Elemen tab** has top sub-tabs (`ivTabName` @y433): **Graphics** @144 · **Frames** @417 ·
+  **Layouts** @682 · **Grids** @926; plus search `ivSearch`/`etSearch` "Mencari" @594,291.
+  - *Graphics*: collections "Shapes (36)", "Components (174)", "Square (24)"… each a
+    `tvTitle`+`tvCount`+`tvSeeAll` "Lihat Selengkapnya" over a 4-col `rootView`/`ivCover`
+    grid (@185/483/781/1017). `ivComponent` badge marks component items.
+  - **Layouts** sub-tab: photo-layout collections by frame count — "Cover (12)",
+    "1 Frame (13)", "2 Frames (29)"… 3-col grid (@225/603/948) + `tvSeeAll`.
+    Tap → inserts a multi-frame photo layout.
+  - **Grids** sub-tab: single "Grids" section, 3-col grid (@204/540/876) of grid thumbs.
+
+## §17 ADD-toolbar tools — Tempel, Layer, Mosaik
+
+Collapsed `tvName` toolbar (`hsvRootMenu`, scroll to reveal). Full ADD order (no
+selection): Foto · Teks · **Tempel** · Shapes · Frames · Layouts · Grids · Latar
+belakang · Gaya · **Layer** · **Mosaik** · (element-action tail: Pembesar · Hapus ·
+Duplikat · Kunci · Sembunyikan). The toolbar is **context-sensitive** — an element
+being selected swaps in transform tools (Edit/Posisi/Ukuran/memutar/Mengatur/Layer/
+Kegelapan/…, §8) and thins the ADD tools.
+
+- **Tempel** @~620,2204 = **paste from clipboard**. Pastes clipboard content onto the
+  canvas as a new element; text clipboard → creates a **text element** and enters the
+  text-edit panel (§5). No panel of its own.
+- **Layer** @~207,2204 (element-selected strip) → **"Lapisan"** bottom sheet:
+  `tvSelect` "Pilih" @263,1397 · `tvTitle` "Lapisan" · `ivClose` @981,1397 ·
+  `cbShowOverlapLayer` "Tampilkan semua layer yang tumpang tindih" @90,1529 ·
+  `rvList` layer rows (`clContent`: `ivSliceType` type-icon + `cvDisplay`/`tvDisplay`
+  name/preview + `ivSort` @930 drag-reorder handle).
+- **Mosaik** @~362,2204 → `layout_border_menu` bottom sheet (mosaic/lens effect):
+  - `rvType` shape types (`flType`/`ivType`/`ivSelected` + `tvName`, @y1513):
+    **Bulat** @156 · **Persegi 1** @348 · **Persegi 2** @540 · **Gaya 1** @732 · **Gaya 2** @924.
+  - `ccvColorPanel` color row (`cVColor`/`ivItemColor`; first cell `ivItemType` = custom picker) @114…1029,1661.
+  - `tvZoomLabel` "Zoom" + **`sbZoom`** @540,1806 + `tvZoomValue` · `tvBorderLabel`
+    "Berbatasan" + **`sbBorder`** @540,1927 + `tvBorderValue`.
+  - `ivCancel` @189,2174 · `ivDone` @891,2174.
+
+## §18 Full editor top bar + element context menu + exit dialog
+
+- **Full top bar** (`clTopViews`, @y183): `ivClose` @62 · `ivHelp` @177 · `ivUndo` @285 ·
+  `ivRedo` @393 · **`ivSetting`** @603 · `ivFullScreen` @711 · `ivSave` @843 · **`tvExport`** @981.
+- **Element context menu** (appears above a selected element, @y747): `llReplace`
+  "Menggantikan" @252 · `llDuplicate` "Duplikat" @444 · `llCopy` "Salin" @636 · `llDelete` "Hapus" @828.
+  `ivMenuAdd` @96,2156 opens the ADD sheet (§16).
+- **Exit dialog** (`ivClose` @62,183, standalone variant): `design_bottom_sheet` with
+  `tvOperation1` **"Simpan Proyek dan Keluar"** @540,1799 · `tvOperation2` **"Keluar
+  secara langsung"** @540,1945 · `tvOperationCancel` "Batal" @540,2119. (The from-VN
+  variant shows "Back to VN / Stay at Flow Studio" instead — still to confirm live.)
+- **Text-edit panel icons** (from §5, now resolved): the icon strip is
+  `llInput` @62 · `llFonts` @186 · **`llFontSize`** @310 · `llColor` @434 ·
+  `llTextFormat` @558 · **`llTextSpacing`** @683 · `llSubtitleType` @808 ·
+  `flSubtitleConfirm`/`ivSubtitleConfirm` @975 (all @y1410); text field `etTextInput1`.
+
 ## Remaining to map (TODO — next sessions)
-- ~~Export / Apply-to-VN flow~~ ✅ mapped (see §4).
-- Individual **tool panels**: ~~Teks~~ ✅ (§5, Input/Fonts/Color/Format; Type via §6.2; FontSize/Spacing still pending), ~~Gaya~~ ✅ (§6, text presets; non-text TODO). ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12). Still: Layer, Mosaik, Tempel, Grids, Layouts.
-- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8, full set). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
-- ~~Editor exit dialog~~ ✅ (§7, standalone variant; from-VN variant TODO).
-- **Element selection context menu** (tap an element on canvas → what actions appear).
-- CreationActivity **AI Kits** / **AI Market** tabs.
-- Template **open** flow (from FirstTime collections / "Baru" cards) → does it go straight to editor?
-- `ivSetting` editor settings; `ivClose` exit dialog ("Back to VN / Stay").
-- Custom size (`tvCustomSize`) input screen.
+- ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
+- Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6, text presets; **non-text Gaya still TODO**), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§17).
+- Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
+- ~~Editor exit dialog~~ ✅ (§18, standalone). Still: **from-VN exit variant** ("Back to VN / Stay").
+- ~~Element selection context menu~~ ✅ (§18: Menggantikan/Duplikat/Salin/Hapus).
+- ~~CreationActivity AI Kits / AI Market tabs~~ ✅ (§14). ~~Custom size~~ ✅ (§15).
+- **`ivSetting` gear panel** — tapping expanded the top bar (§18); a dedicated settings
+  dialog was not observed with an element selected — re-check with nothing selected.
+- **Pembesar (Magnifier)** element tool panel — not yet opened (distinct from Mosaik).
+- Template **open** flow (from FirstTime collections / "Baru" cards) → straight to editor?
+- **AI Kit / AI Market app** run flow (credits, login gate) — likely mirrors VN's AI kits.
 
 ## Quick reference
 - Package: `com.frontrow.flow` · Activities: `.ui.firsttime.FirstTimeActivity`, `.ui.creation.CreationActivity`, `.ui.editor.FlowEditorActivity`.
