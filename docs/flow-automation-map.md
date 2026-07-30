@@ -427,13 +427,10 @@ Kegelapan/…, §8) and thins the ADD tools.
   `cbShowOverlapLayer` "Tampilkan semua layer yang tumpang tindih" @90,1529 ·
   `rvList` layer rows (`clContent`: `ivSliceType` type-icon + `cvDisplay`/`tvDisplay`
   name/preview + `ivSort` @930 drag-reorder handle).
-- **Mosaik** @~362,2204 → `layout_border_menu` bottom sheet (mosaic/lens effect):
-  - `rvType` shape types (`flType`/`ivType`/`ivSelected` + `tvName`, @y1513):
-    **Bulat** @156 · **Persegi 1** @348 · **Persegi 2** @540 · **Gaya 1** @732 · **Gaya 2** @924.
-  - `ccvColorPanel` color row (`cVColor`/`ivItemColor`; first cell `ivItemType` = custom picker) @114…1029,1661.
-  - `tvZoomLabel` "Zoom" + **`sbZoom`** @540,1806 + `tvZoomValue` · `tvBorderLabel`
-    "Berbatasan" + **`sbBorder`** @540,1927 + `tvBorderValue`.
-  - `ivCancel` @189,2174 · `ivDone` @891,2174.
+- **Pembesar / Mosaik** — two distinct tools that share the `layout_border_menu`
+  bottom-sheet container (same `rvType`/`ivCancel`@189,2174/`ivDone`@891,2174 skeleton)
+  but different content. See **§19** for both panels (they sit adjacent in the
+  no-selection toolbar: … Layer · **Mosaik** · **Pembesar** · Hapus …).
 
 ## §18 Full editor top bar + element context menu + exit dialog
 
@@ -451,16 +448,66 @@ Kegelapan/…, §8) and thins the ADD tools.
   `llTextFormat` @558 · **`llTextSpacing`** @683 · `llSubtitleType` @808 ·
   `flSubtitleConfirm`/`ivSubtitleConfirm` @975 (all @y1410); text field `etTextInput1`.
 
+## §19 Pembesar & Mosaik panels + non-text Gaya (page/brand style)
+
+**Toolbar context recap.** The bottom toolbar is context-sensitive:
+- **No selection** (`ivMenuAdd` @96,2156 visible): ADD/insert tools — Foto · Teks ·
+  Tempel · Shapes · Frames · Layouts · Grids · Latar belakang · **Gaya** @721 ·
+  Layer · **Mosaik** · **Pembesar** · Hapus · Duplikat · Kunci · Sembunyikan
+  (the Hapus…Sembunyikan tail acts on the current/last element).
+- **Text element selected**: Edit · Posisi · Ukuran · memutar · Mengatur · Layer · Kegelapan · …
+- **Shape/graphic element selected**: Menggantikan · Potong · Posisi · Ukuran · Cocok ·
+  memutar · Mengatur · Layer · **Bayangan** (shadow) · Kegelapan · **AI Kits** · **Cermin**
+  (mirror) · **Balik** (flip) · Kunci. (No Gaya/Pembesar/Mosaik in the *element* strip —
+  those live in the no-selection strip above.)
+
+Positions drift after each scroll → **detect the `tvName` coordinate from a fresh
+map and tap that**, don't hardcode. Insert a non-text element for these: open the
+Elemen sheet (§16) → Graphics/Shapes → tap a shape cell (e.g. @185,1221).
+
+### Pembesar (Magnifier) — `layout_border_menu`
+Magnifier lens over the canvas region beneath it. (**Correction:** an earlier draft
+of §17 mislabeled this panel as "Mosaik" — the **"Zoom" slider is the tell; this is
+Pembesar**.)
+- `rvType` lens shapes (`flType`/`ivType`/`ivSelected`+`tvName`, @y1513): **Bulat** @156 ·
+  **Persegi 1** @348 · **Persegi 2** @540 · **Gaya 1** @732 · **Gaya 2** @924.
+- `ccvColorPanel` border-color row (`cVColor`/`ivItemColor`; first cell `ivItemType` =
+  custom picker) @114…1029,1661.
+- `tvZoomLabel` **"Zoom"** + **`sbZoom`** @540,1806 + `tvZoomValue` · `tvBorderLabel`
+  **"Berbatasan"** + **`sbBorder`** @540,1927 + `tvBorderValue`.
+- `ivCancel` @189,2174 · `ivDone` @891,2174.
+
+### Mosaik (pixelate/blur) — `layout_border_menu`
+Pixelate/obscure a region. (Matches VN's Mosaik.)
+- `rvType` patterns (`tvName` @y1513): **Mosaik** @252 · **Segitiga** @444 ·
+  **Segi enam** @636 · **Blur** @828.
+- `rvMask` mask-shape row (`rootView`/`ivType` @324/468/612/756,1661).
+- `tvSizeLabel` **"Ukuran"** + **`sbSize`** @540,1806 + `tvSizeValue` (single size slider —
+  **no** Zoom/Border, unlike Pembesar).
+- `ivCancel` @189,2174 · `ivDone` @891,2174.
+
+### Non-text Gaya (page / brand style kit) — no-selection toolbar **Gaya** @721,2204
+Applies a **font-pairing + color palette** to the whole design (this is the
+"non-text" Gaya; the §6 Gaya was text presets with a text element selected).
+`design_bottom_sheet`, `viewDragTop` @540,1161.
+- Sub-tabs `ivTabName` @y1316: **Semua** @292 · **warna** @541 · **font** @790.
+- Categories `tvCategoryTitle`: "Brand Styles" (+`tvAdd` "Menambahkan" @918,1547) · "Bawaan".
+- Style cards `rvList` 2-col grid (@279/801): `tvHeading` (heading font, e.g.
+  "StarlightBold"/"Creepster-Regular"/"Monoton-Regular") + `tvSubheading` (body font,
+  e.g. "GlacialIndifference-Regular"/"Inter-Bold") + `llColors`/`viewColor1..6`
+  (6-swatch palette) + `ivPro` badge (Pro-only styles).
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
-- Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6, text presets; **non-text Gaya still TODO**), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§17).
+- Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6 text presets; **non-text/brand-style Gaya** §19), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§19), ~~Pembesar~~ ✅ (§19).
 - Element transform: ~~Posisi/Ukuran/memutar/Mengatur~~ ✅ (§8). Still: Posisi "Dorongan" nudge detail, Color style sub-tabs.
 - ~~Editor exit dialog~~ ✅ (§18, standalone). Still: **from-VN exit variant** ("Back to VN / Stay").
 - ~~Element selection context menu~~ ✅ (§18: Menggantikan/Duplikat/Salin/Hapus).
 - ~~CreationActivity AI Kits / AI Market tabs~~ ✅ (§14). ~~Custom size~~ ✅ (§15).
+- Shape/graphic element tools not yet opened individually: **Potong** (crop), **Cocok**
+  (fit), **Bayangan** (shadow), **AI Kits** (per-element), **Cermin**/**Balik** (mirror/flip).
 - **`ivSetting` gear panel** — tapping expanded the top bar (§18); a dedicated settings
   dialog was not observed with an element selected — re-check with nothing selected.
-- **Pembesar (Magnifier)** element tool panel — not yet opened (distinct from Mosaik).
 - Template **open** flow (from FirstTime collections / "Baru" cards) → straight to editor?
 - **AI Kit / AI Market app** run flow (credits, login gate) — likely mirrors VN's AI kits.
 
