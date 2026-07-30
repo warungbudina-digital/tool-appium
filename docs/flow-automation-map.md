@@ -497,6 +497,30 @@ Applies a **font-pairing + color palette** to the whole design (this is the
   e.g. "GlacialIndifference-Regular"/"Inter-Bold") + `llColors`/`viewColor1..6`
   (6-swatch palette) + `ivPro` badge (Pro-only styles).
 
+## §20 Shape/graphic element tools — Potong, Cocok, Bayangan, Cermin, Balik
+
+With a **shape/graphic element selected**, the element strip (§19) offers these.
+Insert a shape: Elemen sheet (§16) → Graphics/Shapes → tap a cell @185,1221.
+
+- **Potong** (Crop) → dedicated activity **`com.frontrow.editorwidget.crop.CropActivity`**
+  (same crop widget as VN). `cropView`/`image_view_crop`/`view_overlay` canvas;
+  `recyclerView_ratio_choose` ratios (`layoutFrameType`/`ivFrameTYpeIcon`/`tvFrameTypeName`):
+  **Asli** @120 · **Bebas** @330 · **9:16** @509 · **1:1** @688 · **16:9** @913 · (more @1064,
+  scroll); a `clProgress`/`sbProgress` (tvCurrentTimeMs "0:00"/tvTotalTimeMs) appears for
+  animated shapes. Bottom: `imageView_crop_cancel` @177,2159 · `imageView_crop_reset`
+  @540,2159 · `imageView_crop_done` @903,2159.
+- **Cocok** (Fit) = **instant toggle, no panel** — the `tvName` label flips to
+  **"Mengisi"** (Fill) after tapping, and back. Switches element scale mode fit↔fill
+  (same behavior as VN's Mengisi/Cocok).
+- **Bayangan** (Shadow) → `design_bottom_sheet`: `tvTitle` "Bayangan" @541,1263 ·
+  `ivClose` @981,1262. `flNone` @150,1471 (no shadow) + `rvList`/`flShadowType`/
+  `ivShadowsType` preset types @423/603/783/947,1471. `tvShadowsColor` "Warna" +
+  `ccvStrokeColorPanel` color row (`cVColor`/`ivItemColor`; first `ivItemType` custom)
+  @114…1029,1790. `clShadowTransparency` "Transparansi" + `etShadowTransparency` "100"
+  @945,2006 + `sbShadowTransparency` @533,2114.
+- **Cermin** (Mirror) = **instant action, no panel** — mirrors the element horizontally.
+- **Balik** (Flip) = **instant action, no panel** — flips the element vertically.
+
 ## Remaining to map (TODO — next sessions)
 - ~~Export / Apply-to-VN flow~~ ✅ (§4). ~~MainActivity project browser~~ ✅ (§13).
 - Tool panels: ~~Teks~~ ✅ (§5; FontSize/Spacing icons resolved §18), ~~Gaya~~ ✅ (§6 text presets; **non-text/brand-style Gaya** §19), ~~Foto~~ ✅ (§9), ~~Shapes~~ ✅ (§10), ~~Frames~~ ✅ (§11), ~~Latar belakang~~ ✅ (§12), ~~Layouts~~ ✅ (§16), ~~Grids~~ ✅ (§16), ~~Tempel~~ ✅ (§17), ~~Layer~~ ✅ (§17), ~~Mosaik~~ ✅ (§19), ~~Pembesar~~ ✅ (§19).
@@ -504,8 +528,8 @@ Applies a **font-pairing + color palette** to the whole design (this is the
 - ~~Editor exit dialog~~ ✅ (§18, standalone). Still: **from-VN exit variant** ("Back to VN / Stay").
 - ~~Element selection context menu~~ ✅ (§18: Menggantikan/Duplikat/Salin/Hapus).
 - ~~CreationActivity AI Kits / AI Market tabs~~ ✅ (§14). ~~Custom size~~ ✅ (§15).
-- Shape/graphic element tools not yet opened individually: **Potong** (crop), **Cocok**
-  (fit), **Bayangan** (shadow), **AI Kits** (per-element), **Cermin**/**Balik** (mirror/flip).
+- ~~Shape/graphic element tools: Potong, Cocok, Bayangan, Cermin, Balik~~ ✅ (§20).
+  Still: **AI Kits** (per-element, on a shape/graphic — likely mirrors VN AI kits).
 - **`ivSetting` gear panel** — tapping expanded the top bar (§18); a dedicated settings
   dialog was not observed with an element selected — re-check with nothing selected.
 - Template **open** flow (from FirstTime collections / "Baru" cards) → straight to editor?
