@@ -1747,3 +1747,47 @@ login/langganan berubah.**
 **Cara reproduksi cepat**: `flItemPro` utk status langganan; `flItemMine` → `clCreditCenter`
 utk saldo kredit; editor → `editor_toolbar_speed` utk speed; `editor_topbar_export` →
 `rbManual` utk opsi resolusi/fps/bitrate.
+
+## 22. Musik & Beat-Sync dari dalam editor (`UseMusicDetailActivity`)
+
+Dipetakan 2026-08-01 saat membangun template Reel (lihat playbook lengkap:
+`docs/vn-template-creation-playbook.md`). Ini melengkapi §8 (tool Musik) dan §20
+(BeatsClips) dengan jalur **menambahkan musik + menandai ketukan langsung dari editor**.
+
+**Pintu masuk:** `EditorActivity` → ketuk **BARIS trek musik** @798,1445 → popup
+**"Memasukkan"** (3 kartu: **Musik** @188,1954 · **Efek** · **Merekam**).
+
+**`MusicManageActivity`** (pustaka bersama, sama dgn §20): tab *Musik / Favorit / Milikmu*,
+`flSearch`, grid kategori **Vlog · Pop · Dynamic · Fresh · Acoustic · Electronic · Hip-Hop**
+(mis. Dynamic @859,806 → 36 track). Ketuk track = preview + waveform inline; muncul
+bintang favorit + tombol **"Menggunakan"** @932,938.
+
+**`com.frontrow.videoeditor.music.ui.detail.UseMusicDetailActivity`** — BEDA dari
+`MusicDetailActivity` di §20 (jalur BeatsClips). Isi:
+- header judul + artis + durasi (mis. "Discover · Ikson · 2:21"), tombol play, bintang;
+- **strip trim waveform yang OTOMATIS ter-set ke durasi proyek** (mis. `18.00`), penanda
+  `0.00 … 18.00`, dan indikator **🚩 N** (jumlah beat) di tengah bawah strip;
+- `Volume` slider (default 100);
+- **dua** slider **"Memudar"** = fade-in dan fade-out (default 0.0s);
+- tombol lebar **"Ketukan"** @538,1998; footer **✗** dan **✓** (@764,2161).
+
+**Panel "Ketukan Musik"** (dari tombol Ketukan):
+- kecepatan pratinjau **0.5x / 1x** (kanan atas);
+- **`Beat Otomatis`** + status *Mati* / *Beat: N*, **toggle @920,1357**;
+- menyalakan toggle → dialog **"Tambah Beat Secara Otomatis"** ("Beat akan dibuat otomatis
+  dari suara… Suara akan diproses sesuai dengan **Kebijakan Privasi**") → **"Tambah Beat"**
+  @538,1337 / "Nanti". Hasil pada lagu 18 detik: **Beat: 31** terdeteksi, muncul
+  **slider kerapatan beat** (5 titik) + penanda merah bernomor (1,2,3…) di waveform;
+- **tambah beat manual**: tombol bendera merah @538,1974 (ketuk mengikuti irama; perlambat
+  ke 0.5x agar presisi) + tombol **undo** di footer;
+- footer: ✗ · undo · ▶ · **✓ @888,2166**.
+
+**Setelah ✓ ganda** (panel beat lalu UseMusicDetail): klip musik masuk trek dengan
+**garis vertikal penanda beat** terlihat di trek. Toolbar konteks klip musik:
+*Menggantikan · **Ketukan** · Bingkai utama · Pilihan · Kunci · Duplikat · Hapus*;
+toolbar bawah: *Volume · **Memudar** · Pisah · Tolak kebisingan · Efek Suara · Teks Otomatis*
+(muncul tooltip "The [Volume] and [Fade] functions are here now!").
+
+**Manfaat untuk otomasi:** penanda beat = titik potong presisi; kombinasikan dengan
+`editor_toolbar_split` (§8) atau susun slot berdurasi tetap (mis. 6 × 3.00s) agar transisi
+jatuh di ketukan tanpa menggeser klip manual.
