@@ -1613,3 +1613,137 @@ Tiap bagian bisa diberi judul + klip (lewat "Tambahkan klip") + deskripsi
 (`etMediaDescription`, lihat §8g). **Dua endpoint:** `tvStorySave`
 ("Simpan Cerita") menyimpan storyline; `tvStoryNext` ("Lanjut") meneruskan
 ke tahap berikut (editor/generate — belum dieksekusi).
+
+## 21. VN PRO — akun login, tab Pro, Brand Kit, Credit Center, dan KOREKSI Kecepatan
+
+**Konteks pemetaan (2026-08-01, VN 2.17.0 versionCode 6989 — versi SAMA dengan §1–20, tapi
+STATUS AKUN BERBEDA).** Seluruh §1–20 dipetakan saat akun **tamu/tidak login**. Sesi ini
+perangkat sudah **LOGIN** dan **VN Pro aktif**, sehingga sejumlah permukaan baru muncul dan
+beberapa catatan lama harus dikoreksi. Semua selector di bawah **NATIVE (punya resource-id)**
+kecuali disebut lain.
+
+### 21a. Status akun & langganan
+- **Login sebagai `warungbudina`** (`tvNickname`), username `@warungbudina` (`tvUsername`).
+  Ini mengubah asumsi §16/§9: gerbang login (`LoginActivity`) TIDAK lagi muncul untuk fitur
+  cloud/komunitas.
+- **VN Pro = FREE TRIAL**, `tvExpire`: *"The free trial will expire on August 03, 2026. You will
+  be automatically charged for the subscription fee unless you cancel it at least 24 hours
+  before the free trial ends."* Tombolnya **`btManageSubscribe` "Kelola langganan"** (bukan
+  "Berlangganan") = penanda langganan/trial AKTIF.
+
+### 21b. Bottom navigation MainActivity (5 item — sebelumnya tak terdokumentasi lengkap)
+| id | posisi | isi |
+|---|---|---|
+| `home_projects` | @108,2191 | Proyek Anda (tab Proyek/Bekerja/Templat/BeatsClips/Cerita) |
+| `flItemDiscover` | @324,2191 | Discover |
+| `flItemTutorial` | @540,2191 | Tutorial |
+| **`flItemPro`** | @756,2191 | **halaman VN Pro (ikon crown)** |
+| `flItemMine` | @972,2191 | profil/akun |
+
+### 21c. Tab Pro (`flItemPro`) — halaman VN PRO
+Bukan Activity terpisah: tetap `.ui.main.MainActivity` (`vpTabs`).
+- Judul/branding: `ivTitle` (logo VN PRO), `tvSubTitle` "Buka semua fitur Premium."
+- `tvContact` "Contact Us" @947,161
+- **`rvFunctionDescription`** = RecyclerView HORIZONTAL kartu fitur; tiap kartu
+  `ivFeature` + `tvFeatureTitle` + `tvFeatureDes`. Terlihat: **No Ads** (Remove all ads),
+  **Share Project** (Unlimited use), **Read-only** (Protect safety), **Folders**
+  (Project folders) — scroll utk sisanya.
+- Daftar benefit (TextView ber-id, stabil):
+  `tvBenefitMaterials` "Buka bahan Premium, template, dan font",
+  `tvBenefitProjects` "Proyek tanpa batas",
+  (tanpa id) "Pembuatan template VN tanpa batas",
+  `tvBenefitEncryptedSharing` "Berbagi proyek terenkripsi",
+  `tvBenefitMonthlyCredits` "Termasuk 100 kredit per bulan"
+- `clMenu`/`clSubscribe` (kontainer), `tvExpire` (status trial), `btManageSubscribe`
+  "Kelola langganan" @540,1883, `tvPrivacy` @445,2057, `tvTermsOfUse` @649,2057.
+
+### 21d. Tab Mine (`flItemMine`) — profil & menu akun
+`ivScanQRCode`@858,204, `ivSetting`@996,204, `ivAvatar`@159,369, `tvNickname`, `tvUsername`,
+`ivGender`, `ivIns`@878,370, `ivFacebook`@983,370, `tvFollowingCount`/`tvFollow` "Berikut",
+`tvFollowerCount`/`tvFollower` "Pengikut", `llMore`/`tvMore` "Lebih".
+Baris menu (semua `cl*` clickable + `tv*Count`):
+| id | label | catatan |
+|---|---|---|
+| `clCreditCenter` @540,703 | Credit Center | `tvCreditCenterCount` = **100.0** |
+| `clTemplate` @540,907 | Templat | |
+| `clBeatsClips` @540,1093 | BeatsClips | |
+| **`clBrandKit`** @540,1279 | Brand Kit | `tvBrandKitCount`=0 — **BARU, tak ada di §1–20** |
+| `clTrash` @540,1483 | Sampah Proyek | `tvTrashCount` (lih. §12) |
+| `clHelpCenter` @540,1687 | Help Center | |
+
+### 21e. Brand Kit (fitur Pro)
+- Daftar: **`com.frontrow.flowmaterial.ui.brandkit.BrandKitManageActivity`** —
+  `ivBack`, `ivHelp` ("Tolong"), `viewPager`, `rvList`; kosong → `llEmptyView` +
+  `tvEmpty` "Anda belum menambahkan kit merek." + **`btEmpty` "Buat kit merek"** @541,794.
+- Buat: **`...brandkit.add.AddStyleActivity`** (`tvTitle` "Buat Gaya"):
+  `etStyleName` (hint "Silakan masukkan nama gaya") @540,558;
+  **font WAJIB** `tvTitleFontTip` "Tambahkan Font Judul (Diperlukan)"@540,954 &
+  `tvSubtitleFontTip` "Tambahkan Font Subtitle (Diperlukan)"@540,1194, opsional
+  `tvContentFontTip` "Tambahkan Font Konten"@540,1434;
+  warna `tvColorAddCount` "(Ditambahkan: 0/10)" **maks 10 warna**, `tvReadImage`
+  "Baca warna gambar"@863,1664, `rvAddColorList`, `llAddColorPick`@150,1896.
+
+### 21f. Credit Center — activity BERSAMA dengan Flow Studio
+`clCreditCenter` → **`com.frontrow.credit.ui.topup.TopUpActivity`** (activity yang SAMA dengan
+TopUp Flow Studio, lih. flow-automation-map §24). Layar Lynx **tanpa resource-id** → selector
+by-text/koordinat. Isi: "Saldo Kredit" **100.0**, rincian **"VN Pro: 100.0"** +
+"Top-up and promo: 0.0", tombol "Isi Ulang", "Rules", judul "Pusat Kredit".
+> **KOREKSI §17c:** catatan lama menyimpulkan "akun tamu VN punya saldo 100 kredit".
+> Sebenarnya **100 kredit itu benefit langganan VN Pro** (`tvBenefitMonthlyCredits`
+> "Termasuk 100 kredit per bulan"), terbukti dari rincian saldo "VN Pro: 100.0".
+
+### 21g. ⚠️ KOREKSI BESAR — tool **Kecepatan (speed) ADA**
+§8e/ringkasan lama menyatakan *"Kecepatan TIDAK ADA di VN 2.17.0 (sudah dicek menyeluruh)"*.
+**Itu SALAH untuk kondisi sekarang**: toolbar editor memuat **`editor_toolbar_speed`
+@932,2156**. Toolbar (tanpa klip terpilih) terbaca: `editor_toolbar_filter`@48 ·
+`editor_toolbar_trim`@188 · `editor_toolbar_FX`@362 · `editor_toolbar_split`@536 ·
+`editor_toolbar_BGRemove`@710 · **`editor_toolbar_speed`@932** · `editor_toolbar_sound`@1052
+(swipe utk sisanya). Versi app identik (6989) → perbedaannya **status akun/Pro atau
+feature-flag sisi server**, bukan update app. **Pelajaran: "fitur tidak ada" pada app
+ber-feature-flag hanya berlaku untuk status akun saat pemetaan — verifikasi ulang setelah
+login/langganan berubah.**
+
+**Panel Kecepatan** (`design_bottom_sheet`, `rootView`) punya 2 sub-tab:
+- **`tvCurveSpeed` "Kurva"** @350,1682 (indikator `vCurveSpeedIndicator`) →
+  `clCurveSpeed`, `tvOriginalDurationCurve` "Durasi 79.92s", **`rvCurveList`** preset:
+  Asli@133 · Kustom@300 · Montage@469 · Hero Time@636 · Bullet Time@807 · Jump Cut@979
+  (tiap item `ivCurveSpeed`+`tvCurveSpeed`, ada item lanjutan — scroll).
+- **`tvRegularSpeed` "Peraturan"** @692,1682 → `clRegularSpeed`,
+  `tvOriginalDurationRegular`, **`tvSpeed` "1.0x"** + ruler **0.1x / 0.5x / 1.0x / 1.5x /
+  2x / 3x**.
+- Tutup: `ivCancel`@189,2174 / terapkan `ivDone`@891,2174.
+- **Freeze frame tetap TIDAK ditemukan** (tak ada di panel speed maupun toolbar) — §8e
+  bagian freeze masih berlaku.
+
+### 21h. Layar Ekspor — mode Manual (resolusi/fps/bitrate)
+`editor_topbar_export`@996,198 → **`...ui.generate.option.VideoGenerateOptionActivity`**.
+- `ivClose`@90,198, `ivCover`, `clExportSetting`, `tvExportSetting` "Expor pengaturan"
+- `radioGroup`: **`rbAuto` "Mobil"**@720,765 / **`rbManual` "Manual"**@891,765
+- `tvExportSettingValue` (mis. "720p / 25fps" auto → "1080p / 30fps" manual)
+- `tvExportAudioOnly` + `sbExportAudioOnly`@917,992
+- **Manual membuka 3 slider**: `tvResolutionTitle`+**`ssbResolution`**@540,1266
+  (**480p · 540p · 720p · 1080p**), `tvFrameRateTitle`+**`ssbFrameRate`**@540,1540
+  (**24 · 25 · 30 · 50 · 60**), `tvBitrateTitle` "Kecepatan Bit Rata-Rata (Mbps)" +
+  `sbBitrate` + **`etBitrate` (input angka, mis. 13.0)**@885,1700, `tvMinBitrate` "1.0 Mbps"
+  … `tvMaxBitrate` "**100 Mbps**"
+- `tvFileSizeTitle`/`tvFileSize` (mis. "129.87 MB"), render = **`export_export` "Selesai"**
+  @540,2165 (TIDAK ditekan saat pemetaan).
+> **Temuan: VN Pro TIDAK membuka ekspor 4K.** Plafon resolusi tetap **1080p** di VN 2.17.0
+> Android. Yang Pro berikan pada ekspor: kontrol manual fps s/d 60 & bitrate s/d 100 Mbps.
+
+### 21i. Perubahan permukaan lain (status login/Pro)
+- **FirstTime via FAB `+`** (MainActivity) memunculkan varian dengan **tab "Membuat" /
+  "Milikmu"** + banner "Master the Features" + footer **"VN Ruang Terpakai: 0KB ·
+  Membersihkan"** (pembersih cache in-app). FirstTime dari splash tetap seperti §1
+  (`ivClose`@79,150, `ivHelpCenter`@1002,150, `createKit_create_newProject`@540,420).
+- **Media picker** (`VideoEditorMatisseActivity`) kini bertab **Semua · Stok · Subtitle**
+  (Stok = pustaka stok; Subtitle = impor subtitle) di atas filter Semua/Video/Foto.
+- Dialog **"Mode Edit Proyek"** (§5) tetap: Berbasis Video / Berbasis Musik + "Jangan tanya
+  saya lagi" + **Simpan**@538,2024; catatan di dialog: *"Ubah mode edit di Pengaturan >
+  Preferensi."*
+- Editor punya **`ivEditorPreference` "Preferensi Editor"** (@837,1319 saat panel track
+  terlihat).
+
+**Cara reproduksi cepat**: `flItemPro` utk status langganan; `flItemMine` → `clCreditCenter`
+utk saldo kredit; editor → `editor_toolbar_speed` utk speed; `editor_topbar_export` →
+`rbManual` utk opsi resolusi/fps/bitrate.
