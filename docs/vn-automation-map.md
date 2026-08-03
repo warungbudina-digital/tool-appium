@@ -1857,3 +1857,26 @@ di ring jenis (mis. **"+61"**). Footer: `ivCancel` @189 · `ivReset` @334 ·
 contrast `low`→KONTRAS naik, `high`→turun; temperature `warm`→SUHU ke hangat, `cool`→dingin.
 Terverifikasi: KECERAHAN **+61** pada segmen footage malam gelap → preview jelas lebih terang.
 **Nilai terbaca** (ring jenis) → bisa loop set-presisi seperti seek jump-cut kalau perlu.
+
+### 23f. Orchestrasi berpandu-data per-segmen (`ir_to_vn.py` → VN) — status & jebakan
+`ir_to_vn.py` (commit `8671db2`) emit **rencana per-segmen**: blueprint `segments` +
+berkas `<base>.segments.json` — tiap scene→segmen dgn `zoom` (Perbesar/Perkecil dari
+`camera_movement`) + `adjust` (dari `lighting`: dark→KECERAHAN naik, low→KONTRAS naik,
+warm/cool→SUHU). **Syarat koheren: footage VN = footage yang dianalisa** (segmen VN = scene IR).
+
+Alur orchestrator (per segmen): **seek** ke midpoint (current_textView feedback, §23b) →
+**pilih klip** tap @**(538, 1895)** (x≈playhead, y≈baris thumbnail klip — BUKAN y track-label
+1712, BUKAN +add) → **clipZoom** (§23c, opsi **Perbesar @528,2074 / Perkecil @336,2074 by
+KOORDINAT** krn tvName Lynx tak kena `.text()`) → **Adjust** (§23e).
+
+**TERBUKTI (2026-08-03):** buat proyek dari klip 3-scene (analisa nyata: dark/bright/warm +
+zoom_in/shake/zoom_out) → **jump-cut di batas scene 3s/6s** (seek+split, verified 2.85/5.85) →
+per-segmen select+zoom. **JEBAKAN (bikin demo penuh rapuh):** (1) opsi zoom/adjust = **Lynx →
+WAJIB koordinat**, `.text("Perbesar")` gagal; (2) klip thumbnail di **y≈1895**, salah-y → tap
+kena +add / area kosong → popup "Di dalam" (Foto/Elemen/Teks) menyembunyikan `current_textView`
+→ readT gagal; (3) **state pasca-error menumpuk** — BACK di editor bisa keluar ke Export /
+MatisseActivity (bukan cuma tutup panel) → reset ke editor bersih dulu; (4) tap tombol
+topbar tak sengaja (Export @996,198) → VideoGenerateOptionActivity. **Tiap operasi tunggal
+sudah terbukti (seek/split/clipZoom/Adjust); yang rapuh = merangkai 3+ segmen tanpa reset.**
+Rekomendasi: jalankan per-segmen sebagai run terpisah + verifikasi `current_textView` ada
+sebelum tiap segmen; pakai koordinat utk semua tombol Lynx.
