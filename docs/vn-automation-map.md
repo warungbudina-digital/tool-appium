@@ -1839,3 +1839,21 @@ Klip terpilih → **`editor_toolbar_clipZoom`** (jauh di kanan toolbar 21-tool) 
   Tombol skip-to-start **|◄ lompat ke boundary segmen, BUKAN 0:00**.
 - **BACK di editor** = keluar+autosave kalau tak ada seleksi (proyek muncul di MainActivity
   "Proyek Anda"; buka lagi = tap kartu proyek). BACK 1x saat ada seleksi = deselect.
+
+### 23e. Adjust pencahayaan (`editor_toolbar_filter` → Menyesuaikan)
+Reproduksi dimensi PENCAHAYAAN (dari `scene.lighting` di IR → blueprint `lighting`).
+Klip terpilih → **`editor_toolbar_filter` @48,2156** (tool ke-1 toolbar) → panel filter, 2 tab:
+- **`tvFilter` "Filter"** @316,1448 = preset (Asli/A1-A4 + `sbIntensity`);
+- **`tvFilterManual` "Menyesuaikan" @677,1448 = ADJUST**.
+
+Tab Menyesuaikan: baris horizontal `filterTextView` (scrollable) jenis penyesuaian —
+**PAPARAN** (eksposur) · **KONTRAS** · **KECERAHAN** · **KEJENUHAN** (saturasi) · VIBRANCE ·
+**SUHU** (temperature, scroll kanan) · dst. Tap jenis → **ruler slider TERPUSAT di 0**
+(garis kuning tengah ~@538,1830); **swipe KIRI = naik nilai, KANAN = turun**; nilai tampil
+di ring jenis (mis. **"+61"**). Footer: `ivCancel` @189 · `ivReset` @334 ·
+`tvApplyToAll` @613 · **`ivDone` @891,2174**.
+
+**Peta lighting IR → Adjust:** brightness `dark`→KECERAHAN/PAPARAN naik, `bright`→turun;
+contrast `low`→KONTRAS naik, `high`→turun; temperature `warm`→SUHU ke hangat, `cool`→dingin.
+Terverifikasi: KECERAHAN **+61** pada segmen footage malam gelap → preview jelas lebih terang.
+**Nilai terbaca** (ring jenis) → bisa loop set-presisi seperti seek jump-cut kalau perlu.
