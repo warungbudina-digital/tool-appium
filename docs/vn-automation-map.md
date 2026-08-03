@@ -1791,3 +1791,51 @@ toolbar bawah: *Volume · **Memudar** · Pisah · Tolak kebisingan · Efek Suara
 **Manfaat untuk otomasi:** penanda beat = titik potong presisi; kombinasikan dengan
 `editor_toolbar_split` (§8) atau susun slot berdurasi tetap (mis. 6 × 3.00s) agar transisi
 jatuh di ketukan tanpa menggeser klip manual.
+
+---
+
+## 23. Reproduksi IR → VN (impor SRT · jump-cut · clipZoom) + teknik Appium
+
+Dipetakan 2026-08-03 saat membangun pipa reproduksi `viral_analyzer → ir_to_vn.py → VN`
+(lihat memori `project_viral_analyzer`). Semua diverifikasi end-to-end di Infinix X662.
+Target = **fidelity struktural** (rasio/caption/musik-beat/jump-cut/zoom), bukan pixel.
+
+### 23a. Impor caption dari file SRT (melengkapi §8d)
+`EditorActivity` (TANPA klip terpilih) → ketuk **baris trek subtitle @798,1554** → popup
+`rlAddTextMenu`: `flAddSubtitle` @293,1952 (manual) / **`flAddAddSubtitlesFormSRT` @788,1952
+(impor SRT)** → dialog **"Impor File SRT"** `tvFile` "Impor dari Aplikasi File" @570,2129 →
+**SAF picker `com.google.android.documentsui`**. File `.srt` di folder Download muncul di
+"FILE TERBARU" (picu `am broadcast MEDIA_SCANNER_SCAN_FILE` setelah `adb push` agar tampil).
+Hasil: caption masuk trek subtitle dgn timing SRT; `total_textView` meluas mengikuti SRT.
+**Push file dulu:** `adb push x.srt /sdcard/Download/`.
+
+### 23b. Jump-cut: seek presisi + split
+Untuk memotong di timestamp tertentu (mis. dari `cutlist.txt`): playhead time terbaca sbg
+node **`current_textView`** ("0:00.00") → **seek feedback-loop**: baca waktu → swipe timeline
+horizontal di area track (y≈1832; **swipe cepat = SCROLL, TAK menggeser klip**; kalibrasi
+**~158 px/detik**) → konvergen ±0.12s → tap **`editor_toolbar_split` @536,2156**. Split
+bekerja pada klip di bawah playhead; **segmen kanan tetap terpilih** → chaining maju mulus.
+Terverifikasi 18 split berurutan pada 1 klip.
+
+### 23c. clipZoom (Ken Burns zoom in/out) — melengkapi §8g
+Klip terpilih → **`editor_toolbar_clipZoom`** (jauh di kanan toolbar 21-tool) → panel
+`rvZoomTypes`: **`tvName "Perbesar"` @528,2074 = ZOOM IN**, **`tvName "Perkecil"` @336,2074
+= ZOOM OUT**, "Pindah ke kanan/kiri/bawah" = pan; `tvApplyToAll` "Terapkan semua" @541,2174;
+**`ivDone` @891,2174**. Terverifikasi Perbesar + Perkecil pada segmen berbeda.
+
+### 23d. Teknik Appium yang WAJIB (mahal ditemukan)
+- **Tombol Lynx** (mis. "Menggunakan" pustaka musik) **TAK kena `adb tap` maupun Appium
+  coordinate-tap saat di-interleave dgn `ui-map.js`** (state seleksi hilang antar sesi wdio).
+  → lakukan sub-alur (kategori→track→Menggunakan) dalam **SATU sesi Appium** berurutan
+  (`browser.action('pointer').move().down().pause().move({duration}).up()`).
+- **Item RecyclerView `DocumentsUI`** (file di SAF picker) perlu **Appium `.click()`**
+  (`$('android=new UiSelector().textContains("nama")').click()`), BUKAN `adb tap`.
+- **Toolbar 21-tool** dijangkau andal via
+  `UiScrollable(new UiSelector().scrollable(true)).setAsHorizontalList().scrollIntoView(new UiSelector().description("editor_toolbar_<nama>"))`
+  lalu `.click()` — jauh lebih andal dari hitung swipe manual (tiap tool ber-content-desc).
+- **JEBAKAN playhead di region KOSONG**: kalau proyek diperpanjang caption/musik (mis.
+  timeline 12:16 padahal video 79.92s), playhead >durasi-video → trek video jadi **pola
+  kotak-kotak transparan**, tap tak memilih klip. Seek balik ke region video (0–durasi) dulu.
+  Tombol skip-to-start **|◄ lompat ke boundary segmen, BUKAN 0:00**.
+- **BACK di editor** = keluar+autosave kalau tak ada seleksi (proyek muncul di MainActivity
+  "Proyek Anda"; buka lagi = tap kartu proyek). BACK 1x saat ada seleksi = deselect.
