@@ -1893,3 +1893,32 @@ Perangkat kini menjalankan **VN 2.17.0 MOD APK** (bajakan "Ninohbs", fresh-insta
 **DELTA vs build Pro-asli lama (BUKAN di editor):** bottom-nav MainActivity kini **4 item** (Home/Search/Discover/Profil) **TANPA tab crown `flItemPro`** (build Pro-asli 5 item). Tab Mine: profil + Credit Center **0.0** (Pro-asli 100) + Template/BeatsClips/Brand Kits/Trash/Help. **AI-Kit generatif MENTOK "Kredit Tidak Cukup"** (server-side, tak terpalsukan) → petakan UI boleh, eksekusi generate TUNDA sampai Pro-asli.
 
 **KESIMPULAN:** semua spec/koordinat editor & pipeline `ir_to_vn.py`→VN (6 dimensi struktural) **tetap valid di MOD**. Yang perlu re-verifikasi saat MIGRASI ke Pro-asli nanti = permukaan nav/akun (5-item), BUKAN editor. Format ui-map: field content-desc = **`label`** (bukan `desc`); node = {label,id,class,clickable,scrollable,enabled,x,y,w,h,tapX,tapY}.
+
+## §25 — ORCHESTRATOR RANGKAI MULTI-SEGMEN (zoom/lighting) TUNTAS (2026-08-07)
+Gap lama (§23f: "merangkai 3+ segmen tanpa reset RAPUH") **DISELESAIKAN**. Artefak KOMMIT (bukan throwaway):
+`tests/repro-segments.js` (spec) + `repro-drive.sh` (driver akses-vps).
+
+**Arsitektur robust = PER-SEGMEN RUN TERPISAH** (bukan single-session panjang):
+- Driver `./repro-drive.sh <plan.json> [splits]` menjalankan spec **1× per segmen** (run wdio terpisah).
+  Alasan: (a) hindari **mocha-timeout 180s** (single-session 3 segmen = ~3mnt → timeout; 1 segmen ~47s);
+  (b) **ISOLASI**: segmen gagal tak merusak yang lain. §23d: selection state hilang antar sesi → tiap
+  run re-seek+re-select sendiri. **Terbukti 3/3 sukses** (single-session cuma 2/3, seg terakhir hang).
+- `plan.json` = `[{t,zoom:"in"|"out",adj:{type,dir}}]`; `splits`="20,40". Dari `ir_to_vn.py` `.segments.json`.
+
+**Kunci robustness (akar kerapuhan lama = TAK ada verify/recover):**
+1. **Verifikasi seleksi** via `ivDuplicate` (strip aksi klip @y1643 muncul HANYA saat terpilih) —
+   BUKAN `tvTimelineItemDuration` (tak ada di build ini).
+2. **Pilih klip** tap `timeline_item` **@540,1832** (bukan 1895 lama). Deselect dulu (BACK bila terpilih)
+   agar tap memilih klip DI BAWAH playhead, bukan sisa seleksi segmen lain.
+3. **Seek** butuh **≥20 iterasi** utk lompatan besar (kalibrasi ~158px/s, konvergen ±0.18s). Terbukti
+   akurat (10.06/30.06/60.01 dari target 10/30/60).
+4. **Semua tombol panel by KOORDINAT** (Lynx tak kena `.text()`): zoom Perbesar@528,2074/Perkecil@336,2074;
+   **⚠️ Adjust UI INGGRIS** (build MOD) — jenis by koordinat @y1467: EXPOSURE@540·CONTRAST@738·
+   BRIGHTNESS@936·SATURATION@1067 (panel fresh, urut kiri→kanan); ruler `filterValueRulerView`@540,1799
+   (swipe KIRI=naik). ivDone panel @891,2174.
+5. **Guard panel-transisi**: tap batas-klip buka panel Base/Effect (`tvNormalTransition`) → `dismissTransition()`
+   tutup via X@186,2166. **JANGAN BACK utk tutup panel** (bisa keluar editor). Deselect BACK hanya bila
+   `clipSelected()` true.
+6. **Jaga seleksi antar op**: panel clipZoom/Adjust bisa men-deselect saat ditutup → `ensureSelected()`
+   re-select sebelum op berikut.
+**Peta lama §23e (label Adjust Indonesia PAPARAN/KECERAHAN/SUHU) USANG utk build MOD — kini Inggris.**
