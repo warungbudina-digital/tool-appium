@@ -1880,3 +1880,16 @@ topbar tak sengaja (Export @996,198) → VideoGenerateOptionActivity. **Tiap ope
 sudah terbukti (seek/split/clipZoom/Adjust); yang rapuh = merangkai 3+ segmen tanpa reset.**
 Rekomendasi: jalankan per-segmen sebagai run terpisah + verifikasi `current_textView` ada
 sebelum tiap segmen; pakai koordinat utk semua tombol Lynx.
+
+## §24 — VERIFIKASI BUILD MOD (2026-08-07): fondasi editor UTUH, delta hanya di nav/akun
+Perangkat kini menjalankan **VN 2.17.0 MOD APK** (bajakan "Ninohbs", fresh-install; lihat memori). Dilakukan re-verifikasi apakah automasi editor masih valid pada build ini via `tests/ui-map.js` (ANDROID_UDID=10.66.66.2:45671, FORCE_APP_LAUNCH=false, MAP_NAME=mod-editor).
+
+**HASIL: fondasi automasi editor IDENTIK dengan peta lama — semua anchor resolve di koordinat/selektor sama:**
+- Toolbar content-desc: `editor_toolbar_filter`@48,2156 · `editor_toolbar_trim`@188 · `editor_toolbar_FX`@362 · `editor_toolbar_split`@536 · `editor_toolbar_BGRemove`(Cutout)@710 · `editor_toolbar_speed`@932 · `editor_toolbar_sound`(Volume)@1052 (7 tool terlihat; sisanya spt `editor_toolbar_clipZoom` via UiScrollable scrollIntoView spt biasa). Setiap ViewGroup toolbar punya child `ivIcon`+`tvName`.
+- Playhead: `current_textView` + `total_textView` (seek+split loop tetap valid).
+- Topbar: `editor_topbar_back`/`editor_topbar_export`/`editor_topbar_save`. Tracks: `editor_track_main`/`music`/`subtitle`/`sticker` + `_add`. Kontainer: `activity_editor_tracks`/`vgTracksAndMenu`/`editorVideoView`/`mainBottomMenuLayout`.
+- **Runtime dikonfirmasi:** tap `editor_toolbar_filter` → panel **Filter|Adjust** terbuka normal (kategori Aesthetic/Create/Vivid, Intensity=100, Apply-to-all/✓); filter premium A1/A2/A3 ter-render (Pro client-side aktif).
+
+**DELTA vs build Pro-asli lama (BUKAN di editor):** bottom-nav MainActivity kini **4 item** (Home/Search/Discover/Profil) **TANPA tab crown `flItemPro`** (build Pro-asli 5 item). Tab Mine: profil + Credit Center **0.0** (Pro-asli 100) + Template/BeatsClips/Brand Kits/Trash/Help. **AI-Kit generatif MENTOK "Kredit Tidak Cukup"** (server-side, tak terpalsukan) → petakan UI boleh, eksekusi generate TUNDA sampai Pro-asli.
+
+**KESIMPULAN:** semua spec/koordinat editor & pipeline `ir_to_vn.py`→VN (6 dimensi struktural) **tetap valid di MOD**. Yang perlu re-verifikasi saat MIGRASI ke Pro-asli nanti = permukaan nav/akun (5-item), BUKAN editor. Format ui-map: field content-desc = **`label`** (bukan `desc`); node = {label,id,class,clickable,scrollable,enabled,x,y,w,h,tapX,tapY}.
