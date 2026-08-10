@@ -1943,3 +1943,9 @@ Peta ini dibuat di **Redmi Note 7 (WG peer 10.66.66.6)** — device otomasi VN t
 
 ### BELUM di-re-map (capture saat fitur diotomasi; X≈sama, sesuaikan Y):
 panel Lynx: zoom clipZoom (Perbesar/Perkecil), Adjust/filter ruler, music `UseMusicDetailActivity` "Menggunakan"+Ketukan, chip kategori musik, transisi, overlay, dll. Ikuti pola §22/§23 Infinix, ganti hanya Y.
+
+### 26a. Panel clipZoom + Adjust (Lynx, re-captured RN7 1080x2340) — UI MOD BAHASA INGGRIS
+**Masuk:** pilih klip (`timeline_item`, tap thumbnail; strip aksi muncul y≈1673-1788: `flKeyframeCurve`@482,1730/`flLock`@598,1730) → toolbar 21-tool.
+**clipZoom** (`editor_toolbar_clipZoom` via scroll toolbar; content-desc = selector, andal): panel opsi `tvName` y≈2111 — **Zoom In@462,2111 (=Perbesar)** · **Zoom Out@294,2111 (=Perkecil)** · None@126,2111 · Move Right@630 / Move Left@798 / Move Down@966,2111. Footer: `ivCancel`@165,2198 · `tvApplyToAll`@540,2198 · **`ivDone`@914,2198**. (Infinix lama: Perbesar@528/Perkecil@336,2074 → X row Lynx beda, Y 2074→2111.)
+**Adjust** = `editor_toolbar_filter`@79,2182 → tab **Filter@408,1562 / Adjust@662,1562** → jenis `filterTextView` y≈1580: **EXPOSURE@540 · CONTRAST@713 · BRIGHTNESS@886 · SATURATION@1034** (scroll-kanan → VIBRANCE/TEMPERATURE/dst) → **`filterValueRulerView`** [0,1790]-[1080,1948] pusat @540,1869 (**swipe KIRI=naik / KANAN=turun**, nilai di ring jenis). Footer: `ivCancel`@165 · `ivReset`@361 · `tvApplyToAll`@638 · **`ivDone`@914**,2198. (Infinix §25: EXPOSURE@540/CONTRAST@738/BRIGHTNESS@936/SATURATION@1067 y1467, ruler@540,1799 → X EXPOSURE identik, lain sedikit geser; Y +113 jenis / +70 ruler.)
+**Peta lighting→Adjust (IR `ir_to_vn.py`):** dark→BRIGHTNESS naik (swipe kiri) · low-contrast→CONTRAST naik · warm/cool→TEMPERATURE geser.
