@@ -1922,3 +1922,24 @@ Gap lama (§23f: "merangkai 3+ segmen tanpa reset RAPUH") **DISELESAIKAN**. Arte
 6. **Jaga seleksi antar op**: panel clipZoom/Adjust bisa men-deselect saat ditutup → `ensureSelected()`
    re-select sebelum op berikut.
 **Peta lama §23e (label Adjust Indonesia PAPARAN/KECERAHAN/SUHU) USANG utk build MOD — kini Inggris.**
+
+---
+
+## 26. RE-MAP RN7 (crDroid A14, 1080x2340 den420) — node VN 24/7 (2026-08-10)
+
+Peta ini dibuat di **Redmi Note 7 (WG peer 10.66.66.6)** — device otomasi VN terdedikasi. Diakses via container tool-appium: `docker exec tool-appium-appium-1 adb -s 10.66.66.6:<port>`. VN = MOD 2.17.0/vc6989 (sama build Infinix). Lihat [[project_redmi_vn_node]].
+
+### PRINSIP RE-MAP (hemat waktu — jangan ulang dari nol)
+- **Lebar layar IDENTIK 1080** (Infinix 2408 vs RN7 2340, beda hanya TINGGI −68px). → **semua koordinat X TRANSFER LANGSUNG**; hanya **Y** yang perlu disesuaikan.
+- **Anchor berbasis selector = PORTABEL 100%** (resolve identik, TAK butuh koordinat): semua `editor_toolbar_*` (content-desc), `editor_topbar_*`, `editor_track_*` + `_add`, `current_textView`, `total_textView`, `tvTimelineItemDuration`, dan resource-id native (`createKit_create_newProject`, `clVideoBase`, `tvSave`, `check_view`, `material_next`, dll). **Pakai selector, bukan koordinat, di mana pun bisa.**
+- **Seek kalibrasi ~158 px/detik = HORIZONTAL** → lebar sama → **TETAP** (verifikasi saat jump-cut pertama, tapi jangan re-kalibrasi buta).
+- Yang WAJIB re-capture per-panel = **tap Lynx/Compose tanpa resource-id** (mis. zoom Perbesar/Perkecil, Adjust ruler, music "Menggunakan", chip kategori) — X biasanya sama, Y geser. Layar native VN (FirstTime/CreationActivity/Matisse/Editor) bisa di-`uiautomator dump` (dapat bounds); layar Lynx murni WAJIB screenshot+koordinat.
+
+### KOORDINAT NATIVE RN7 1080x2340 (terverifikasi via dump)
+**FirstTimeActivity:** `createKit_create_newProject`/New Video @540,368 · `flAutoCutCard`@795,652 · `flCollageCard`@284,652 · kartu featured row y≈876 · `ivClose`@69,132 · `ivHelpCenter`@1011,132.
+**Dialog "Mode Edit Proyek":** `clVideoBase`@540,1523 · `ivVideoBaseChoose`@1000,1533 · `clMusicBase`@540,1768 · `tvSave`("Save")@540,2069.
+**VideoEditorMatisseActivity (picker):** `media_thumbnail` grid kolom x≈179/540/901 (row1 y≈653) · `check_view` item-1 @179,532 · `material_next`("Next")@962,1906 · `tvSelectedCount`@200,1905.
+**EditorActivity — toolbar hal-1 (content-desc, tapi koordinat dicatat):** filter@79,2182 · trim@231,2182 · FX@383,2182 · split@535,2182 · flowStudio@687,2182 · BGRemove@839,2182 · crop@1020,2182 (sisanya scroll via `UiScrollable().scrollIntoView(description("editor_toolbar_<x>"))`). Playhead: `current_textView`@55,1454 · `total_textView`@129,1454. Track: `editor_track_main` area [0,1499]-[1080,2088], `_main_add`@461,1899 · `editor_track_music_add`@461,1560 · `editor_track_subtitle_add`@461,1660 · `editor_track_sticker_add`@461,1760 · `tvTimelineItemDuration`@588,1953. **Swipe-seek timeline: area y≈1790** (dalam main track), playhead x=540.
+
+### BELUM di-re-map (capture saat fitur diotomasi; X≈sama, sesuaikan Y):
+panel Lynx: zoom clipZoom (Perbesar/Perkecil), Adjust/filter ruler, music `UseMusicDetailActivity` "Menggunakan"+Ketukan, chip kategori musik, transisi, overlay, dll. Ikuti pola §22/§23 Infinix, ganti hanya Y.
