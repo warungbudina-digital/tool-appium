@@ -21,21 +21,44 @@ const byId = (s) => $(`android=new UiSelector().resourceId("${rid(s)}")`);
 const byDesc = (s) => $(`android=new UiSelector().description("${s}")`);
 const byText = (t) => $(`android=new UiSelector().text("${t}")`);
 
-// Koordinat terverifikasi (vn-map §23b/c/e). Layar 1080x2408.
-// ⚠️ VN build ini UI BAHASA INGGRIS (bukan ID spt peta §23e lama): jenis Adjust =
-// EXPOSURE/CONTRAST/BRIGHTNESS/SATURATION/VIBRANCE/TEMPERATURE (native filterTextView@y1467).
-const C = {
-  split:       [536, 2156],   // editor_toolbar_split
-  filter:      [48, 2156],    // editor_toolbar_filter (tool #1)
-  selectClip:  [540, 1832],   // timeline_item center (terverifikasi pilih klip bersih)
-  zoomIn:      [528, 2074],   // Perbesar (Lynx, WAJIB koordinat)
-  zoomOut:     [336, 2074],   // Perkecil
-  panelDone:   [891, 2174],   // ivDone (tutup panel clipZoom/Adjust)
-  adjustTab:   [677, 1448],   // tvFilterManual "Adjust"
-  sliderY:     1799,          // filterValueRulerView (swipe KIRI=naik, KANAN=turun)
+// Koordinat terverifikasi. Profil per-device (lebar 1080 identik, beda TINGGI ->
+// mayoritas Y bergeser; X mostly sama). Pilih via env DEVICE (default infinix).
+// ⚠️ VN build MOD UI BAHASA INGGRIS: jenis Adjust = EXPOSURE/CONTRAST/BRIGHTNESS/
+// SATURATION/VIBRANCE/TEMPERATURE (native filterTextView).
+const PROFILES = {
+  infinix: {                  // 1080x2408 (vn-map §23b/c/e)
+    split:      [536, 2156],
+    filter:     [48, 2156],
+    selectClip: [540, 1832],
+    zoomIn:     [528, 2074],
+    zoomOut:    [336, 2074],
+    panelDone:  [891, 2174],
+    adjustTab:  [677, 1448],
+    sliderY:    1799,
+    seekY:      1832,
+    pxPerSec:   158,
+    transitionX:[186, 2166],
+    adj: { EXPOSURE: [540, 1467], CONTRAST: [738, 1467], BRIGHTNESS: [936, 1467], SATURATION: [1067, 1467] },
+  },
+  rn7: {                      // 1080x2340 crDroid A14 (vn-map §26)
+    split:      [535, 2182],
+    filter:     [79, 2182],
+    selectClip: [540, 1890],
+    zoomIn:     [462, 2111],
+    zoomOut:    [294, 2111],
+    panelDone:  [914, 2198],
+    adjustTab:  [662, 1562],
+    sliderY:    1869,
+    seekY:      1890,
+    pxPerSec:   120,
+    transitionX:[164, 2196],
+    adj: { EXPOSURE: [540, 1580], CONTRAST: [713, 1580], BRIGHTNESS: [886, 1580], SATURATION: [1034, 1580] },
+  },
 };
+const C = PROFILES[process.env.DEVICE || "infinix"];
+if (!C) throw new Error(`DEVICE '${process.env.DEVICE}' tak dikenal (pakai: ${Object.keys(PROFILES)})`);
 
-const PX_PER_SEC = 158;       // kalibrasi seek (§23b)
+const PX_PER_SEC = C.pxPerSec;   // kalibrasi seek per-device (Infinix 158, RN7 120)
 const SEEK_TOL = 0.18;        // toleransi konvergensi (detik)
 
 async function tap([x, y], settle = 350) {
@@ -50,7 +73,16 @@ async function swipeX(x1, x2, y, dur = 380) {
   await browser.pause(300);
 }
 
-const parseT = (s) => { const m = (s || "").match(/(\d+):(\d+)\.(\d+)/); return m ? (+m[1]) * 60 + (+m[2]) + (+m[3]) / 100 : null; };
+// Dua format: Infinix "M:SS.dd" (ada ':') vs RN7 MOD "SS.dd" (desimal detik, tanpa ':').
+const parseT = (s) => {
+  s = (s || "").trim();
+  let m = s.match(/(\d+):(\d+)\.(\d+)/);          // M:SS.dd
+  if (m) return (+m[1]) * 60 + (+m[2]) + (+m[3]) / 100;
+  m = s.match(/^(\d+)\.(\d+)$/);                   // SS.dd (detik desimal)
+  if (m) return (+m[1]) + (+m[2]) / 100;
+  const f = parseFloat(s);
+  return isNaN(f) ? null : f;
+};
 async function inEditor() { try { return await byId("current_textView").isExisting(); } catch { return false; } }
 async function playhead() { try { return parseT(await byId("current_textView").getText()); } catch { return null; } }
 async function total() { try { return parseT(await byId("total_textView").getText()); } catch { return null; } }
@@ -59,7 +91,7 @@ async function total() { try { return parseT(await byId("total_textView").getTex
 // Ditutup lewat X @186,2166 (cancel, JANGAN apply).
 async function dismissTransition() {
   if (await byId("tvNormalTransition").isExisting().catch(() => false)) {
-    await tap([186, 2166], 600); return true;
+    await tap(C.transitionX, 600); return true;
   }
   return false;
 }
@@ -80,24 +112,50 @@ async function ensureEditor(tag) {
 }
 
 // SEEK: loop baca playhead -> swipe track proporsional -> konvergen.
+// Deteksi MACET (swipe tak menggeser playhead) -> kemungkinan sheet "Insert"/panel
+// menutupi timeline (RN7 §26d) -> tutup lalu lanjut.
 async function seekTo(target) {
-  for (let i = 0; i < 20; i++) {
+  let last = null, stuck = 0;
+  for (let i = 0; i < 26; i++) {
     const cur = await playhead();
-    if (cur == null) { await ensureEditor("seek"); continue; }
+    if (cur == null) { await ensureEditor("seek"); last = null; continue; }
     const err = target - cur;                 // + = perlu maju
     if (Math.abs(err) <= SEEK_TOL) return cur;
+    if (last != null && Math.abs(cur - last) < 0.03) {
+      if (++stuck >= 2) {                      // swipe tak berefek -> ada yg menutupi
+        if (await byText("Insert").isExisting().catch(() => false)) await browser.pressKeyCode(4);
+        else if (!(await dismissTransition())) await tap(C.panelDone, 400).catch(() => {});
+        await browser.pause(400); stuck = 0; last = null; continue;
+      }
+    } else stuck = 0;
+    last = cur;
     const dx = Math.max(40, Math.min(700, Math.abs(err) * PX_PER_SEC));
     // maju (err>0): geser track KE KIRI (x turun). mundur: ke kanan.
     const xC = 640;
-    if (err > 0) await swipeX(xC + dx / 2, xC - dx / 2, 1832);
-    else         await swipeX(xC - dx / 2, xC + dx / 2, 1832);
+    if (err > 0) await swipeX(xC + dx / 2, xC - dx / 2, C.seekY);
+    else         await swipeX(xC - dx / 2, xC + dx / 2, C.seekY);
   }
   return await playhead();
 }
 
-// Klip terpilih? Indikator = strip aksi klip (ivDuplicate muncul HANYA saat
-// klip terpilih; ground-truth ui-map 2026-08-07 @y1643, BUKAN tvTimelineItemDuration).
-async function clipSelected() { return await byId("ivDuplicate").isExisting().catch(() => false); }
+// Klip terpilih? Indikator = strip aksi klip. Infinix pakai ivDuplicate; RN7 MOD
+// strip klip video = flKeyframeCurve/flLock. Terima salah satu (robust lintas-build).
+async function clipSelected() {
+  for (const id of ["ivDuplicate", "flKeyframeCurve", "flLock"]) {
+    if (await byId(id).isExisting().catch(() => false)) return true;
+  }
+  return false;
+}
+
+// Pilih klip via ELEMEN timeline_item (robust thd pergeseran layout trek; koordinat
+// mati [540,1890] bisa nyasar ke tombol track-add -> buka sheet "Insert"). Fallback koord.
+async function tapClip() {
+  const ti = byId("timeline_item");
+  if (await ti.isExisting().catch(() => false)) {
+    try { await ti.click(); await browser.pause(600); return; } catch { /* fallback */ }
+  }
+  await tap(C.selectClip, 600);
+}
 
 // PILIH klip di bawah playhead; verifikasi via strip aksi klip.
 async function selectClip() {
@@ -105,13 +163,12 @@ async function selectClip() {
   // segmen sebelumnya). BACK 1x saat ada seleksi = deselect (§23d).
   if (await clipSelected()) { await browser.pressKeyCode(4); await browser.pause(400); }
   for (let attempt = 0; attempt < 3; attempt++) {
-    await tap(C.selectClip, 600);
+    await tapClip();
     if (await clipSelected()) return true;
-    // tap bisa kena batas klip -> panel transisi; atau popup "Di dalam" -> tutup
-    if (await dismissTransition()) { /* dismissed */ }
-    else if (await byText("Di dalam").isExisting().catch(() => false)) {
-      await browser.pressKeyCode(4); await browser.pause(400);
-    }
+    // tap nyasar -> sheet "Insert" (Music/Effect/Record) / panel transisi / popup -> tutup
+    if (await byText("Insert").isExisting().catch(() => false)) { await browser.pressKeyCode(4); await browser.pause(400); }
+    else if (await dismissTransition()) { /* dismissed */ }
+    else if (await byText("Di dalam").isExisting().catch(() => false)) { await browser.pressKeyCode(4); await browser.pause(400); }
     await ensureEditor("selectClip");
   }
   return await clipSelected();
@@ -120,7 +177,7 @@ async function selectClip() {
 // Pastikan klip masih terpilih (panel clipZoom/Adjust bisa men-deselect saat ditutup).
 async function ensureSelected() {
   if (await clipSelected()) return true;
-  await tap(C.selectClip, 600);
+  await tapClip();
   return await clipSelected();
 }
 
@@ -137,7 +194,7 @@ async function applyZoom(dir) {
 // Jenis Adjust by KOORDINAT (filterTextView native tak kena .text() — labelnya
 // content-desc; posisi stabil saat panel dibuka fresh, y1467). Panel fresh = urutan
 // default EXPOSURE·CONTRAST·BRIGHTNESS·SATURATION (kiri→kanan). TEMPERATURE off-screen.
-const ADJ_XY = { EXPOSURE: [540, 1467], CONTRAST: [738, 1467], BRIGHTNESS: [936, 1467], SATURATION: [1067, 1467] };
+const ADJ_XY = C.adj;
 async function applyAdjust(type, dir) {
   await tap(C.filter, 900);                    // editor_toolbar_filter
   await byId("tvFilterManual").waitForExist({ timeout: 6000 }).catch(() => {});

@@ -20,9 +20,10 @@ PLAN_FILE="${1:?usage: repro-drive.sh <plan.json> [splits]}"
 SPLITS_ARG="${2:-}"
 cd "$DIR"
 
+DEVICE="${DEVICE:-infinix}"   # profil koordinat: infinix (2408) | rn7 (2340)
 run() { # $1=SPLITS  $2=PLAN(json)
-  timeout 170 docker compose exec -T -e ANDROID_UDID="$UDID" -e APP_PACKAGE=com.frontrow.vlog \
-    -e FORCE_APP_LAUNCH=false -e SPLITS="$1" -e PLAN="$2" \
+  timeout 220 docker compose exec -T -e ANDROID_UDID="$UDID" -e APP_PACKAGE=com.frontrow.vlog \
+    -e FORCE_APP_LAUNCH=false -e DEVICE="$DEVICE" -e SPLITS="$1" -e PLAN="$2" \
     appium npx wdio run ./wdio.conf.js --spec tests/repro-segments.js 2>&1
 }
 
