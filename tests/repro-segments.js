@@ -208,9 +208,18 @@ async function applyAdjust(type, dir) {
   const xy = ADJ_XY[type];
   if (!xy) throw new Error(`jenis Adjust '${type}' tak dipetakan (pakai ${Object.keys(ADJ_XY)})`);
   await tap(xy, 700);                          // pilih jenis by koordinat
-  // ruler filterValueRulerView: swipe KIRI=naik, KANAN=turun. ~320px nudge.
-  if (dir === "up") await swipeX(700, 380, C.sliderY);
-  else              await swipeX(380, 700, C.sliderY);
+  // ruler filterValueRulerView: swipe DI DALAM bounds ELEMEN (bukan y hardcoded).
+  // AKAR trim-bug (2026-08-11): kalau panel Adjust gagal buka, swipe di y1869 nyasar
+  // ke TIMELINE (y~1890) → geser trim-handle → klip terpangkas. Guard: ruler absen =
+  // batal (jangan swipe destruktif). swipe KIRI=naik, KANAN=turun.
+  const ruler = byId("filterValueRulerView");
+  if (!(await ruler.isExisting().catch(() => false)))
+    throw new Error("ruler Adjust (filterValueRulerView) absen — panel tak terbuka; batal swipe (cegah trim timeline)");
+  const rl = await ruler.getLocation(); const rs = await ruler.getSize();
+  const ry = Math.round(rl.y + rs.height / 2);
+  const xL = Math.round(rl.x + rs.width * 0.30), xR = Math.round(rl.x + rs.width * 0.70);
+  if (dir === "up") await swipeX(xR, xL, ry);
+  else              await swipeX(xL, xR, ry);
   await tap(C.panelDone, 700);                 // ivDone
   await ensureEditor("postAdjust");
 }
