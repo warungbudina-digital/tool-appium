@@ -78,5 +78,19 @@ describe("VN export video", () => {
     }
     if (!done) throw new Error(`render tak selesai dalam ${RENDER_TIMEOUT}ms`);
     console.log(`[export] SELESAI render (~${Math.round((Date.now() - t0) / 1000)}s) — file di /sdcard/DCIM/VN/`);
+
+    // 4) KEMBALI KE EDITOR (default) — VN native kembali ke daftar proyek pasca-render;
+    // buka lagi kartu proyek TERATAS (paling baru = yg barusan diekspor) -> EditorActivity.
+    if ((process.env.RETURN_TO_EDITOR || "1") !== "0") {
+      await browser.pause(1200);
+      await dismiss();
+      if (!(await byId("editor_topbar_export").isExisting().catch(() => false))) {
+        const card = byId("clRoot"); // RecyclerView proyek; match pertama = teratas/terbaru
+        if (await exists(card, 5000)) { await card.click(); await browser.pause(3000); await dismiss(); }
+      }
+      const backEditor = (await exists(byId("current_textView"), 6000))
+        || (await exists(byId("editor_topbar_export"), 3000));
+      console.log(`[export] kembali ke editor: ${backEditor ? "OK" : "GAGAL (masih di daftar proyek)"}`);
+    }
   });
 });
