@@ -147,12 +147,18 @@ async function clipSelected() {
   return false;
 }
 
-// Pilih klip via ELEMEN timeline_item (robust thd pergeseran layout trek; koordinat
-// mati [540,1890] bisa nyasar ke tombol track-add -> buka sheet "Insert"). Fallback koord.
+// Pilih klip DI BAWAH PLAYHEAD. Timeline multi-klip: byId("timeline_item") = match
+// PERTAMA (klip-1), SALAH utk klip2/3. Pilih item yg bounds-x memuat posisi playhead
+// (x = C.selectClip[0] ≈ garis playhead). Fallback: koord playhead (bisa nyasar ke
+// track-add -> ditangani di selectClip). §26 RN7.
 async function tapClip() {
-  const ti = byId("timeline_item");
-  if (await ti.isExisting().catch(() => false)) {
-    try { await ti.click(); await browser.pause(600); return; } catch { /* fallback */ }
+  const px = C.selectClip[0];
+  const items = await $$(`android=new UiSelector().resourceId("${rid("timeline_item")}")`);
+  for (const it of items) {
+    try {
+      const l = await it.getLocation(); const s = await it.getSize();
+      if (l.x <= px && px <= l.x + s.width) { await it.click(); await browser.pause(600); return; }
+    } catch { /* stale -> next */ }
   }
   await tap(C.selectClip, 600);
 }
