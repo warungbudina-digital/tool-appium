@@ -1970,3 +1970,37 @@ Pola robust Infinix (§23f/§25 per-segmen run terpisah, verify seleksi via `ivD
 - **Screenshot**: `exec-out screencap -p > f.png` kadang 0-byte via tunnel → pakai `screencap -p /sdcard/s.png` lalu `adb pull` (via bind `/home/appium/.android/`) lebih andal.
 - **Seleksi klip**: `timeline_item` (tap thumbnail) → strip aksi muncul (`flKeyframeCurve`@482,1730/`flLock`@598,1730) = bukti terpilih; verify via kehadiran strip.
 - **Seek px/detik** (kalibrasi jump-cut §23b): **BELUM diverifikasi angka di RN7** (lebar 1080 sama → hipotesis ~158px/s tetap) — verifikasi saat orchestrator jump-cut pertama di RN7.
+
+## 27. KEDALAMAN KREATIF (untuk agen editor hybrid) — sesi 2026-08-13 RN7 (PARSIAL)
+Tujuan sesi: memperdalam **katalog/kosakata kreatif** tiap tool (bukan hanya "cara ketuk") agar RN7 bisa jadi **agen editor video kreatif** yang berkolaborasi hybrid (dengan/tanpa user). Sesi ini TERPOTONG karena tunnel WG (endpoint data-seluler) drop berkala → wireless-debugging mati → butuh toggle fisik user. Yang di bawah SUDAH terverifikasi live; sisanya (Transisi/Keyframe/Speed detail, Audio VoiceEffect, Sticker) = TODO sesi lanjut.
+
+### 27a. Alur buat proyek baru (fresh, terverifikasi ulang 2026-08-13)
+FAB "+" MainActivity **@930,2019** → **CreationActivity** ("Create"/"Yours"): **New Video @540,732** · Collage · AutoCut · Tools(Teleprompter/BeatsClips/Create Template/Overlay/Stories) → dialog **"Project Edit Mode"**: **Video-Based** (default ✓) / **Music-Based** + "Do not ask me again" → **Save @540,2069** → **VideoEditorMatisseActivity** (picker): tab atas **All ▾ / Stocks / Subtitle**, sub-tab **All / Video / Photo**, tap thumbnail=pilih (badge angka urutan), coach-mark **"Trim Your Clip"** → "I Got It" @581,1905, **Next @960,1905** → **EditorActivity**. (Selector native tetap: `createKit_create_newProject`, `clVideoBase`, `tvSave`, `check_view`, `material_next` — §26.)
+
+### 27b. Teks/Caption — kedalaman (Task#1 ✅)
+**Tambah teks:** trek **T+** di rail-kanan (`editor_track_subtitle_add`) → sheet **"Insert"**: **Text** (kiri, teal) · **SRT Files** (kanan, hijau; impor .srt).
+**Picker template teks** (setelah Text): Search + quick-preset **"Add a heading" / "Add a subheading" / "Add a little bit of body text"** + kategori gaya: **Default (14) · Penutup (12) · Judul (12)** (+ scroll, tiap kategori "View More"). Thumbnail template = **aset cloud** (ikon unduh ↓) — download per-aset (belum diuji tembus di MOD).
+**Toolbar gaya teks IN-KEYBOARD** (ikon kiri→kanan, saat mode ketik; baris ikon di **y≈184** saat keyboard naik / **y≈1190** saat keyboard turun): `keyboard` · **Ff=Font** · **AA=Font Size** · **roda-warna=Color** · **A≡=Format** · **spasi=Spacing** · **T-box=Style/Background** · **✓=Done**.
+- **Font panel:** Search Font · **Add font** (impor lokal) · gear · **Brand Kit ▾ = LOGIN-GATED** (tap dropdown → layar **login VN**; "No styles available, create in Brand Kit" = fitur Pro). Font bawaan via Search (list tak tampil tanpa interaksi).
+- **Size (AA):** slider + kotak nilai (mis. 36) + preset **Title/36 · Subtitle/28 · Content/24**.
+**Toolbar KLIP-TEKS terpilih** (content-desc, PORTABEL — pakai selektor): `editor_toolbar_textFont · textFontSize · textFormat · textSpacing · textStyle · blendMode · alpha · layerPosition · mask` + `filter · trim · FX · split`. (Animasi teks in/out/loop kemungkinan di dalam **`textStyle`** — belum dibuka; TODO.)
+
+### 27c. Toolbar KLIP-VIDEO — inventaris lengkap 28 selektor (Task#2 sebagian)
+Content-desc `editor_toolbar_*` (semua PORTABEL, andal): **trim, FX, split, delete, BGRemove(=Cutout), speed, volume(=volumeFade), sound, filter, crop, rotate, flipHorizontal, flipVertical, clipZoom, imageBorder, imageBlur, alpha, background, mask, mosaic, magnifier, story, reverse, freezeFrame, autoCaption, toPiP(=Overlay Track), voiceEffect, denoise, extractAudio**. Urutan dari AWAL toolbar: **Trim · FX · Split · Delete · Cutout · Speed · Volume** … (scroll kanan) … **Auto Captions · Mosaic · Magnifier · Stories · Reverse · Freeze · Overlay Track**.
+
+### 27d. Katalog FX — ✅ CLIENT-SIDE, JALAN di MOD (bukan cloud-gated!)
+`editor_toolbar_FX` → panel FX (Lynx) dgn **preview per-klip "1/3"**. **Tab kategori:** **Original · Basic · Beats · Glitch · RGB · Blur · Rotation · Split** (+scroll kanan). Efek per-kategori (thumbnail preview), mis. Original: **None · Spin 01–04 · Drop 01–02 …**. Footer: **X(batal)@164,2196 · play · "Apply to all"(✓✓)@540 · ✓(done)@914,2196**. → **FX = tuas kreatif besar yang tersedia OFFLINE** (beda dari katalog musik cloud yang mati). Enumerasi efek penuh per-kategori = TODO (Lynx, butuh scroll+screenshot).
+
+### 27e. Geometri timeline build/kondisi ini (penting utk automasi koordinat)
+Di state sesi ini timeline tampil sbg **rail trek vertikal di paruh-KANAN** (baris: musik `editor_track_music_add`@y≈1332 · teks `_subtitle_add`@y≈1417 · sticker `_sticker_add`@y≈1502 · video @y≈1615 · audio @y≈1705; ikon "+" add di **x≈1040**) dgn **playhead garis VERTIKAL** (x≈540) + skala waktu horizontal di bawah. **Toolbar klip terpilih = dok di DASAR (y≈2181), scroll HORIZONTAL.** Pola tap-tool andal: `uiautomator dump` → ambil `bounds` content-desc target → jika `20≤x≤1060` tap tengah, else `input swipe 900 2181 300 2181` (geser kiri, munculkan tool kanan) / `input swipe 300 2181 900 2181` (ke awal) lalu ulang. **Deselect = tap area timeline kosong (kiri), JANGAN BACK** (BACK tanpa seleksi = keluar editor + autosave draft, §26d).
+
+### 27f. Ringkasan GATING di MOD (peta batas kreativitas)
+- ✅ **JALAN offline/client-side:** FX (§27d), Filter+Adjust (§26a), clipZoom/crop/rotate/flip, speed, teks (ketik+font-impor+size+format), transisi (§26b), keyframe, beat MANUAL (§26c), extract-audio.
+- ⛔ **LOGIN/Pro-GATED:** Brand Kit (font/gaya/warna brand), katalog musik cloud (§26b "Loading failed"), template-teks cloud (download per-aset — belum tuntas diuji), autoCaption (kemungkinan server-gated).
+- **Implikasi agen:** andalkan tuas offline utk reproduksi/kreasi otonom; fitur gated hanya jika user sediakan sesi login (belum ada; VN MOD tak login).
+
+### 27g. Kendala operasional sesi ini (WAJIB dibenahi utk agen 24/7)
+Tunnel WG RN7 lewat **data-seluler** (endpoint `202.46.153.90`, NAT ISP) **drop berkala saat idle** → tiap drop, **wireless-debugging (adbd) mati** (crDroid tak persisten) → adb putus → **butuh user toggle fisik Wireless debugging + re-scan port** (`nmap -Pn -p30000-45000 10.66.66.6`). Selama sesi ini terjadi ≥2×. **Rekomendasi stabilitas:** (a) ikat RN7 ke **WiFi "Kantor"** (192.168.1.24) sbagai jalur WG, bukan seluler; (b) jaga layar-nyala+charger (§25 kiosk); (c) selidiki **adb tcpip 5555 persisten** / auto-reenable wireless-debug saat boot; tanpa ini "node VN 24/7" rapuh di lapisan automasi.
+
+### 27h. TODO sesi lanjut (butuh wireless-debug ON)
+Task#1 selesai. Sisa: **(Task#2)** enumerasi penuh efek per-kategori FX + katalog **Filter** (nama preset); **(Task#3)** buka `textStyle` (animasi teks in/out/loop), katalog **Transisi** lengkap (§26b baru sebagian), **Keyframe** (`flKeyframeCurve` — set properti animasi), panel **Speed** (kurva/preset ramp); **(Task#4)** **voiceEffect** (katalog efek suara), Volume/Fade/Denoise, katalog **Sticker/Overlay** (`editor_track_sticker_add` — cek gating). Lalu **(Task#5)** kerangka agen editor hybrid (mode auto vs kolaboratif, cara baca state proyek/draft, titik hand-off user).
