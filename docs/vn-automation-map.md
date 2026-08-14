@@ -2002,5 +2002,38 @@ Di state sesi ini timeline tampil sbg **rail trek vertikal di paruh-KANAN** (bar
 ### 27g. Kendala operasional sesi ini (WAJIB dibenahi utk agen 24/7)
 Tunnel WG RN7 lewat **data-seluler** (endpoint `202.46.153.90`, NAT ISP) **drop berkala saat idle** → tiap drop, **wireless-debugging (adbd) mati** (crDroid tak persisten) → adb putus → **butuh user toggle fisik Wireless debugging + re-scan port** (`nmap -Pn -p30000-45000 10.66.66.6`). Selama sesi ini terjadi ≥2×. **Rekomendasi stabilitas:** (a) ikat RN7 ke **WiFi "Kantor"** (192.168.1.24) sbagai jalur WG, bukan seluler; (b) jaga layar-nyala+charger (§25 kiosk); (c) selidiki **adb tcpip 5555 persisten** / auto-reenable wireless-debug saat boot; tanpa ini "node VN 24/7" rapuh di lapisan automasi.
 
-### 27h. TODO sesi lanjut (butuh wireless-debug ON)
-Task#1 selesai. Sisa: **(Task#2)** enumerasi penuh efek per-kategori FX + katalog **Filter** (nama preset); **(Task#3)** buka `textStyle` (animasi teks in/out/loop), katalog **Transisi** lengkap (§26b baru sebagian), **Keyframe** (`flKeyframeCurve` — set properti animasi), panel **Speed** (kurva/preset ramp); **(Task#4)** **voiceEffect** (katalog efek suara), Volume/Fade/Denoise, katalog **Sticker/Overlay** (`editor_track_sticker_add` — cek gating). Lalu **(Task#5)** kerangka agen editor hybrid (mode auto vs kolaboratif, cara baca state proyek/draft, titik hand-off user).
+### 27h. TODO — status diperbarui 2026-08-14 (sesi lanjut, wireless-debug ON)
+Task#1–#4 **SELESAI** (temuan di §27i). SISA kecil: enumerasi penuh nama efek per-kategori FX & nama filter per-kategori (Lynx, butuh scroll+screenshot bertahap); katalog **Transisi** lengkap (§26b baru sebagian — entry = "+" junction antar-klip, butuh scroll timeline agar batas klip di tengah); **Keyframe** mekanik detail (tombol diamond ◇ tanpa content-desc); gating **Elements/sticker** (sheet Insert→Elements menutup balik — cek unduh/cloud).
+
+### 27i. TEMUAN SESI 2026-08-14 — katalog kreatif live (semua CLIENT-SIDE kecuali dicatat)
+- **Speed** (`editor_toolbar_speed`): tab **Regular** (ruler 0.1x–4x+, snap 0.5/1.0/1.5/2/3x + "Apply to all") · **Curve** (ramp presets: **Original · Custom · Montage · Hero Time · Bullet Time · Jump Cut · Fast In** +scroll). Footer X@164 / ✓@914 (y2196).
+- **Filter** (`editor_toolbar_filter`): tab **Filter / Adjust**. Kategori filter: **Favorites · Recent · Original · Aesthetic · Create · Vivid · Essential** (+chevron/expand). Filter mis. **A1·A2·A3·A4…** (preview live). **Add** = impor LUT. **Intensity** slider (0–100) + Apply-to-all. (Adjust = §26a.)
+- **FX** (`editor_toolbar_FX`): §27d — tab **Original·Basic·Beats·Glitch·RGB·Blur·Rotation·Split**; preview per-klip "1/3".
+- **voiceEffect** (`editor_toolbar_voiceEffect`): preset **None · Child · Man · Woman · Robot · Alien** (+scroll). Apply-to-all. (Klip audio/video.)
+- **Teks — COLOR** (roda-warna in-keyboard): 4 target **Text · Stroke · Shadow · Background**, tiap target palet penuh + **picker custom (+rainbow)** + preset T-swatches (putih/outline/merah/kuning/biru/teal…) + slider **Opacity**.
+- **Teks — FORMAT** (`A≡`=textFormat): **List Style** (none/bullet/number) · **Text Style B/I** · **Position** grid 3×3 (anchor) · **Alignment** kiri/tengah/kanan · **Case** none/AG/Ag/ag.
+- **Teks — SIZE** (`AA`=textFontSize): slider + kotak nilai + preset Title/36·Subtitle/28·Content/24.
+- **Teks — STYLE templates** (`T-box`=textStyle): kategori **Default·Penutup·Judul·Judul Tambahan** (+store icon) + gaya dekoratif **TITLE/SUBTITLE·VIDEO TITLE·LINE·Mask·Frame·Film**. (Sama picker §27b; sebagian aset cloud.)
+- **⚠️ ANIMASI TEKS:** TIDAK ada panel preset animasi teks in/out/loop di build MOD ini (toolbar teks tak punya selektor animasi). Motion teks = via **keyframe** ◇ (properti posisi/skala/rotasi/opacity) — sama seperti klip lain.
+- **Sticker/Overlay** (`editor_track_sticker_add`, sheet "Insert"): **Photos** (impor galeri) · **Elements** (bentuk/stiker — gating belum terkonfirmasi, sheet menutup balik) · **Text**.
+- **Keyframe:** tombol diamond ◇ dekat preview saat klip terpilih (image-button, tak ada content-desc; `flKeyframeCurve` §26a) → set keyframe di playhead utk animasi properti custom (satu-satunya jalur animasi teks/klip di MOD).
+
+### 27j. KERANGKA AGEN EDITOR VIDEO HYBRID (Task#5)
+Tujuan: RN7 sbg **agen editor kreatif** yang bisa jalan **otonom** (tanpa user) ATAU **kolaboratif** (bergantian dgn user pada proyek yang sama).
+
+**A. Palet kreatif yang tersedia otonom (offline, tanpa login)** — inilah "kuas" agen:
+struktur (rasio/crop/rotate/flip/split/trim) · gerak (clipZoom Ken-Burns, keyframe pos/skala/opacity, Speed Regular+Curve) · warna (Filter kategori+Intensity, Adjust exposure/contrast/brightness/saturation/temperature) · efek (FX 8 kategori) · teks (font-impor+size+color 4-target+format+style-template, animasi via keyframe) · audio (extract-audio, voiceEffect, volume/fade/denoise, beat MANUAL) · komposisi (overlay/PiP toPiP, blendMode, alpha, mask, background, mosaic, magnifier). **Gated (skip di mode otonom):** Brand Kit, musik cloud, autoCaption, sebagian template/elements cloud.
+
+**B. Tiga mode kolaborasi:**
+1. **Auto (tanpa user):** pipeline penuh IR→ir_to_vn→repro (§25) headless. Agen pilih tuas dari palet A berdasar IR/blueprint. Output → export → Gdrive.
+2. **Hand-off (bergiliran):** user mulai draft di HP → agen lanjutkan; ATAU agen buat draft → user poles. **Kunci: state proyek = draft VN persisten** (MainActivity→Projects tab; draft auto-save saat BACK). Agen buka draft via Projects, baca timeline (klip/durasi via `tvTimelineItemDuration`, `total_textView`), lanjut edit, simpan (BACK=autosave). **Titik hand-off aman = setelah setiap operasi tersimpan draft** (tak ada state di RAM yang hilang).
+3. **Co-pilot (real-time berbagi):** user & agen tak boleh sentuh editor bersamaan (single-instance UI). Protokol: **lock via presence** — agen cek `dumpsys window mCurrentFocus`; kalau user sedang di EditorActivity + input aktif, agen tunda (poll). Koordinasi lewat kanal luar (mis. perintah via chat→agen), bukan dua kursor.
+
+**C. Cara agen "membaca" state proyek (persepsi):**
+- Struktur timeline: `uiautomator dump` → `timeline_item`/`tvTimelineItemDuration`/`total_textView`/`current_textView`; trek via `editor_track_*`.
+- Isi visual: `screencap` frame di playhead (⚠️ FLAG_SECURE tak ada di editor VN → screencap OK; beda dari Canva). Untuk semantik, umpan frame ke analyzer .50 (CLIP) — sama pipeline `footage_audit.py`.
+- Katalog pilihan: selektor `editor_toolbar_*` (inventaris §27c) = ruang aksi diskrit yang bisa dienumerasi agen.
+
+**D. Loop kerja agen (proposal):** PERSEPSI (dump+frame+analyzer) → RENCANA (LLM pilih tuas dari palet A sesuai brief/IR) → AKSI (tap selektor via helper §27e) → VERIFIKASI (dump/frame ulang, bandingkan) → SIMPAN (draft) → (hand-off / lanjut). Robustness: pola §26d (per-op run, verify seleksi, guard coach-mark, deselect via tap-kosong bukan BACK).
+
+**E. Prasyarat teknis belum siap (blocker agen 24/7):** (1) stabilitas adb/tunnel §27g (wireless-debug drop) — WAJIB difix dulu; (2) orchestrator multi-op masih rapuh di panel Lynx (§23f); (3) belum ada kanal perintah user→agen real-time (untuk mode co-pilot/hand-off) — perlu bridge (mis. via chat/Telegram → dispatch). Rekomendasi urutan: fix §27g → stabilkan orchestrator op-tunggal → tambah kanal perintah → mode hand-off (paling praktis) → auto → co-pilot.
