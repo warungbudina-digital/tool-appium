@@ -1881,6 +1881,15 @@ sudah terbukti (seek/split/clipZoom/Adjust); yang rapuh = merangkai 3+ segmen ta
 Rekomendasi: jalankan per-segmen sebagai run terpisah + verifikasi `current_textView` ada
 sebelum tiap segmen; pakai koordinat utk semua tombol Lynx.
 
+> **KEPUTUSAN ARSITEKTUR (2026-08-14): JANGAN kejar orchestrator multi-op panjang di Lynx — ROI rendah.**
+> **Kenapa Lynx rapuh** (akar, bukan gejala): panel Lynx (FX/Speed/Filter/transisi/Music Beats/clipZoom/Adjust) = permukaan mirip-WebView **tanpa view-id/content-desc stabil** → `uiautomator dump` kosong. Konsekuensi berantai: (1) **tak ada selektor** → koordinat mentah yang bergeser mengikuti scroll/zoom/konten → tap meleset SENYAP; (2) **tak ada umpan-balik state** → verifikasi hanya via screenshot-diff (lambat; `screencap` via tunnel kadang 0-byte); (3) **render asinkron/animasi** → tap sebelum render selesai kena target salah; (4) **coach-mark menelan input** tak terduga; (5) **drift state antar-op menumpuk** → op-3 gagal senyap ⇒ op-4..N ikut salah. Operasi TUNGGAL terbukti; RANGKAIAN tidak.
+> **Arah resmi (ganti mengeraskan mesin-state UI panjang):**
+> 1. **Kreasi otonom deterministik → pipeline ffmpeg headless (Jalur A)** di `.50` (`assemble_video.py`+Pexels+burn-in: struktur/caption/crop/concat/musik). Tanpa UI rapuh; sudah proven e2e.
+> 2. **Operasi VN = TUNGGAL & idempoten** (buka → 1 aksi → simpan draft → tutup). Draft persisten = checkpoint aman; jangan rantai banyak op dalam satu sesi (pola §25 per-segmen).
+> 3. **Selektor di mana pun ada** (activity native + `editor_toolbar_*`); turun ke koordinat HANYA utk aksi-daun Lynx terakhir + verifikasi screenshot + retry.
+> 4. **VN hanya utk nilai uniknya** (beat-sync, FX/filter/transisi khas VN, styling teks); bulk assembly di ffmpeg, VN = lapisan finishing.
+> Lihat cermin keputusan di §27j-E.
+
 ## §24 — VERIFIKASI BUILD MOD (2026-08-07): fondasi editor UTUH, delta hanya di nav/akun
 Perangkat kini menjalankan **VN 2.17.0 MOD APK** (bajakan "Ninohbs", fresh-install; lihat memori). Dilakukan re-verifikasi apakah automasi editor masih valid pada build ini via `tests/ui-map.js` (ANDROID_UDID=10.66.66.2:45671, FORCE_APP_LAUNCH=false, MAP_NAME=mod-editor).
 
@@ -2037,3 +2046,7 @@ struktur (rasio/crop/rotate/flip/split/trim) · gerak (clipZoom Ken-Burns, keyfr
 **D. Loop kerja agen (proposal):** PERSEPSI (dump+frame+analyzer) → RENCANA (LLM pilih tuas dari palet A sesuai brief/IR) → AKSI (tap selektor via helper §27e) → VERIFIKASI (dump/frame ulang, bandingkan) → SIMPAN (draft) → (hand-off / lanjut). Robustness: pola §26d (per-op run, verify seleksi, guard coach-mark, deselect via tap-kosong bukan BACK).
 
 **E. Prasyarat teknis belum siap (blocker agen 24/7):** (1) stabilitas adb/tunnel §27g (wireless-debug drop) — WAJIB difix dulu; (2) orchestrator multi-op masih rapuh di panel Lynx (§23f); (3) belum ada kanal perintah user→agen real-time (untuk mode co-pilot/hand-off) — perlu bridge (mis. via chat/Telegram → dispatch). Rekomendasi urutan: fix §27g → stabilkan orchestrator op-tunggal → tambah kanal perintah → mode hand-off (paling praktis) → auto → co-pilot.
+
+> **KEPUTUSAN ARSITEKTUR (2026-08-14) — cermin §23f:** blocker (2) **TIDAK diselesaikan dengan mengeraskan orchestrator multi-op Lynx** (ROI rendah — akar: Lynx tanpa selektor/umpan-balik, error menumpuk antar-op; detail di §23f). Ganti dgn: **(a)** kreasi otonom deterministik lewat **ffmpeg headless Jalur A `.50`** (assemble_video/Pexels/burn-in), **(b)** VN dipakai **op-TUNGGAL ber-checkpoint draft** (bukan rantai panjang), **(c)** selektor dulu, koordinat hanya utk aksi-daun Lynx + verifikasi+retry, **(d)** VN hanya utk nilai unik (beat-sync/FX/filter/transisi/styling teks). Artinya loop agen (D) berjalan **satu op per iterasi dgn simpan-draft**, bukan sesi multi-op panjang.
+
+**F. KEPUTUSAN 2026-08-14 — stabilitas RN7 (koreksi asumsi jaringan):** tunnel RN7 **sudah lewat WiFi "Kantor"** (`UnderlyingNetworks`=WiFi, RSSI −37; `202.46.153.90` = WAN publik kantor, BUKAN seluler — koreksi catatan lama). Drop berulang = **DAYA, bukan jaringan**: HP sering **tak tercolok** → `mStayOn=false` → layar mati → **Doze → WiFi power-save → tunnel+adbd putus**. Sudah di-set durable: `network_avoid_bad_wifi=0` (tetap di WiFi, tak lari ke seluler), `wifi_sleep_policy=2`, `svc power stayon true`, WG Doze-whitelist. **Fix wajib = JAGA RN7 TERCOLOK CHARGER** (baterai sempat 21% discharging; §25 kiosk hanya efektif saat plugged). Tanpa charger, tak ada setting yang cegah Doze menidurkan WiFi.
