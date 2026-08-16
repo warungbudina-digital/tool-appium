@@ -2012,7 +2012,7 @@ Di state sesi ini timeline tampil sbg **rail trek vertikal di paruh-KANAN** (bar
 Tunnel WG RN7 lewat **data-seluler** (endpoint `202.46.153.90`, NAT ISP) **drop berkala saat idle** → tiap drop, **wireless-debugging (adbd) mati** (crDroid tak persisten) → adb putus → **butuh user toggle fisik Wireless debugging + re-scan port** (`nmap -Pn -p30000-45000 10.66.66.6`). Selama sesi ini terjadi ≥2×. **Rekomendasi stabilitas:** (a) ikat RN7 ke **WiFi "Kantor"** (192.168.1.24) sbagai jalur WG, bukan seluler; (b) jaga layar-nyala+charger (§25 kiosk); (c) selidiki **adb tcpip 5555 persisten** / auto-reenable wireless-debug saat boot; tanpa ini "node VN 24/7" rapuh di lapisan automasi.
 
 ### 27h. TODO — status diperbarui 2026-08-14 (sesi lanjut, wireless-debug ON)
-Task#1–#4 **SELESAI** (temuan di §27i). SISA kecil: ~~enumerasi nama efek FX~~ **✅ §27m** & ~~nama filter~~ **✅ §27n**; katalog **Transisi** lengkap (§26b baru sebagian — entry = "+" junction antar-klip, butuh ≥2 klip di timeline + scroll agar batas di tengah) — **BELUM**; **Keyframe** mekanik detail (tombol diamond ◇ tanpa content-desc) — **BELUM**. ~~gating Elements/sticker~~ **✅ SELESAI (§27k, 2026-08-15)**. **SISA TINGGAL 2: Transisi + Keyframe.**
+Task#1–#4 **SELESAI** (temuan di §27i). SISA kecil: ~~enumerasi nama efek FX~~ **✅ §27m** & ~~nama filter~~ **✅ §27n**; ~~katalog **Transisi** lengkap~~ **✅ SELESAI (§27q, 2026-08-16 — Base 21 tipe + Matte 20 tipe client-side, Effect 7 tipe AI credit-gated)**; **Keyframe** mekanik detail (tombol diamond ◇ tanpa content-desc) — dasar sudah di §27o, detail kurva/interpolasi masih **BELUM**. ~~gating Elements/sticker~~ **✅ SELESAI (§27k, 2026-08-15)**. **SISA TINGGAL: Keyframe detail kurva.**
 
 ### 27k. ELEMENTS/STICKER — RESOLVED (2026-08-15, RN7 live) — koreksi "menutup balik"
 Sheet **Insert → Elements** (`editor_track_sticker_add`) TERNYATA **JALAN & kaya konten** (catatan lama "menutup balik" salah — mungkin dulu coach-mark/tap meleset). Struktur:
@@ -2090,3 +2090,190 @@ struktur (rasio/crop/rotate/flip/split/trim) · gerak (clipZoom Ken-Burns, keyfr
 > **KEPUTUSAN ARSITEKTUR (2026-08-14) — cermin §23f:** blocker (2) **TIDAK diselesaikan dengan mengeraskan orchestrator multi-op Lynx** (ROI rendah — akar: Lynx tanpa selektor/umpan-balik, error menumpuk antar-op; detail di §23f). Ganti dgn: **(a)** kreasi otonom deterministik lewat **ffmpeg headless Jalur A `.50`** (assemble_video/Pexels/burn-in), **(b)** VN dipakai **op-TUNGGAL ber-checkpoint draft** (bukan rantai panjang), **(c)** selektor dulu, koordinat hanya utk aksi-daun Lynx + verifikasi+retry, **(d)** VN hanya utk nilai unik (beat-sync/FX/filter/transisi/styling teks). Artinya loop agen (D) berjalan **satu op per iterasi dgn simpan-draft**, bukan sesi multi-op panjang.
 
 **F. KEPUTUSAN 2026-08-14 — stabilitas RN7 (koreksi asumsi jaringan):** tunnel RN7 **sudah lewat WiFi "Kantor"** (`UnderlyingNetworks`=WiFi, RSSI −37; `202.46.153.90` = WAN publik kantor, BUKAN seluler — koreksi catatan lama). Drop berulang = **DAYA, bukan jaringan**: HP sering **tak tercolok** → `mStayOn=false` → layar mati → **Doze → WiFi power-save → tunnel+adbd putus**. Sudah di-set durable: `network_avoid_bad_wifi=0` (tetap di WiFi, tak lari ke seluler), `wifi_sleep_policy=2`, `svc power stayon true`, WG Doze-whitelist. **Fix wajib = JAGA RN7 TERCOLOK CHARGER** (baterai sempat 21% discharging; §25 kiosk hanya efektif saat plugged). Tanpa charger, tak ada setting yang cegah Doze menidurkan WiFi.
+
+## 28. RE-MAP §6 PENUH RN7 + 3 alur footage yang belum terdokumentasi (2026-08-16, RN7 charged 67-81%)
+
+Sesi khusus footage/media (Task audit "footage"). Semua ditemukan pada **project draft nyata "Agu 15, 2026"** (mulai 12.51s berisi klip "HELLO"-duplikat, dipakai jadi sandbox — proyek "HELLO" asli tak disentuh). Konfirmasi arsitektur penting: **`VideoEditorMatisseActivity` adalah SATU activity yang dipakai ulang di 3 entry point berbeda** (picker awal proyek baru, tambah-footage-dalam-editor, replace-media) — bedanya cuma mode (multi-select+Next vs single-tap-instant) dan tab yang tersedia.
+
+### 28a. §6 Pemilih media — RE-MAP RN7 1080x2340 (dari Infinix 1080x2408)
+Geometri grid 3-kolom terverifikasi via `uiautomator dump` (native, BUKAN Lynx — dump normal jalan):
+- Kolom (x): **`179`, `540`, `901`** — SAMA PERSIS dgn Infinix (lebar layar identik, sesuai prinsip §26).
+- Baris pertama `check_view` (y): **`532`** (Infinix lama: 624) — jarak antarbaris **`418`** (Infinix lama: 427).
+```js
+const COL = [179, 540, 901];
+const posisiCheck = (i) => ({ x: COL[i % 3], y: 532 + Math.floor(i / 3) * 418 });
+```
+- `tvSelectedCount` "Selected footage: 0" @[34,1878]-[367,1933] → tap-center **`200,1905`**
+- `material_next` "Next" @[878,1867]-[1046,1946] → tap-center **`962,1906`**
+- `back` (X tutup) @[0,80]-[105,185] → **`52,132`**
+- Filter sub-tab: `button_all`@**`258,412`** · `button_video`@**`511,412`** · `button_photo`@**`793,412`**
+- Top tab (BARU vs Infinix — sudah disebut sepintas di §21i tapi belum ber-koordinat): `tvTitle`
+  **All▾**@**`179,311`** (punya dropdown, lihat §28c) · **Stocks**@**`540,303`** · **Subtitle**@**`900,303`**
+  — HANYA muncul di mode **multi-select** (initial picker & add-footage-in-editor); **TIDAK ADA
+  di mode Replace** (§28d, cuma All+Stocks).
+- **`selectedVideoRecyclerView`** @[21,1996]-[1059,2238] — strip pratinjau klip terpilih
+  (horizontal, thumbnail kecil + tombol X per-item) — BARU, muncul begitu ≥1 item dipilih;
+  tak ada di dokumentasi lama.
+- **Coach-mark "Trim Your Clip"** ("Tap any clip to select the segment you want to keep.")
+  muncul di atas grid saat pertama kali memilih 1 klip di sesi ini — ada checkbox "Don't show
+  again" + tombol "I Got It"@**`583,1893`**. Tutup dulu sebelum tap `material_next` kalau
+  overlay menutupi tombol.
+
+### 28b. Alur 1 — Picker impor awal proyek baru (FAB → New Video → picker)
+Rantai: MainActivity FAB "+" (warna biru, cari via scan-pixel bukan koordinat tetap — posisi
+bergeser sedikit tergantung versi; RN7 sesi ini @**`926,2021`**) → `CreationActivity`
+(`createKit_create`/"New Video" tombol besar biru, bounds berubah per versi — cari via
+`tvTitle`/`text="New Video"`) → dialog **"Project Edit Mode"** (§5, `tvSave`
+"Save"@**`540,2069`**) → **`VideoEditorMatisseActivity`** — geometri = §28a, **3 tab
+(All/Stocks/Subtitle) ADA**, mode **multi-select** (checkbox + Next). **Terverifikasi SAMA
+ACTIVITY dgn add-footage-in-editor** (bounds top-tab & grid identik byte-per-byte pada dump).
+
+### 28c. Alur 2 — Tambah footage di dalam editor (`editor_track_main_add` "+")
+- **Trigger**: tombol "+" persegi gelap di **ujung kanan klip terakhir** di main-track — posisi
+  **BUKAN tetap**, mengikuti scroll/zoom timeline (ikut klip terakhir). Pada sesi ini, setelah
+  scroll ke akhir timeline (12.51s), ditemukan di **`633,1900`**. Di samping kirinya ada ikon
+  "-" putih bulat (trim-handle klip terpilih, BUKAN tombol zoom — koreksi asumsi awal) yang
+  bisa menempel berdekatan/overlap — pastikan tap tepat di kotak gelap "+" dengan pemeriksaan
+  visual (screenshot+crop), bukan tebak koordinat mentah.
+- Tap "+" → membuka **`VideoEditorMatisseActivity`** yang SAMA (3 tab All/Stocks/Subtitle,
+  mode **multi-select+Next**, geometri = §28a persis).
+- **Hasil setelah pilih 1 klip + Next**: klip baru **DITAMBAHKAN DI UJUNG (akhir) main-track**
+  — BUKAN disisipkan di posisi playhead. Terverifikasi via `total_textView`:
+  **12.51 → 15.51** (klip lokal 3.00s ditambahkan persis di ujung, durasi total = lama +
+  durasi klip baru). Playhead otomatis diam di **batas lama/baru** (12.51 = titik sambung),
+  yang lalu berguna untuk §28e (transisi).
+- **CLIENT-SIDE INSTAN** — tidak ada spinner/loading (sumber file lokal `/sdcard`), langsung
+  balik ke `EditorActivity` dalam ~1-2 detik.
+
+### 28d. Alur 3 — Replace media klip (context-toolbar kuning → Replace)
+- Seleksi klip di timeline → context-toolbar kuning muncul menutupi baris "add
+  subtitle/sticker" — koordinat native RN7 (dari dump, resource-id ada utk sebagian):
+  **Replace** (tanpa id, ikon 2-panah) @[207,1752]-[293,1788] → tap **`250,1770`** ·
+  **Keyframe** (`tvKeyframeState`) @[314,1752]-[417,1788] → **`365,1770`** ·
+  **Curve** (`tvKeyframeCurve`) @[449,1752]-[514,1788] → **`481,1770`** ·
+  **Lock** (`tvLock`) @[572,1752]-[624,1788] → **`598,1770`** ·
+  **Duplicate** (tanpa id) @[662,1752]-[765,1788] → **`713,1770`** · **Delete** di ujung
+  kanan (~**`830,1770`**, tak sempat ter-capture bounds persis).
+- Tap **Replace** → membuka **`VideoEditorMatisseActivity`** LAGI (activity sama!) tapi mode
+  **BERBEDA dari alur 1/2**: **HANYA 2 tab (All/Stocks, Subtitle HILANG)**, grid **TANPA
+  `check_view`/checkbox**, **TANPA `tvSelectedCount`/`material_next`** — **tap
+  `media_thumbnail` langsung = single-select-instan**, picker otomatis tertutup begitu satu
+  item disentuh.
+- **Hasil**: thumbnail klip di timeline BERUBAH (konten video baru) tapi **DURASI/TRIM
+  DIPERTAHANKAN** dari klip lama (terverifikasi: klip 3.00s tetap berlabel "3.00" & total
+  proyek tetap 15.51s setelah replace — bukan reset ke panjang penuh sumber baru). **CLIENT-
+  SIDE INSTAN** (sumber lokal, tanpa spinner), langsung balik ke `EditorActivity`.
+
+### 28e. Cover picker — ringkas (prioritas rendah, sesuai instruksi)
+Tap area cover-box (`flCoverAdd`, kiri track, sekitar x≈250-300 di baris main-track) →
+editor Cover dgn tab **Video Frame** (filmstrip "Drag to choose cover" dari klip pertama) ·
+**Library** · **Cover Template** · **Edit with Flow Studio** (lih. §27l — belum digali lebih
+jauh sesi ini, sesuai arahan prioritas rendah).
+
+---
+
+## 29. TRANSISI — katalog lengkap Base/Matte/Effect (2026-08-16, RN7 charged) — melengkapi §27h/§26b
+
+**Temuan kunci yang sebelumnya bikin entry point "sulit ditemukan" (§27l/§26b):** ikon **"+"
+junction TIDAK selalu terlihat** di timeline — ia hanya muncul saat **playhead persis berhenti
+di batas dua klip** (bukan sekadar klip terpilih, bukan sekadar timeline discroll ke area
+batas). Cara paling andal mereproduksi: **tambah klip baru via `editor_track_main_add`
+(§28c)** — playhead otomatis mendarat tepat di titik sambung lama/baru, lalu "+" putih bulat
+langsung terlihat overlay pas di garis batas (RN7 sesi ini @**`540,1895`**, ikut posisi
+scroll). Tap "+" itu → membuka panel transisi (native, `uiautomator dump` jalan normal).
+
+### 29a. Struktur panel (native resource-id, RN7 1080x2340)
+- **3 tab** (BUKAN 2 seperti dicatat §26b — ada tab ke-3 "Effect" yang terlewat sebelumnya):
+  **`tvNormalTransition` "Base"** @[242,1726]-[325,1823] · **`tvMaskTransition` "Matte"**
+  @[483,1726]-[579,1823] · **`tvAITransition` "Effect"** @[737,1726]-[838,1823].
+- Grid tipe (horizontal scroll): ikon `imageView_transition_icon`/`ivImage` y=[1838,1954],
+  label `textView_transition_name`/`tvName` y=[1981,2019], lebar tiap slot ≈168px.
+- **Duration**: `textView_duration_title`+`seekBar_transition_duration`
+  [204,2020]-[935,2119]+`textView_transition_duration` (Base/Matte only, default **0.0s**).
+- Footer: **`ivCancel`** @[118,2119]-[213,2277] (X) · **`tvApplyToAll`** "Apply to all"
+  @[413,2119]-[668,2277] (Base/Matte only, **TAK ADA di tab Effect**) · **`ivDone`**
+  @[867,2119]-[962,2277] (✓).
+
+### 29b. Tab Base — 21 tipe, 100% CLIENT-SIDE/GRATIS (tak ada ikon 👑/lock di satupun)
+`None · Black · White · Zoom 1 · Zoom 2 · Dissolve 1 · Dissolve 2 · Shake 1 · Shake 2 · Light ·
+Blur · Pixelate · Circle · Push · Rotate 1 · Rotate 2 · Slide · Wipe · Blink · Vertical ·
+Horizontal`
+
+### 29c. Tab Matte — 20 tipe, 100% CLIENT-SIDE/GRATIS (tak ada ikon 👑/lock)
+`None · Circle 1 · Circle 2 · Line 1 · Line 2 · Line 3 · Hexagon · Square 1 · Square 2 ·
+Square 3 · Ink 1 · Ink 2 · Paint 1 · Paint 2 · Sea · Swirl · Zebra · Memory · Lens · Glitch`
+
+### 29d. Tab Effect — 7 tipe, **👑 AI/CREDIT-GATED** (server-side, BEDA dari Base/Matte)
+`None · Custom · Zoom In · Zoom Out · Push · Pull · Fly Through`
+- **Duration TETAP "5s"** (bukan slider bebas seperti Base/Matte), **TANPA "Apply to all"**.
+- Tiap pilihan menampilkan **biaya kredit** & saldo: contoh **Zoom In = "75,00 Credits will
+  cost"** vs **"Balance: 0,00"** (akun tamu RN7).
+- Tap ✓ (Done) dgn saldo tak cukup → dialog **"Insufficient Credits"** ("There are
+  insufficient credits to continue.") + tombol **"Top Up Balance"** / **"Cancel"** — persis
+  pola gating Credit Center (§21f). **Ini pertama kali fitur AI-generatif di panel editor
+  (bukan AIKit terpisah) terbukti kena tarif kredit per-pemakaian**, bukan cuma Pro-gate
+  biner spt Elements/BrandKit.
+- **Kesimpulan gating:** Base & Matte = bebas dipakai agen otonom tanpa login/kredit (lih.
+  §27j palet A, TAMBAHKAN transisi Base/Matte ke daftar "tersedia otonom"). Effect = SKIP di
+  mode otonom (butuh saldo kredit + kemungkinan login, sama kelas dgn autoCaption/musik cloud).
+
+---
+
+## 30. LOGIN GOOGLE — native GMS SDK, gagal bersih tanpa Play Services (2026-08-16, RN7 guest)
+
+**Konteks:** RN7 dalam sesi ini berstatus **guest/belum login** (`flItemMine` tampil "Please
+login/register", beda dari §21 yang dipetakan saat SUDAH login). Tujuan: petakan proses login,
+KHUSUS opsi Google, TANPA menyelesaikan login sungguhan (tak pernah memasukkan kredensial nyata
+— dan sesi ini memang tak pernah sampai ke titik itu, lihat kesimpulan).
+
+### 30a. Entry point & elemen `LoginActivity` (native, `com.frontrow.account.ui.login.LoginActivity`)
+`flItemMine`(tab Mine, bottom-nav)@**`972,2191`** → teks besar "Please login/register"@**`300,280`**
+→ **`LoginActivity`**. Elemen (`com.frontrow.vlog:id/` prefix kecuali disebut):
+`ivSignInExit` (X)@[68,71]-[163,166] · `tvSignUp` "Sign up"@[819,89]-[962,146] ·
+`ivLogo`@[381,297]-[699,481] · `etUsername` "Email or username"@[118,638]-[888,687] ·
+`etPassword` "Password"@[118,784]-[867,858] · `cbPasswordVisible`@[888,784]-[962,858] ·
+`tvBtnLogin` "Log in"@[118,943]-[962,1048] · `tvForgetPassword`@[423,1101]-[657,1144] ·
+**`cbPolicy`** (checkbox ToU)@[147,1197]-[194,1260] · `tvSignInPolicy`@[247,1207]-[933,1250] ·
+**"Third party login"** divider@[432,1973]-[648,2016] · **`btnFacebook`**@[330,2082]-[446,2198]
+· **`btnGoogle`**@[633,2082]-[749,2198].
+
+### 30b. Gerbang wajib — checkbox ToU sebelum tombol 3rd-party aktif
+Tap `btnGoogle` **TANPA** mencentang `cbPolicy` dulu → **Toast**: *"Please read and agree to
+the Terms of Service and Privacy Policy."* — tak ada navigasi sama sekali, gerbang ini
+independen dari Google/GMS. Setelah `cbPolicy` dicentang (tap @**`170,1228`**, ceklis putih
+muncul), tombol Google baru benar-benar memicu alur sign-in.
+
+### 30c. Tap Google (sesudah checkbox) — hasil: GAGAL BERSIH, bukan crash
+Urutan kejadian (dari `logcat`, timestamp presisi, direproduksi 2×):
+1. `GooglePlayServicesUtil: com.frontrow.vlog requires the Google Play Store, but it is
+   missing.` — RN7 memang **tanpa GMS** (dikonfirmasi ulang, konsisten dgn
+   [[project_redmi_vn_node]]).
+2. `DynamiteModule: Local module descriptor class for com.google.android.gms.auth.api.fallback
+   not found.`
+3. Activity transparan **`com.google.android.gms.auth.api.signin.internal.SignInHubActivity`**
+   sempat start (`action=com.google.android.gms.auth.NO_IMPL`) lalu langsung selesai —
+   **account-chooser TIDAK PERNAH muncul** sama sekali (tak ada UI Google yg dirender).
+4. `AuthSignInClient: Action not implemented` → `GoogleLoginPlatform: signInResult:failed
+   code=12500` (kode standar GMS utk kegagalan sign-in/Play-Services-absen).
+5. App menangkap kegagalan ini **dengan rapi** (tak ada force-close) dan menampilkan **Toast
+   pesan-jelas ke user**: **"Google service is not available. Please install or upgrade it."**
+   → kembali ke `LoginActivity` normal, siap dicoba metode lain.
+
+### 30d. Kesimpulan arsitektur & jawaban pertanyaan tugas
+- **VN pakai native Google Sign-In SDK (GMS-dependent)**, **BUKAN** fallback WebView/Custom-Tab
+  OAuth berbasis browser. Ini beda dari dugaan "mungkin WebView jalan karena tak butuh GMS" —
+  ternyata **tidak ada fallback WebView sama sekali**; kegagalan berhenti di lapisan SDK native
+  sebelum sempat membuka browser/WebView apa pun.
+- **Status: GAGAL, dgn alasan jelas** — RN7 tanpa Google Play Services → SDK native
+  langsung menolak dgn kode error standar (12500) → pesan Toast eksplisit & akurat ke user.
+  **Tidak pernah mencapai halaman accounts.google.com** (baik WebView maupun app Google asli),
+  jadi **tak ada risiko kredensial** sama sekali — sesi berhenti wajar sebelum titik itu, tanpa
+  perlu tindakan mundur manual.
+- **Facebook (`btnFacebook`) TIDAK diuji** (di luar cakupan tugas ini) — kemungkinan pakai SDK
+  Facebook Login (berbeda arsitektur dari GMS, berpotensi WebView/Custom-Tab based) tapi ini
+  **dugaan, belum diverifikasi** — perlu sesi terpisah bila dibutuhkan.
+- **Implikasi utk agen otonom (§27j):** login via Google **TAK BISA diandalkan di RN7** selama
+  tanpa GMS (bukan soal kredensial, tapi limitasi platform) — kalau login diperlukan suatu
+  saat, jalur email/password (`etUsername`/`etPassword`/`tvBtnLogin`) adalah satu-satunya yang
+  berpeluang jalan di device ini tanpa modifikasi platform (pasang microG/GMS dsb, di luar
+  cakupan sesi ini).
