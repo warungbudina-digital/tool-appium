@@ -2012,7 +2012,7 @@ Di state sesi ini timeline tampil sbg **rail trek vertikal di paruh-KANAN** (bar
 Tunnel WG RN7 lewat **data-seluler** (endpoint `202.46.153.90`, NAT ISP) **drop berkala saat idle** → tiap drop, **wireless-debugging (adbd) mati** (crDroid tak persisten) → adb putus → **butuh user toggle fisik Wireless debugging + re-scan port** (`nmap -Pn -p30000-45000 10.66.66.6`). Selama sesi ini terjadi ≥2×. **Rekomendasi stabilitas:** (a) ikat RN7 ke **WiFi "Kantor"** (192.168.1.24) sbagai jalur WG, bukan seluler; (b) jaga layar-nyala+charger (§25 kiosk); (c) selidiki **adb tcpip 5555 persisten** / auto-reenable wireless-debug saat boot; tanpa ini "node VN 24/7" rapuh di lapisan automasi.
 
 ### 27h. TODO — status diperbarui 2026-08-14 (sesi lanjut, wireless-debug ON)
-Task#1–#4 **SELESAI** (temuan di §27i). SISA kecil: enumerasi penuh nama efek per-kategori FX & nama filter per-kategori (Lynx, butuh scroll+screenshot bertahap); katalog **Transisi** lengkap (§26b baru sebagian — entry = "+" junction antar-klip, butuh scroll timeline agar batas klip di tengah); **Keyframe** mekanik detail (tombol diamond ◇ tanpa content-desc). ~~gating Elements/sticker~~ **✅ SELESAI (§27k, 2026-08-15)**.
+Task#1–#4 **SELESAI** (temuan di §27i). SISA kecil: ~~enumerasi nama efek FX~~ **✅ §27m** & ~~nama filter~~ **✅ §27n**; katalog **Transisi** lengkap (§26b baru sebagian — entry = "+" junction antar-klip, butuh ≥2 klip di timeline + scroll agar batas di tengah) — **BELUM**; **Keyframe** mekanik detail (tombol diamond ◇ tanpa content-desc) — **BELUM**. ~~gating Elements/sticker~~ **✅ SELESAI (§27k, 2026-08-15)**. **SISA TINGGAL 2: Transisi + Keyframe.**
 
 ### 27k. ELEMENTS/STICKER — RESOLVED (2026-08-15, RN7 live) — koreksi "menutup balik"
 Sheet **Insert → Elements** (`editor_track_sticker_add`) TERNYATA **JALAN & kaya konten** (catatan lama "menutup balik" salah — mungkin dulu coach-mark/tap meleset). Struktur:
@@ -2021,6 +2021,33 @@ Sheet **Insert → Elements** (`editor_track_sticker_add`) TERNYATA **JALAN & ka
 - Tab **Frames** (CLOUD, load ~5s tapi **BERHASIL** — beda dari musik cloud yg "Loading failed"): kategori **Basic (16) · Shapes (24) · Square (40) · Circle (27)** = frame/mask crop foto-video.
 - **Apply**: tap satu graphic → langsung ditambah sbg **overlay element terpilih**; sheet auto-tutup; muncul **toolbar properti element**: `Fit · BG · Border · Blur · Opacity · Zoom · Extract Audio` (sama family PiP/overlay).
 - **Implikasi agen**: Graphics client-side = aman utk mode otonom (shape/logo/line overlay). Frames cloud tapi tersedia (tak butuh login utk kategori ini). ⚠️ item ber-crown di "Social" = Pro-gated (skip otonom).
+
+### 27m. FX — enumerasi kategori + nama efek (2026-08-15, RN7 charged, klip 8s baru)
+Panel FX (`editor_toolbar_FX`): tab kategori (scroll horizontal) + effect-row (satu list KONTINU, tab menyorot per posisi scroll; y-effect≈1977, y-tab≈1849 di 1080x2340). Footer: X · ▷ preview · ✓✓ **Apply to all** · ✓.
+**13 KATEGORI**: Original · Basic · Beats · Glitch · RGB · Blur · Rotation · Split · Nature · Light · Retro · Decor · Stylize.
+**Nama efek per-kategori (terverifikasi live, sebagian — list penuh butuh scroll dalam tiap kategori):**
+- **Original**: None (⊘ = tanpa efek).
+- **Basic** (motion): Spin 01·02·03·04 · Drop 01·02·03·04 · Zoom 01 · Shake In · Zoom Out · Zoom In · Move Right · Move Left · Move Down · Move Up.
+- **Beats**: Beats · Soul · Black · White · Jitter up · Jitter down · Expand.
+- **Glitch**: Glitch 01 · Glitch 02 · Fuzzy · Cut · Noise 01 · **Noise 02 👑**.
+- **RGB**: RGB 01 · RGB 02 · Chroma Zoom · Shake.
+- **Blur**: … Fuzzy Opening · Dreamy Glow · **Camera Focus 👑**.
+- **Rotation**: Spin in · Spin out · Rotary 01 · Rotary 02.
+- **Nature**: Snowing · Snowflake 01 · Snowflake 02.
+- **Light**: Light 01 · Light 02 · Light 03 · **Leak 👑**.
+- **Split · Retro · Decor · Stylize**: ada (nama efek belum dienum — scroll lanjut).
+- **👑 = Pro-gated** (mis. Noise 02, Camera Focus, Leak). Mayoritas efek CLIENT-SIDE (§27d), preview live. Apply-to-all tersedia.
+
+### 27n. FILTER — kategori + pola nama (2026-08-15, live) — melengkapi §27i
+Panel Filter (`editor_toolbar_filter`): tab **Filter** | **Adjust** (Adjust=§26a). Baris atas = kategori (scroll + chevron expand ^), baris bawah = filter (preview live) + **+ Add** (impor LUT) di kiri + **Original** (tanpa filter). **Intensity** slider 0–100. Footer: X · ✓✓ **Apply to all** · ✓.
+- **KATEGORI** (scroll): Favorites · Recent · Original · **Aesthetic** · **Create** · **Vivid** · **Essence** · **Fog** · **Lune** · … (+expand utk lebih; koreksi §27i "Essential"→"Essence", tambah Fog/Lune).
+- **POLA NAMA filter = prefix-kategori + nomor**: Aesthetic = **A1·A2·A3·A4**… · Create = **C5·C6·C7**… · Vivid = **VI1·VI2·VI3**… (dst per kategori).
+- **👑 Pro-gated per-kategori**: **Vivid (VI1/VI2/VI3 semua 👑)** = Pro. (Aesthetic/Create tampak client-side.) Agen otonom: pakai kategori non-crown; skip yg 👑.
+
+### 27o. KEYFRAME + CONTEXT-TOOLBAR KLIP (2026-08-15, live) — melengkapi §27i/§26a
+- **Seleksi klip (JALAN sekarang):** di editor dgn klip di main-track (durasi>0, mis. proyek baru 8s), **tap klip di timeline** (center/playhead) → klip border-kuning terpilih + muncul **toolbar KLIP** (Filter·Trim·FX·Split·Cutout·Speed·Volume…, `editor_toolbar_*`) DAN **context-toolbar KUNING di atas klip**: **Replace · Keyframe ◇ · Curve · Lock · Duplicate · Delete**. (Catatan lama gagal seleksi karena draft itu overlay-only/0-durasi — lihat §27l.)
+- **KEYFRAME**: tap **Keyframe ◇** di context-toolbar → **set keyframe di posisi playhead** (ikon ◇ jadi TERISI/hijau + marker muncul di klip). Mekanik animasi: set keyframe → geser playhead → ubah properti (posisi/skala/opasitas/rotasi via tool) → keyframe ke-2 otomatis → animasi antar-keyframe. **Curve** (greyed sampai ada keyframe) = kurva interpolasi keyframe. = satu-satunya jalur animasi kustom klip/teks di MOD (§27i).
+- **Context-toolbar lain**: Replace (ganti media klip), Lock, Duplicate, Delete — aksi klip-level.
 
 ### 27l. STATUS SESI 2026-08-15 (RN7 live, di-baterai) + reminder seleksi-klip
 - ✅ **Elements/sticker (§27k) tuntas.** SISA §27h belum: enumerasi nama FX & Filter per-kategori, katalog Transisi, mekanik Keyframe.
