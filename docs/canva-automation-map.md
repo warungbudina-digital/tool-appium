@@ -92,9 +92,15 @@ Tab kamera-roll/media picker — BELUM dieksplorasi isi detailnya sesi ini (icon
 - Tab **Gambar / Folder**.
 - Menampilkan 2 desain unggahan lama (`Motivasi Kesehatan Kartu 1 & 2`, hasil convert Figma→Canva sesi lampau — lihat [[project_figma_api_key]]).
 
-#### g) Alat, Proyek, Aplikasi — BELUM dieksplorasi isinya sesi ini (TODO sesi depan).
+#### g) Galeri — sudah dipetakan + TEMUAN KEAMANAN
+- Dropdown filter **"Terbaru"**.
+- Tombol **"Kamera"** (ambil foto langsung ke desain).
+- Grid media dari **MediaStore device** (bukan cloud Canva) — pola `content://media/external/images/media`.
+- **⚠️ TEMUAN KEAMANAN (2026-08-22): panel ini menampilkan screenshot LAMA berisi halaman akun sensitif** (`hf1.png`/`hf2.png`/`hf3.png` di `/storage/emulated/0/` root — screenshot "Access Tokens" Hugging Face akun `warungbudina`, sisa sesi mapping sebelumnya yg simpan via `screencap -p /sdcard/...` bukan via `exec-out` off-device). Karena file itu ADA di galeri device, **APAPUN app dgn izin media (termasuk Canva) bisa melihatnya** lewat picker seperti ini. **✅ SUDAH DIBERSIHKAN sesi ini** (`rm` + `content call scan_volume`). **Pelajaran permanen: screenshot on-device (`adb shell screencap -p /sdcard/...`) HARUS dibersihkan/di-`rm` setelah dipakai, JANGAN biarkan menumpuk di root `/sdcard/`** — beda dgn `adb exec-out screencap | > localfile` yg aman (tak pernah mendarat di storage device sama sekali, itu metode yg dipakai sesi mapping Canva ini).
 
-#### h) AI Canva — sudah dipetakan
+#### h) Alat, Proyek, Aplikasi — BELUM dieksplorasi isinya sesi ini (TODO sesi depan).
+
+#### i) AI Canva — sudah dipetakan
 Bottom-sheet chat AI kontekstual thd desain aktif:
 - Judul **"Desain ini mau kita apakan?"**
 - 2 chip saran: **"Desain ulang halaman ini"** (ikon kilau) / **"Tambahkan latar belakang"** (ikon gambar+, teks terpotong "Tambahkan latar...").
@@ -109,9 +115,10 @@ Bottom-sheet chat AI kontekstual thd desain aktif:
 ## 4. TODO sesi berikutnya (prioritas)
 1. Tab **Template** (Home + toolbar Editor) — struktur pencarian/kategori template siap-pakai.
 2. Tab **Lainnya** di Home — kemungkinan berisi Settings/Akun/Brand Hub/Apps.
-3. **Galeri** toolbar (media picker kamera-roll).
-4. **Alat, Proyek, Aplikasi** toolbar — 3 tool paling belum tersentuh.
-5. Top-bar kanan: verifikasi ulang pasangan ikon↔fungsi (File/duplikat/Ubah ukuran/Unduh/Semua Opsi Publikasi) via tap-per-tap, bukan cuma baca label dump.
-6. Alur **export/publish penuh** (format file, resolusi, tujuan publish — IG/FB/link/dll) via "Semua Opsi Publikasi".
-7. Verifikasi ulang kategori **Foto** di Elemen (sempat salah-tap ke Animasi sesi ini).
-8. Cek dropdown **"Semua proyek"** di Home (kemungkinan switch tim/workspace — penting krn akun multi-tim).
+3. **Alat, Proyek, Aplikasi** toolbar — 3 tool paling belum tersentuh (bounds selalu `[0,0][0,0]` saat tak terlihat di viewport — WAJIB scroll toolbar dulu sebelum tap, lihat §2.2).
+4. Top-bar kanan: verifikasi ulang pasangan ikon↔fungsi (File/duplikat/Ubah ukuran/Unduh/Semua Opsi Publikasi) via tap-per-tap, bukan cuma baca label dump.
+5. Alur **export/publish penuh** (format file, resolusi, tujuan publish — IG/FB/link/dll) via "Semua Opsi Publikasi".
+6. Verifikasi ulang kategori **Foto** di Elemen (sempat salah-tap ke Animasi sesi ini).
+7. Cek dropdown **"Semua proyek"** di Home (kemungkinan switch tim/workspace — penting krn akun multi-tim).
+8. **Toolbar bottom TIDAK py posisi tetap** (auto-scroll ke tool aktif) — kalau bikin orchestrator otomatis ke depan, WAJIB dump/screenshot ulang tiap langkah sebelum tap, JANGAN hardcode urutan koordinat dari 1 snapshot (beberapa kali salah-tap sesi ini krn ini).
+9. Rutin **audit & bersihkan `/sdcard/*.png` root RN7** dari sisa `screencap -p` on-device — kebocoran nyata ditemukan+ditutup sesi ini (lihat §2.2g), berpotensi berulang kalau device-mapper agent lain pakai metode sama tanpa cleanup.
