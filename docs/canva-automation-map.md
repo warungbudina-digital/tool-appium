@@ -216,3 +216,97 @@ Layar native (bukan Editor) — daftar menu dgn avatar tim (kiri-atas) + ikon lo
 4. Video MP4 export (§10) belum diuji end-to-end sungguhan (cuma dilihat sbg opsi list, gratis-tanpa-badge tapi belum generate beneran).
 5. "Akun Anda" (detail profile), "Pengaturan", "Tema", "Alat lanjutan (Beta)", "Bantuan dan sumber informasi" di layar Akun (§11) belum dieksplorasi isinya.
 6. "Katalog Cetak", "Lab Imajinasi", "Marketing", "Design School" di menu Lainnya (§11) belum dieksplorasi isinya — kemungkinan besar konten marketing/edukasi Canva, prioritas rendah utk automasi.
+7. ✅ SELESAI 2026-08-23 (lanjutan): **toolbar EDIT ELEMEN** (gambar+teks) dipetakan detail — lihat §14-17. Ini bagian PALING KRITIS utk auto-editing (manipulasi elemen existing, bukan cuma navigasi/insert), sebelumnya belum tersentuh sama sekali.
+8. **BELUM:** toolbar "Kuas"/"Latar depan"/"Latar belakang" di §14.2/15 belum dites tap-through sungguhan (baru diidentifikasi opsinya via UI, belum dicoba edit hasil aktualnya). "Edit warna" (§15) belum dibuka isinya (kemungkinan HSL per-channel, lebih advance dari slider biasa). "Lapisan Ajaib"/"Edit Ajaib"/"Tingkatkan resolusi"/"Penghapus Ajaib" (§16) baru diidentifikasi nama+badge Pro, belum dites hasil aktual generate-nya. Toolbar teks §17 belum di-scroll penuh (kemungkinan ada Efek/Animasikan/Spasi/Perataan/Daftar di sebelah kanan "Warna").
+
+## 14. Element SELECTED — Transform Toolbar (gambar) — BARU, PALING PENTING utk auto-editing
+
+**Ini toolbar yang muncul begitu elemen (mis. gambar hasil pipeline Figma→Canva) di-tap/dipilih di kanvas** — beda total dari toolbar insert (§2.2). Dipetakan pakai desain "Motivasi Kesehatan Kartu 2" (hasil pipeline [[project_figma_api_key]]).
+
+### 14.1 Menu konteks mengambang (muncul di atas elemen terpilih)
+5 ikon dlm 1 pill floating tepat di atas bounding-box elemen (posisi mengikuti elemen, TIDAK fixed — scroll/geser kanvas dulu kalau ketutup status bar):
+| Ikon | Fungsi (dugaan dari bentuk, belum semua di-tap) |
+|---|---|
+| "C" + kilau | Kemungkinan "Animasikan" atau riwayat versi elemen — belum dites |
+| Speech-bubble "+" | Tambah komentar pada elemen ini |
+| Kotak-ganda "+" | **Duplikat elemen** |
+| Tempat sampah | **Hapus elemen** (dipakai sesi ini utk bersihkan elemen teks percobaan) |
+| "..." | Menu opsi lain (belum dieksplor) |
+
+Di bawah elemen: **handle rotate** (ikon panah melingkar, lingkaran terpisah) + 8 **resize handle** (4 sudut + 4 tengah-sisi) di sekeliling bounding-box.
+
+### 14.2 Toolbar bawah (5 tool utama, scrollable) — Ganti / Pilih / Sesuaikan / Penghapus LB🔒 / Alat Gambar
+| Tool | Fungsi | Detail |
+|---|---|---|
+| **Ganti** | Ganti gambar elemen INI dgn gambar lain, TETAP pertahankan posisi/ukuran/crop-frame | Buka media-picker persis sama dgn §2.2d/f/g (tab Galeri/Unggahan/Foto/Video/Proyek). **Sangat berguna utk automasi "isi ulang template"**: siapkan 1 desain Canva sbg template, lalu script cukup ganti gambar via tool ini tanpa bikin desain baru tiap kali. |
+| **Pilih** | AI-powered area/subject selection utk edit selektif | Sub-mode: **Klik** (tap 1 area/objek, AI auto-deteksi batasnya — mirip "Magic Grab"), **Kuas** (lukis manual area), **Latar depan** (Foreground = subjek utama), **Latar belakang** (background, di luar layar terpotong "Lat..." — konfirmasi nama lewat scroll). Prompt: "Klik area pada gambar untuk mengedit". Belum dites tap-through actual (baru identifikasi UI options). |
+| **Sesuaikan** | Panel filter/koreksi warna — lihat §15 detail penuh | — |
+| **Penghapus LB** 🔒Pro | Background remover 1-klik | Badge mahkota, TERKUNCI di akun Member ini — sama tool dgn "Penghapus LB" di §16 Alat Gambar |
+| **Alat Gambar** | Menu AI image-tools tambahan — lihat §16 detail penuh | — |
+
+**Jebakan koordinat (PENTING, kena berulang sesi ini):** toolbar 5-tool ini POSISINYA BEDA dari toolbar insert utama (§2.2) — ada di baris PALING BAWAH layar (native y≈2160-2280 dari 2340 total), BUKAN di y≈2110-2280 spt toolbar insert. **JANGAN samakan koordinat kedua toolbar ini** — selalu crop+ukur ulang screenshot per sesi (`PIL crop` region bawah y=2000-2340, BUKAN baca dari gambar auto-scaled yg ditampilkan ke Claude — faktor skala 1.17 gampang bikin salah hitung ratusan pixel kalau posisi elemen tak dicek presisi via crop asli).
+
+## 15. Panel "Sesuaikan" (Adjust) — 14 slider warna/koreksi, DIPETAKAN LENGKAP
+
+Header: **"Atur ulang"** (reset semua) / judul "Sesuaikan" / **checkmark** (terapkan+tutup panel).
+
+**Baris "Pilih area"** (SAMA PERSIS opsi dgn §14.2 Pilih): **Semua** (default, edit seluruh gambar) / **Klik** / **Kuas** / **Latar...** — jadi tiap slider adjustment BISA diterapkan selektif ke bagian tertentu gambar saja, bukan cuma global. Fitur AI selektif ini konsisten dipakai ulang di 2 tempat (§14.2 Pilih & di sini).
+
+Tombol **"Sesuaikan Otomatis"** (ungu solid, 1-klik AI auto-enhance) sekaligus jadi chip pertama di baris scroll horizontal berisi 14 slider:
+
+| # | Nama slider | Kategori |
+|---|---|---|
+| 1 | Suhu | Temperature (warm/cool) |
+| 2 | Rona | Hue |
+| 3 | Kecerahan | Brightness |
+| 4 | Kontras | Contrast |
+| 5 | Sorotan | Highlights |
+| 6 | Bayangan | Shadows |
+| 7 | Putih | Whites (white point) |
+| 8 | *(Hitam? belum dikonfirmasi tampilan langsung, sisip diduga antara Putih-Semarak)* | Blacks (black point) |
+| 9 | Semarak | Vibrance |
+| 10 | Saturasi | Saturation |
+| 11 | **Edit warna** | Kemungkinan HSL per-channel, BUKAN slider tunggal — belum dibuka isinya |
+| 12 | Ketajaman | Sharpness |
+| 13 | Kejelasan | Clarity |
+| 14 | Vinyet | Vignette |
+
+**Pola UI tiap slider (konsisten, dites di "Vinyet"):** nama slider + horizontal slider draggable (titik tengah = 0, netral) + **kotak angka di kanan menampilkan nilai terkini (mis. "0") — TAPI KOTAK INI READ-ONLY, tap tak memunculkan keyboard** (dites langsung, tak ada respons) → **automasi HARUS drag slider (`adb input swipe` pendek dari posisi handle), TAK BISA ketik angka presisi langsung.**
+
+**Jebakan navigasi ditemukan sesi ini:** chip-row 14 item ini TAK MUAT 1 layar, scrollable horizontal — `input swipe` jarak jauh (>500px) bisa SKIP banyak chip sekaligus (auto-snap ke chip terdekat & otomatis SELECT chip itu, bukan cuma scroll pasif) — kalau butuh baca urutan lengkap, pakai swipe PENDEK (~300-400px) bertahap, jangan swipe jauh sekali jalan.
+
+## 16. Panel "Alat Gambar" — 5 tool AI image-editing, DIPETAKAN
+
+Dibuka dari §14.2. Grid ikon bulat + label, scrollable horizontal (5 terlihat, kemungkinan lebih):
+
+| Tool | Badge | Fungsi (dugaan dari ikon+nama) |
+|---|---|---|
+| **Lapisan Ajaib** | Gratis (tanpa badge) | Kemungkinan pisahkan elemen jadi layer terpisah otomatis (ikon: ekstraksi objek dari background) |
+| **Edit Ajaib** | 🔒Pro | AI generative edit (ikon cupcake half-edited — kemungkinan "Magic Edit" ganti sebagian gambar via prompt teks, mirip Photoshop Generative Fill) |
+| **Tingkatkan resolusi** | Badge **"Baru"**, GRATIS | AI upscale/super-resolution — berguna utk gambar hasil pipeline Figma yg resolusinya terbatas |
+| **Penghapus LB** | 🔒Pro | Background remover (duplikat akses dari §14.2) |
+| **Penghapus Ajaib** | 🔒Pro | "Magic Eraser" — hapus objek dari foto secara AI (ikon burung, kemungkinan demo "hapus burung dari langit") |
+
+**Kesimpulan gate:** dari 5 tool, cuma **Lapisan Ajaib** dan **Tingkatkan resolusi** yg GRATIS di akun Member ini — 3 lainnya (Edit Ajaib/Penghapus LB/Penghapus Ajaib) Pro-locked. **"Tingkatkan resolusi" khususnya BERNILAI TINGGI utk pipeline Figma→Canva** (§14.2 Ganti + `figma_to_canva.py`) karena source gambar dari Figma API kadang resolusi standar — bisa di-upscale gratis sblm publish.
+
+## 17. Elemen Teks — alur tambah + toolbar edit, DIPETAKAN
+
+### 17.1 Menambah teks baru (dari panel Teks §2.2c, tombol "Tambahkan kotak teks")
+Tap tombol → **kanvas otomatis zoom-in ke area teks** + text box baru muncul isi placeholder **"Teks paragraf Anda"** (untuk gaya "Tambahkan sedikit teks isi"; preset lain beda placeholder) **dgn teks ITU SENDIRI SUDAH TER-SELECT/highlight** + keyboard software langsung muncul → **`adb shell input text "..."` LANGSUNG bisa dipanggil tanpa tap tambahan**, otomatis REPLACE placeholder (bukan append). Ini pola PALING EFISIEN utk automasi insert-teks: 1 tap (tombol preset) + 1 `input text` call, selesai.
+
+Toolbar inline saat masih dlm mode edit (di atas keyboard): ikon sama dgn §14.1 (animasikan?/komentar) + **pemisah** + **Warna font** (swatch pelangi) / **"Font"** (nama font aktif) / **"30 pt"** (ukuran, tampil sbg angka bukan slider) / **B** (bold, toggle) / *I* (italic) / **U** (underline, terpotong layar) + **checkmark** (commit, keluar mode edit-teks).
+
+### 17.2 Toolbar elemen teks TERPILIH (setelah commit, tap elemen lagi) — BEDA dari toolbar gambar §14.2
+| Tool | Fungsi |
+|---|---|
+| **Edit** | Kembali ke mode edit-teks (keyboard+toolbar inline §17.1) |
+| **Font** | Ganti font family (ikon "Ff") |
+| **Gaya teks** | Preset style (ikon "H" — kemungkinan varian judul/subjudul/isi atau efek teks siap-pakai, belum dibuka) |
+| **Ukuran font** | Ganti ukuran (ikon "AA") |
+| **Warna** | Ganti warna teks (swatch pelangi) |
+
+(Toolbar ini kemungkinan scrollable ke kanan sama spt §14.2, ada tool lanjutan Efek/Animasikan/Spasi/Perataan yg belum ke-capture — TODO sesi depan.)
+
+Menu konteks mengambang + handle SAMA POLA dgn §14.1 (animasikan/komentar/duplikat/hapus/lainnya), TAPI **handle resize/rotate teks BEDA**: bukan 8-titik di bounding-box spt gambar, melainkan **1 handle "pindah" (ikon 4-panah)** + **1 handle "putar"** terpisah di bawah elemen — konsisten dgn sifat text-box yg auto-resize mengikuti isi teks (tak perlu drag-resize manual spt gambar raster).
+
+**✅ Dibersihkan pasca-pengujian:** elemen teks percobaan ("AI Test") DIHAPUS via tombol trash §14.1/17.2 sblm sesi selesai — desain "Motivasi Kesehatan Kartu 2" kembali ke state asli, tak ada perubahan permanen ke desain user.
