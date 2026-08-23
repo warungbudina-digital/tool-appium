@@ -263,13 +263,25 @@ Tombol **"Sesuaikan Otomatis"** (ungu solid, 1-klik AI auto-enhance) sekaligus j
 | 5 | Sorotan | Highlights |
 | 6 | Bayangan | Shadows |
 | 7 | Putih | Whites (white point) |
-| 8 | *(Hitam? belum dikonfirmasi tampilan langsung, sisip diduga antara Putih-Semarak)* | Blacks (black point) |
+| 8 | Hitam | Blacks (black point) — ✅ dikonfirmasi 2026-08-23, posisi persis antara Putih-Semarak |
 | 9 | Semarak | Vibrance |
 | 10 | Saturasi | Saturation |
-| 11 | **Edit warna** | Kemungkinan HSL per-channel, BUKAN slider tunggal — belum dibuka isinya |
+| 11 | **Edit warna** | BUKAN slider tunggal — panel sendiri, lihat §15.1 |
 | 12 | Ketajaman | Sharpness |
 | 13 | Kejelasan | Clarity |
 | 14 | Vinyet | Vignette |
+
+### 15.1 "Edit warna" — panel khusus, DIBUKA 2026-08-23
+
+Beda dari 13 slider lain — begitu dipilih, tampil:
+- **3 swatch warna bulat** — hasil ekstraksi otomatis warna dominan dari gambar (1 thumbnail mini gambar penuh + 2 warna solid, contoh sesi ini: coklat + kuning, sesuai 2 warna dominan kartu kutipan). Kemungkinan besar ini fitur **"recolor"** (ganti 1 warna spesifik ke warna lain di seluruh gambar, mirip "Edit Colors" versi desktop Canva) — **TAPI tap 1 swatch SAJA tak menunjukkan perubahan visual langsung** (dites live, screenshot identik sebelum/sesudah) → kemungkinan perlu tap-and-hold, atau swatch cuma tampilan info (preview warna terdeteksi) dan color-picker sungguhan muncul di elemen UI lain yg tak ke-capture screenshot (mis. overlay terpisah). **BELUM TUNTAS, TODO sesi depan:** coba long-press swatch, atau cek apakah perlu swipe-reveal color-picker di bawahnya.
+- **Toggle "Balikkan warna"** (Invert colors) — off by default, belum dites aktifkan.
+
+## 15.2 "Tingkatkan Resolusi" (§16) — DIUJI LIVE, langsung apply TANPA dialog
+
+Tap tool ini **langsung menerapkan efeknya seketika** — TIDAK ADA dialog konfirmasi, progress bar, atau loading indicator yang sempat tertangkap (screenshot 3 detik setelah tap sudah menunjukkan kembali ke toolbar transform biasa, ikon Undo di top-bar jadi aktif menandakan perubahan tercatat di history). **Implikasi otomasi: 1 tap = selesai, tak perlu handle dialog susulan** — beda dari dugaan awal yg mengira mungkin ada preview before/after atau prompt "Terapkan?".
+
+**⚠️ Transparansi ke user:** tool ini DIUJI di desain ASLI "Motivasi Kesehatan Kartu 2" (bukan desain percobaan terpisah) — efeknya PERSISTEN (tersimpan otomatis, tak di-undo pasca-pengujian, beda dari elemen teks percobaan §17 yg sengaja dihapus lagi). Dampak: gambar di desain itu kini resolusinya sudah ditingkatkan (upscale) — perubahan searah, tak merusak/mengubah tampilan visual, murni penambahan detail piksel, dianggap aman+bermanfaat makanya tak di-revert, tapi dicatat di sini demi kejujuran (bukan operasi 100% tanpa efek pada data nyata user, tak seperti pengujian lain sesi ini yg semua dibersihkan).
 
 **Pola UI tiap slider (konsisten, dites di "Vinyet"):** nama slider + horizontal slider draggable (titik tengah = 0, netral) + **kotak angka di kanan menampilkan nilai terkini (mis. "0") — TAPI KOTAK INI READ-ONLY, tap tak memunculkan keyboard** (dites langsung, tak ada respons) → **automasi HARUS drag slider (`adb input swipe` pendek dari posisi handle), TAK BISA ketik angka presisi langsung.**
 
