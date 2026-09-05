@@ -171,3 +171,28 @@ menambah 1 entri **Works (2→3)** — wajar, tiap render buat Work; file di `/s
 **Pelajaran:** untuk animasi **scale/pan via keyframe** yang di tutorial pakai pinch, di otomasi ADB
 **pakai preset `clipZoom`** (Zoom In/Out + Move R/L/D/U) — hasil visual setara, single-op, tanpa
 multi-touch. Verifikasi teknik = **cek preset ter-highlight di panel** + **file export**, bukan asumsi.
+
+---
+
+## H. ⭐⭐ UJI GAYA LENGKAP (live, 2026-09-06) — Cinematic
+
+Gaya #2 (Cinematic, §B) diterapkan END-TO-END di footage nyata (2 klip) → file jadi. Tiga penanda
+cinematic inti, tiap satu op-tunggal terverifikasi:
+
+**1. Color grade teal-orange** (`editor_toolbar_filter` → tab Filter):
+- Kategori **Aesthetic** → filter **A2** (@638,1934; bayangan teal + orange dipertahankan).
+- **Intensity 77** — geser `sbIntensity` (handle nyata **~x911,y2035**, BUKAN y2027 di peta; **swipe ≥900ms**, gestur cepat diabaikan senyap; baca `tvIntensity` utk konfirmasi).
+- **Apply to all** (@540,2198) → kedua klip ter-grade → Done (@915,2198). *Filter aktif tak terbaca selektor; verifikasi via preview + tvIntensity.*
+
+**2. Slow-motion 0.5x** (cinematic pacing) pada klip-1:
+- pilih klip → **Speed** → tab **Regular** → geser ruler ke **0.5x** (dari tengah ke kanan ~135px) → Done.
+- **Verifikasi durasi:** total 11.53s → **17.30s**, klip-1 5.77s → **11.53s** (×2 pada 0.5x) ✅.
+
+**3. Cross-dissolve** antar-klip (transisi khas cinematic):
+- seek ke batas klip via tombol **next** (@655,1454) → ikon transisi **"+"** muncul di sambungan (@532,1895) → tap → panel transisi (tab Base): None/Black/White/Zoom1/Zoom2/**Dissolve 1**(@966,2000)/Dissolve 2.
+- pilih **Dissolve 1** → durasi auto **0.8s** (`textView_transition_duration`) ✅ → Done.
+
+**HASIL:** `/sdcard/DCIM/VN/VN20260906_071313.mp4` — 10 MB, **17.32s** (cocok total pasca slow-mo),
+720p, video+audio. Dikirim ke user. Keluar **"Exit directly"** (Projects tetap 3); export nambah 1 Works.
+
+**Pelajaran:** (a) intensitas Filter & durasi transisi = seekbar yg **abaikan swipe cepat** → ≥900ms + baca nilai; (b) cara andal capai sambungan transisi = **seek pakai tombol next** (lompat ke batas klip) lalu tap ikon "+" — jauh lebih presisi drpd gulir timeline manual; (c) filter/transisi = op-tunggal terpisah, aman; verifikasi via nilai numerik + preview + file export.
