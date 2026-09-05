@@ -106,3 +106,37 @@ diabaikan, tak memengaruhi isi teknis.
 4. **`input tap` sering tak ngefek di RN7** → pakai `input swipe X Y X Y 120`.
 5. **Dump `uiautomator` bisa basi (race)** — hapus `/sdcard/u.xml` + jeda ~0.6s sebelum `cat`; kalau
    ragu, **screenshot** (hampir salah-hapus proyek gara-gara dump basi saat sesi ini).
+
+---
+
+## F. ⭐⭐ UJI GAYA LENGKAP (live, 2026-09-05) — Beat-Sync / Velocity via AutoCut
+
+Gaya #5 (Beat-Sync) diuji END-TO-END di footage nyata → **file jadi**. Dipilih jalur **AutoCut**
+(mesin beat-sync bawaan VN, §13) alih-alih rangkai manual beat-marker+cut+speed di panel Lynx —
+karena manual = multi-op rapuh/gagal senyap (§23f). AutoCut = op terpandu tunggal, hasil verifiable.
+
+**Footage nyata:** 4 klip (guinea-pig 20.13s + 3× Creative Business Talk @8.00s), total mentah 44.13s.
+
+**Alur terverifikasi:**
+1. CreationActivity → **AutoCut** (`flAutoCutCard` @795,957) → splash → **Select Media** @540,2083
+2. `AutoCutSelectMediaActivity` → filter **Video** @511,306 → pilih 4 (`check_view` kolom 179/540/901,
+   baris 426/844) → `tvTip`="4 selected" → **NEXT** (`btNext` @928,1960)
+3. `AutoCutEditorActivity` (Lynx) → **VN AUTO-GENERATE** video beat-sync 0:05, musik default
+   **"Discover · Ikson"** (chip `Selected`). Tab lain: Templates/BeatsClips (tiap template = lagu +
+   struktur beat sendiri; Echoing Steps/Save Me/West Coast/Do It perlu unduh, Discover lokal).
+4. **Export** (@1001,153) → action-sheet **Export** (`tvOperation1` @540,1872) →
+   `VideoGenerateOptionActivity` (Auto **720p/30fps**, est. 3.16 MB) → **Export** (`export_export` @540,1847)
+5. `VideoGeneratingActivity` → render selesai (layar Share + Done).
+
+**HASIL (file nyata, diverifikasi via parse mp4):**
+- **`/sdcard/DCIM/VN/VN20260906_031853.mp4`** — 3.69 MB, timestamp 03:18 WITA
+- **Durasi 5.77s** (44.13s footage → dikondensasi & disinkron ke beat lagu)
+- **1 trek video + 1 trek audio AAC** = musik tertanam (bukti beat-sync: cut mengikuti beat + audio)
+→ ✅ Gaya Beat-Sync TERBUKTI menghasilkan video jadi dari footage nyata.
+
+**Byproduct (residu, tidak dibersihkan — hapus berisiko):** AutoCut menyimpan **proyek "Discover" 5.75s**
++ 1 entri Works (Projects 3→4, Works 1→2). Aman & berlabel jelas; hapus manual bila mau.
+
+**Pelajaran:** untuk gaya Beat-Sync produksi → **pakai AutoCut**, bukan rangkai manual. Ganti "template"
+= ganti lagu+struktur beat (durasi hasil ikut berubah). Verifikasi keberhasilan = **file mp4 baru di
+`/sdcard/DCIM/VN/` + cek trek audio ada**, bukan asumsi.
