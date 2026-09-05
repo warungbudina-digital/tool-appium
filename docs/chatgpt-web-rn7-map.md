@@ -150,7 +150,67 @@ muncul hanya setelah jawaban rampung (sama pola dgn app ChatGPT di RN5).
 
 ---
 
-## 8. Resep siap pakai — kirim prompt & ambil jawaban
+## 8-A. ⭐ RESEP UTAMA — kirim prompt & ambil jawaban via RDP (TERUJI, tanpa koordinat)
+
+**Pakai cara ini.** §8-B (koordinat) hanya cadangan kalau RDP mati.
+
+Prasyarat: `adb -s 10.66.66.6:5555 forward tcp:6001 localabstract:org.mozilla.fennec_fdroid/firefox-debugger-socket`
+(dari HOST akses-vps; lihat `fennec-rn7-map.md` §7. Forward hilang tiap adb server restart → pasang ulang).
+
+### Selector kunci (stabil, hasil verifikasi live 2026-09-05)
+| Elemen | Selector | Catatan |
+|---|---|---|
+| Kolom input | `#prompt-textarea` | **DIV `contenteditable`, class `ProseMirror`** — bukan textarea! |
+| Tombol kirim | `[data-testid="send-button"]` | baru MUNCUL setelah ada teks; `aria-label="Kirim perintah"` |
+| Pesan (user & assistant) | `[data-message-author-role]` | nilai atribut: `user` / `assistant` |
+| Sidebar | `[data-testid="open-sidebar-button"]` | |
+| Pemilih model | `[data-testid="model-switcher-dropdown-button"]` | |
+| Tambah file | `[data-testid="composer-plus-btn"]` | |
+
+### Mengetik ke ProseMirror
+`el.innerText = "..."` **TIDAK BEKERJA** (React/ProseMirror mengabaikannya).
+Yang berhasil: fokus → seleksi seluruh isi → `execCommand('insertText')`.
+
+```js
+(() => {
+  const el = document.querySelector('#prompt-textarea');
+  el.focus();
+  const sel = window.getSelection(), r = document.createRange();
+  r.selectNodeContents(el); sel.removeAllRanges(); sel.addRange(r);
+  document.execCommand('insertText', false, "TEKS PROMPT DI SINI");
+  return JSON.stringify({isi: el.innerText});
+})()
+```
+
+### Kirim
+```js
+document.querySelector('[data-testid="send-button"]').click()
+```
+
+### Baca seluruh percakapan (1 panggilan, ganti ~25 scroll+dump)
+```js
+(() => {
+  const msgs = [...document.querySelectorAll('[data-message-author-role]')];
+  return JSON.stringify(msgs.map(m => ({
+    peran: m.getAttribute('data-message-author-role'),
+    teks: (m.innerText || '').trim()
+  })));
+})()
+```
+
+### Deteksi jawaban selesai
+⚠️ **`[data-testid="stop-button"]` TIDAK ANDAL** — pada uji 2026-09-05 tetap `true`
+sampai 50 detik walau jawaban sudah rampung. **Cara yang dipakai: polling panjang teks
+pesan assistant terakhir sampai berhenti bertambah** (mis. sama 2× cek berturut-turut, jeda 3-5 dtk),
+atau cukup tunggu 15–25 detik untuk jawaban pendek.
+
+### Hasil uji live (2026-09-05)
+Prompt "Sebutkan 3 ide judul konten pendek tentang tips baterai HP" → terkirim, URL berubah ke
+`/c/<id>` (percakapan baru tersimpan), jawaban terbaca utuh. **Nol tap koordinat, nol screenshot.**
+
+---
+
+## 8-B. Resep cadangan — via koordinat (kalau RDP tidak tersedia)
 
 ```bash
 ADB="docker exec tool-appium-appium-1 adb -s 10.66.66.6:5555"
