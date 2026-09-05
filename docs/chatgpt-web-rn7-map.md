@@ -247,3 +247,41 @@ $ADB pull /sdcard/out.png /home/appium/.android/out.png
 - pecah jadi potongan ±5 kata dengan `sleep 1-2` antar potongan
 - setelah loop `keyevent 67` (backspace) banyak, **beri jeda 2-3 detik** sebelum mengetik lagi
   (kalau tidak, karakter acak akan hilang)
+
+---
+
+## 9. Audit live 2026-09-05 (sesi lanjutan) — temuan & koreksi
+
+**Metode audit:** murni via RDP (`adb forward tcp:6001 ...`), tanpa satu pun tap koordinat/screenshot.
+
+### 9.1 Fakta akun (terverifikasi authed, bukan tebakan UI)
+| Item | Nilai |
+|---|---|
+| Email | `clawapp810@gmail.com` |
+| Nama | "Claw" (backend `/me`) / "claw app2" (display `/api/auth/session`) |
+| **MFA/2FA** | **AKTIF** (`mfa_flag_enabled=true`) — catat untuk pemulihan akun |
+| Plan | **Free** (tak ada fitur `paid/plus/pro/team`) |
+| Token sesi | valid, `expires 2026-12-04` |
+| Percakapan | 3 total: "Ide Judul Tips Baterai" (5/9), "Sapa RN7" (5/9), **"Asisten Hitung Belanja" (2026-08-13)** |
+
+> ⚠️ **"Asisten Hitung Belanja" dari 13-08-2026 MENDAHULUI setup terdokumentasi 5/9** → mengonfirmasi
+> anomali `firstInstallTime=2026-09-01` di memori: akun ini SUDAH dipakai di RN7 jauh sebelumnya.
+> Bukan akun perawan.
+
+### 9.2 ⭐ Dua jebakan RDP yang mahal (WAJIB baca sebelum pakai fetch API)
+1. **`evaluateJSAsync` TIDAK meng-await Promise** di build Fennec ini. Ekspresi `async`/`fetch(...)`
+   mengembalikan **grip Promise `pending`**, bukan hasilnya. → **Pola wajib:** jalankan fetch,
+   simpan hasil ke variabel global (`window.__x = JSON.stringify(...)`), lalu **polling sinkron**
+   `typeof window.__x==='string' ? window.__x : '__P__'` tiap ~0.6 dtk sampai terisi.
+2. **`/backend-api/*` butuh Bearer token, bukan cukup cookie.** Fetch cookie-only ke
+   `/backend-api/me` & `/backend-api/conversations` balik jalur **anonim** (email kosong,
+   `total:0`) walau jelas sedang login. → Ambil dulu `accessToken` dari **`/api/auth/session`**,
+   lalu kirim header `Authorization: 'Bearer '+token` pada semua panggilan backend-api.
+   (`/api/auth/session` sendiri cukup cookie & langsung memberi email+nama+token.)
+
+### 9.3 Round-trip TERUJI ULANG (recipe §8-A masih valid)
+Kirim `#prompt-textarea` (execCommand insertText) → klik `send-button` → chat baru `/c/...` dibuat →
+jawaban terbaca via `[data-message-author-role="assistant"]`. **Nol koordinat.**
+⚠️ **Deteksi selesai:** selector DOM `good-response...` TIDAK ditemukan (abaikan tebakan itu);
+tetap andalkan **polling panjang teks assistant sampai stabil ≥3 cek** (jawaban pendek bisa
+menipu polling 2-cek — naikkan ke 3). `stop-button` tetap tak andal (§8-A).
