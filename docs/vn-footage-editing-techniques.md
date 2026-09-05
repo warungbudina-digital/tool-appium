@@ -140,3 +140,34 @@ karena manual = multi-op rapuh/gagal senyap (§23f). AutoCut = op terpandu tungg
 **Pelajaran:** untuk gaya Beat-Sync produksi → **pakai AutoCut**, bukan rangkai manual. Ganti "template"
 = ganti lagu+struktur beat (durasi hasil ikut berubah). Verifikasi keberhasilan = **file mp4 baru di
 `/sdcard/DCIM/VN/` + cek trek audio ada**, bukan asumsi.
+
+---
+
+## G. ⭐⭐ ALUR GPT→ANALISA→TERAP (live, 2026-09-05) — Punch-in Zoom
+
+Alur diminta user: **ChatGPT cari video teknik VN → analisa → terapkan di VN pada footage nyata.**
+
+**1. ChatGPT (web) menemukan video:**
+- Judul: *"How to Apply Zoom Effect with the Help of Keyframe in VN Video Editor App"*
+- Kreator: **TECH NITIN** · Platform: YouTube
+
+**2. Analisa ChatGPT — teknik "Punch-in Zoom via Keyframe":**
+2 keyframe · Scale **100% → 115%** · durasi **0,5 dtk** · posisi tengah · verifikasi = zoom-in mulus (bukan lompat).
+
+**3. Penerapan di VN (footage nyata):**
+Resep keyframe-scale ChatGPT butuh **pinch multi-touch** (impraktis via `adb input`). Dipakai **padanan
+native VN yang andal single-op**: tool **clipZoom → "Zoom In"** (Ken Burns punch-in).
+- Klip dipilih → toolbar klip scroll ke **"Zoom"** (`editor_toolbar_cli`/clipZoom @762,2182) →
+  preset **Zoom In** (@462,2111; opsi lain: None/Zoom Out/Move Right/Left/Down) → **Done** (`ivDone` @914,2198).
+
+**4. Verifikasi (dua lapis):**
+- **State:** buka ulang panel Zoom → **"Zoom In" ter-highlight border kuning** = preset tersimpan. ✅
+- **Hasil:** export **`VN20260906_053555.mp4`** (3.49 MB, 720p/30fps) — gerak zoom-in perlahan terlihat
+  saat diputar (dikirim ke user via SendUserFile). ✅
+
+**Cleanup:** keluar editor **"Exit directly"** (proyek TIDAK disimpan, Projects tetap 3). Export
+menambah 1 entri **Works (2→3)** — wajar, tiap render buat Work; file di `/sdcard/DCIM/VN/`.
+
+**Pelajaran:** untuk animasi **scale/pan via keyframe** yang di tutorial pakai pinch, di otomasi ADB
+**pakai preset `clipZoom`** (Zoom In/Out + Move R/L/D/U) — hasil visual setara, single-op, tanpa
+multi-touch. Verifikasi teknik = **cek preset ter-highlight di panel** + **file export**, bukan asumsi.
