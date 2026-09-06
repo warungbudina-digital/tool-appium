@@ -196,3 +196,20 @@ cinematic inti, tiap satu op-tunggal terverifikasi:
 720p, video+audio. Dikirim ke user. Keluar **"Exit directly"** (Projects tetap 3); export nambah 1 Works.
 
 **Pelajaran:** (a) intensitas Filter & durasi transisi = seekbar yg **abaikan swipe cepat** → ≥900ms + baca nilai; (b) cara andal capai sambungan transisi = **seek pakai tombol next** (lompat ke batas klip) lalu tap ikon "+" — jauh lebih presisi drpd gulir timeline manual; (c) filter/transisi = op-tunggal terpisah, aman; verifikasi via nilai numerik + preview + file export.
+
+### H-lanjutan (2026-09-06) — tambah musik sinematik ke edit Cinematic
+Karena proyek Cinematic sebelumnya tak disimpan, edit terekspor (`VN20260906_071313.mp4`) **diimpor
+ulang sbg 1 klip** ke proyek baru, lalu ditambah musik:
+- trek musik: `editor_track_music_add` @461,1560 → popup **Music** @188,2085 → `MusicManageActivity`.
+- kategori bawaan: Vlog/Pop/Dynamic/Fresh/Acoustic/Electronic/Hip-Hop (TAK ada "Cinematic" eksplisit)
+  → pakai **search** (`flSearch` @540,502), ketik `cinematic` → hasil **"Cinematic Motivational Piano" (2:21)**.
+- track perlu **diunduh** dulu (ikon ⬇ kanan, ~@999,430; progres 0%→selesai) → tombol **"Use"** (@951,428)
+  muncul → `UseMusicDetailActivity` (trim auto ke durasi proyek 17.30s, ada Volume/Fade/Ketukan) →
+  konfirmasi **`ivDone`** @807,2193.
+- hasil: trek musik terisi "Cinematic Motivational Piano" 17.30s penuh. Export
+  **`VN20260906_081323.mp4`** (10MB, 17.32s, audio AAC = musik+footage tercampur), dikirim ke user.
+
+**Catatan audio:** musik ditambah di atas audio footage asli (keduanya ikut ter-render). Untuk cinematic
+music-forward, bisa mute/turunkan Volume klip video — tidak dilakukan di uji ini (single-op tambahan).
+**Pelajaran:** tak ada kategori "Cinematic" di pustaka VN → **pakai search**; track library **wajib diunduh**
+sebelum "Use" (tunggu 0%→100%). Impor-ulang file terekspor = cara memperluas edit yg proyeknya tak disimpan.
