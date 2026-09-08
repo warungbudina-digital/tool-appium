@@ -321,19 +321,114 @@ Pengaturan langsung terbuka di tab yang dituju — tidak perlu buka sidebar/avat
 | Bantuan (+ `>`) | submenu help center |
 | Keluar | logout akun ini (device ini saja) |
 
-### 10.2 Tab bar Pengaturan (scroll horizontal, urutan lengkap belum 100% dipastikan)
-
-Terlihat sejauh ini (case-sensitive label Indonesia, urut kemunculan saat scroll):
-`Umum · Notifikasi · Personalisasi · Plugin · [Penggunaan?] · Analitik · Kontrol data · Penyimpanan · Keamanan · Akun`
+### 10.2 Tab bar Pengaturan — 15 tab, ID hash ASLI (ground-truth dari DOM)
 
 Tab bar **scrollable horizontal** — swipe di baris tab itu sendiri (y tepat di tab, bukan di
-badan modal, lihat jebakan §10.7). Ada kotak **"Cari pengaturan"** di atas tab bar (y≈472 saat tab
-Umum aktif) — pencarian **WAJIB kata kunci Bahasa Indonesia** ("improve" nol hasil, "data"/
-"keamanan" jalan) dan hasilnya bisa langsung ditap untuk lompat ke item spesifik (mis. cari "data"
-→ muncul "Sempurnakan model untuk semua orang" langsung sebagai hasil, tap → lompat ke togglenya).
+badan modal, lihat jebakan §10.7). Ada kotak **"Cari pengaturan"** di atas tab bar — pencarian
+**WAJIB kata kunci Bahasa Indonesia** ("improve" nol hasil, "data"/"keamanan" jalan) dan hasilnya
+bisa langsung ditap untuk lompat ke item spesifik.
 
-**Baru dipetakan detail sesi ini: Kontrol data (§10.3) + Keamanan (§10.4).** Tab lain
-(Notifikasi/Personalisasi/Penyimpanan/Analitik/Umum penuh/Akun) — **TODO, belum digali isinya.**
+**ID hash ASLI diambil langsung dari DOM** (`role="tab"` elemen, atribut `id` mengandung
+`trigger-<ID>`) — jangan tebak lagi, semua 15 sudah dikonfirmasi via `location.hash='#settings/<ID>'`:
+
+| Label Indonesia | ID hash asli | Isi dipetakan di |
+|---|---|---|
+| Umum | `General` | §10.3a |
+| Notifikasi | `Notifications` | §10.3b |
+| Personalisasi | `Personalization` | §10.3c |
+| Plugin | `Plugins` | §10.3d |
+| Suara | `Voice` | §10.3e |
+| Tagihan | `Billing` | §10.3f |
+| Penggunaan | `Usage` | §10.3g |
+| Analitik | `Analytics` | §9.3h (lama) |
+| Kontrol data | `DataControls` | §10.3 (existing) |
+| Penyimpanan | `Storage` | §10.3h |
+| Keselamatan | `SafetySettings` | §10.3i |
+| Keamanan dan masuk | `Security` | §10.4 (existing) |
+| Pengawasan orang tua | `ParentalControls` | §10.3j |
+| Kontak tepercaya | `Safety` | §10.3k |
+| Akun | `Account` | §10.3l |
+
+⚠️ **Jebakan penamaan: hash `Data`/`Plugin` (tanpa akhiran) JUGA jalan** — router tampaknya
+menerima prefix parsial dan lompat ke tab yang cocok, tapi **ID lengkap di atas lebih aman** dipakai
+untuk otomasi (tak bergantung perilaku prefix-matching yang tak terdokumentasi).
+
+**Cara reusable dapatkan daftar tab kapan pun berubah (add-on OpenAI sering nambah fitur):**
+```js
+Array.from(document.querySelectorAll('[role="tab"]')).map(e => ({
+  text: e.textContent.trim(), id: e.id
+}))
+```
+
+### 10.3 Isi tiap tab (dipetakan penuh 2026-09-08, akun Free `clawapp810`)
+
+**a) Umum (`General`)** — banner "Amankan akun Anda / Siapkan MFA" (CTA setup MFA) · Tampilan=Sistem
+(dropdown) · Kontras=Sistem · Warna aksen=Default · Bahasa=Deteksi otomatis · **Kecerdasan lebih
+tinggi**=ON (toggle, "otomatis pakai tingkat kecerdasan lebih tinggi utk pertanyaan kompleks") ·
+**Aktifkan Dikte**=ON (toggle).
+
+**b) Notifikasi (`Notifications`)** — 10 kategori, tiap baris punya dropdown independen berisi
+kombinasi `Push`/`Email`/`Push, Email`: Codex, Kesehatan, Obrolan grup, Pemasaran, Penggunaan
+(=Push,Email), Proyek (=Email), Pustaka (=Email), Respons (=Push), Tips personal (=Push,Email),
+Tugas (=Push,Email, + link "Kelola tugas").
+
+**c) Personalisasi (`Personalization`)** — bagian terpanjang, 4 sub-grup:
+- **Gaya & Karakteristik**: Gaya dan nada dasar=Default (dropdown) + 4 slider Karakteristik
+  (Hangat/Antusias/Judul & Daftar/Emoji, semua=Default) + **Jawaban cepat**=ON (toggle) +
+  **Instruksi khusus** (textarea kosong).
+- **Peliharaan**: "Pilih pendamping yang bekerja bersama Anda" → link "Pilih peliharaan >"
+  (fitur AI-companion pet, belum dikonfigurasi = "Default").
+- **Tentang Anda**: 3 field teks kosong — Nama panggilan, Pekerjaan (placeholder contoh
+  "Mahasiswa teknik di Universitas Waterloo"), Selengkapnya tentang Anda.
+- **Memori**: **Aktifkan memori**=ON (toggle, "izinkan ChatGPT mempersonalisasi berdasarkan
+  obrolan/file/aplikasi terhubung") + Ringkasan memori (tombol "Kelola" → belum digali) + catatan
+  "Memori dipakai jg utk personalisasi kueri ke Bing" (konfirmasi Bing = backend pencarian web).
+- **Lanjutan** (expander, default collapsed — tap teks "Lanjutan" untuk buka): **Pencarian
+  web**=ON · **Kanvas**=ON · **ChatGPT Suara**=ON · **Cari di Pustaka**=ON · **Pencarian
+  konektor**=OFF (satu-satunya yg mati di tab ini).
+
+**d) Plugin (`Plugins`)** — "Izin" = "Izinkan risiko rendah" (link ke sub-halaman level izin) +
+4 item list: Deep Research, Plugin Management, Jelajahi plugin, Mode pengembang (semua icon+`>`,
+isi belum digali lebih dalam — TODO minor).
+
+**e) Suara (`Voice`)** — pemilih suara carousel (avatar bulat gradient, panah kiri/kanan, 9 dots
+indikator) — suara aktif **"Sol" ("Cerdas dan santai")** · Model=**Live** (dropdown) ·
+Bahasa=Deteksi otomatis.
+
+**f) Tagihan (`Billing`)** — status **"ChatGPT Free — Kecerdasan untuk tugas sehari-hari"** +
+tombol "Upgrade". Tab paling pendek, isinya cuma ini.
+
+**g) Penggunaan (`Usage`)** — BEDA dari "Riwayat penggunaan" di tab Analitik. Isi: **Batas
+paket** (disclaimer "digunakan bersama di Codex, Work, Workspace Agents, ChatGPT for Excel — obrolan
+biasa TIDAK termasuk") → progress bar "Batas penggunaan bulanan: direset dalam 29 hari 23 jam,
+**tersisa 100%**" · **Reset batas penggunaan**: "Tidak ada reset batas penggunaan yang tersedia
+saat ini" (fitur reset-manual utk power-user, tak relevan di akun Free minim pakai).
+
+**h) Penyimpanan (`Storage`)** — tab terpendek: **"0 B dari 512 MB terpakai"** (progress bar
+kosong) + 2 kategori "Kelola penyimpanan": File (0 B · 0 file, `>`), Gambar (0 B · 0 gambar, `>`).
+
+**i) Keselamatan (`SafetySettings`)** — 1 toggle saja: **"Kurangi konten sensitif"**=**OFF**
+("tambahkan perlindungan ekstra terkait topik sensitif dan batasi jenis konten tertentu").
+
+**j) Pengawasan orang tua (`ParentalControls`)** — deskripsi fitur (link akun orang-tua↔remaja
+untuk kontrol fitur/batasan) + tombol **"+ Tambahkan anggota keluarga"** — belum ditautkan ke
+siapa pun.
+
+**k) Kontak tepercaya (`Safety`)** ⚠️ **fitur keselamatan sensitif, penting dicatat isinya
+lengkap**: deskripsi eksplisit — *"Ke depannya, jika Anda membahas bunuh diri dengan ChatGPT
+dengan cara yang menunjukkan adanya risiko keselamatan yang serius, kami dapat secara otomatis
+memberi tahu kontak tepercaya Anda agar mereka dapat mengecek kondisi Anda. Kontak tersebut harus
+berusia 18 tahun ke atas untuk dapat berpartisipasi."* + tombol **"+ Tambahkan kontak"** — belum
+ada kontak terdaftar di akun ini.
+
+**l) Akun (`Account`)** — identitas: Nama=**Claw** · Nama pengguna=**@clawapp810** (`>`, bisa
+diedit) · Email=**clawapp810@gmail.com** (`>`) · **Hapus akun** (tombol merah destruktif,
+**JANGAN tap tanpa izin eksplisit**). Lalu **"Profil pembuat GPT"** (identitas publik kalau
+share custom GPT): preview kartu **"PlaceholderGPT — Oleh community builder"** (belum
+dikustomisasi) + banner "selesaikan verifikasi utk publikasikan GPT ke semua orang" (butuh
+billing-detail atau verifikasi domain) → **Tautan**: "Pilih domain" (dropdown, kosong), GitHub
+(tombol "Tambahkan", belum ditautkan) → **Email**: `clawapp810@gmail.com` + checkbox "Terima
+email umpan balik" (UNCHECKED).
 
 ### 10.3 Tab "Kontrol data" (`#settings/Data`)
 
@@ -398,7 +493,11 @@ termasuk yang sedang dipakai, "dapat memakan waktu hingga 30 menit").
    pun ke depan, koordinat cadangan hanya untuk isi form yang butuh interaksi fisik (toggle,
    input teks).
 
-### 10.8 TODO pemetaan lanjutan
-Tab **Umum** (isi penuh, cuma sempat lihat banner "Siapkan MFA" + Tampilan/Kontras/Warna
-aksen/Bahasa), **Notifikasi**, **Personalisasi**, **Penyimpanan**, **Analitik**, **Akun**
-(kalau ada tab terpisah dari menu akun) — belum digali isinya sesi ini.
+### 10.8 Status pemetaan — TUNTAS 15/15 tab (2026-09-08)
+Semua tab Pengaturan sudah dipetakan isinya penuh (§10.3 a–l + Kontrol data §10.3/Keamanan §10.4
+dari sesi sebelumnya). **Sisa TODO minor** (bukan tab utuh, cuma sub-halaman di dalam tab yang
+belum ditembus): "Kelola" Ringkasan Memori (Personalization), "Izinkan risiko rendah" level-izin
+Plugin, 4 item list tab Plugin (Deep Research/Plugin Management/Jelajahi plugin/Mode pengembang),
+"Pilih peliharaan" (Personalization), "Informasi yang dibagikan dengan aplikasi" (Data Controls),
+"Ekspor data" (Data Controls). Semua ini sub-halaman kedua, bukan tab tersendiri — prioritas
+rendah, gali kalau ada kebutuhan spesifik.
