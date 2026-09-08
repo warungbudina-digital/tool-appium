@@ -4,7 +4,7 @@
 **Akses**: `docker exec tool-appium-appium-1 adb -s 10.66.66.6:5555 ...`
 **Target**: `chatgpt.com` di browser **Fennec** (`org.mozilla.fennec_fdroid`)
 **Akun**: `clawapp810@gmail.com` (nama tampil "Claw", plan **Free**)
-**Tanggal pemetaan**: 2026-09-05
+**Tanggal pemetaan**: 2026-09-05 (awal) · **2026-09-08** (§10 Menu Akun & Pengaturan ditambahkan)
 
 > ⚠️ **Ini BUKAN app ChatGPT.** APK `com.openai.chatgpt` sudah dihapus dari RN7 karena login-nya
 > mustahil (di-gate Google Play Integrity — `BIND_EXPRESS_INTEGRITY_SERVICE` butuh `com.android.vending`
@@ -259,7 +259,7 @@ $ADB pull /sdcard/out.png /home/appium/.android/out.png
 |---|---|
 | Email | `clawapp810@gmail.com` |
 | Nama | "Claw" (backend `/me`) / "claw app2" (display `/api/auth/session`) |
-| **MFA/2FA** | **AKTIF** (`mfa_flag_enabled=true`) — catat untuk pemulihan akun |
+| **MFA/2FA** | ~~AKTIF~~ **⚠️ KOREKSI 2026-09-08: OFF** — `mfa_flag_enabled=true` cuma penanda "fitur tersedia", BUKAN status aktual. Ground-truth = toggle di §10.5. |
 | Plan | **Free** (tak ada fitur `paid/plus/pro/team`) |
 | Token sesi | valid, `expires 2026-12-04` |
 | Percakapan | 3 total: "Ide Judul Tips Baterai" (5/9), "Sapa RN7" (5/9), **"Asisten Hitung Belanja" (2026-08-13)** |
@@ -285,3 +285,120 @@ jawaban terbaca via `[data-message-author-role="assistant"]`. **Nol koordinat.**
 ⚠️ **Deteksi selesai:** selector DOM `good-response...` TIDAK ditemukan (abaikan tebakan itu);
 tetap andalkan **polling panjang teks assistant sampai stabil ≥3 cek** (jawaban pendek bisa
 menipu polling 2-cek — naikkan ke 3). `stop-button` tetap tak andal (§8-A).
+
+---
+
+## 10. Menu Akun & Pengaturan (Settings) — pemetaan 2026-09-08
+
+Dipetakan via kombinasi RDP (navigasi hash) + koordinat presisi (crop PIL, bukan tebak visual —
+lihat §10.7). **Tab UI dalam sesi ini ter-render Bahasa Indonesia.**
+
+### 10.0 Cara masuk (2 jalur)
+
+**A — via UI (perlu sidebar terbuka dulu):**
+```
+hamburger (76,324) → tap baris akun paling bawah sidebar "Claw / Free" (100, 2128)
+→ bottom-sheet menu akun muncul → tap "Pengaturan" (~200, 1720)
+```
+
+**B — ⭐ via RDP, jauh lebih andal (skip semua drama klik berlapis):**
+```js
+location.hash = '#settings/Security'   // atau '#settings/Data', '#settings/General', dst
+```
+Nama section di hash **memakai ID internal Inggris** (`Security`, `Data`, `General`, `Notifications`,
+`Personalization`, `Storage`, `Analytics`), **BUKAN** label Indonesia yang tampil di UI. Modal
+Pengaturan langsung terbuka di tab yang dituju — tidak perlu buka sidebar/avatar sama sekali.
+
+### 10.1 Menu akun (bottom-sheet dari baris "Claw / Free" di sidebar)
+
+| Item | Fungsi |
+|---|---|
+| Header "Claw / Free" (+ `>`) | tap → halaman ringkasan plan |
+| Upgrade paket | upsell Plus |
+| Personalisasi | shortcut ke tab Personalisasi Settings |
+| Profil | edit nama/foto tampilan |
+| **Pengaturan** | buka modal Settings (§10.2) |
+| Bantuan (+ `>`) | submenu help center |
+| Keluar | logout akun ini (device ini saja) |
+
+### 10.2 Tab bar Pengaturan (scroll horizontal, urutan lengkap belum 100% dipastikan)
+
+Terlihat sejauh ini (case-sensitive label Indonesia, urut kemunculan saat scroll):
+`Umum · Notifikasi · Personalisasi · Plugin · [Penggunaan?] · Analitik · Kontrol data · Penyimpanan · Keamanan · Akun`
+
+Tab bar **scrollable horizontal** — swipe di baris tab itu sendiri (y tepat di tab, bukan di
+badan modal, lihat jebakan §10.7). Ada kotak **"Cari pengaturan"** di atas tab bar (y≈472 saat tab
+Umum aktif) — pencarian **WAJIB kata kunci Bahasa Indonesia** ("improve" nol hasil, "data"/
+"keamanan" jalan) dan hasilnya bisa langsung ditap untuk lompat ke item spesifik (mis. cari "data"
+→ muncul "Sempurnakan model untuk semua orang" langsung sebagai hasil, tap → lompat ke togglenya).
+
+**Baru dipetakan detail sesi ini: Kontrol data (§10.3) + Keamanan (§10.4).** Tab lain
+(Notifikasi/Personalisasi/Penyimpanan/Analitik/Umum penuh/Akun) — **TODO, belum digali isinya.**
+
+### 10.3 Tab "Kontrol data" (`#settings/Data`)
+
+| Item | Kontrol | Nilai saat audit |
+|---|---|---|
+| **Sempurnakan model untuk semua orang** | link → toggle di sub-halaman | **Aktif** (data chat BOLEH dipakai training OpenAI) |
+| Lokasi | tombol "Nyalakan" | OFF (belum diizinkan) |
+| Informasi yang dibagikan dengan aplikasi | link (`>`) | belum digali |
+| Tautan yang dibagikan | tombol "Kelola" | — |
+| Obrolan yang diarsipkan | tombol "Kelola" | — |
+| Arsipkan semua obrolan | tombol aksi | — |
+| Hapus semua obrolan | tombol aksi (merah, destruktif) | **JANGAN tap tanpa izin eksplisit** |
+| Ekspor data | (terpotong di scroll, ada tombol "Ekspor") | belum digali |
+
+### 10.4 Tab "Keamanan" (`#settings/Security`) — **"Keamanan dan masuk"**
+
+| Bagian | Item | Kontrol | Nilai saat audit |
+|---|---|---|---|
+| — | Kata sandi | tombol "Tambahkan" | belum diset (login murni via Google OAuth) |
+| — | Kunci keamanan & kunci sandi | tombol "Tambahkan" → submenu (§10.5) | belum ada kunci/passkey terdaftar |
+| **Autentikasi multifaktor (MFA)** | Authenticator app | **toggle** | **OFF** (abu-abu, lihat koreksi §9.1) |
+| **Sesi** | Sesi aktif | badge angka + `>` → submenu (§10.6) | **2 sesi** |
+| Keamanan tingkat lanjut | (terpotong di scroll) | belum digali |
+
+### 10.5 Submenu "Kunci keamanan & kunci sandi"
+Halaman kosong (belum ada kunci terdaftar) + 2 CTA: **"Tambahkan kunci keamanan atau kunci
+sandi"** (tombol hitam) dan kartu promo **"Dapatkan YubiKey"** (tombol "Pesan YubiKey", link
+belanja OpenAI/YubiKey — bukan fitur, murni marketing). Tombol back `<` di pojok kiri-atas
+header (koordinat berubah tergantung scroll, ukur ulang tiap kali via crop).
+
+### 10.6 Submenu "Sesi aktif" (`>` dari §10.4)
+Daftar device yang pernah/sedang login, tiap baris: ikon HP, nama sesi, model device + OS,
+timestamp login pertama, lokasi (kota, kode provinsi), badge status, dan tombol **"Keluar"**
+(logout device itu — destruktif per-device, TANYA IZIN sebelum tap kalau bukan device sendiri).
+
+**Contoh nyata (2026-09-08):**
+| Sesi | Device | Login pertama | Lokasi | Badge |
+|---|---|---|---|---|
+| ChatGPT Web | Generic Smartphone · Android | 5 Sep 2026 15:52 | Denpasar, BA | `SESI INI` (tanpa tombol Keluar) |
+| ChatGPT Android App | Vivo 1724 · Android | 13 Agu 2026 13:41 | Denpasar, BA | `PERANGKAT TEPERCAYA` + tombol "Keluar" |
+
+Di bawah daftar: **"Keluar dari semua sesi"** (tombol merah, destruktif — mengakhiri SEMUA sesi
+termasuk yang sedang dipakai, "dapat memakan waktu hingga 30 menit").
+
+### 10.7 Jebakan navigasi UI (mahal, berkali-kali kena sesi ini)
+
+1. **Swipe mendatar di BADAN modal (bukan tepat di tab-bar) MENGGESER SELURUH MODAL ke
+   samping** (bukan scroll tab bar). Gejala: modal tampak terpotong/setengah di luar layar.
+   Fix: swipe balik arah berlawanan pada garis y yang sama untuk mengembalikan posisi.
+2. **`element.click()` via RDP TIDAK SELALU memicu handler React** untuk tombol menu akun
+   (`accounts-profile-button`) — sempat gagal beberapa kali padahal elemen ketemu & `.click()`
+   "berhasil" tanpa error. **Tap `input tap`/`input swipe` via adb LEBIH ANDAL** untuk membuka
+   menu akun & item Pengaturan dibanding klik sintetis RDP.
+3. **⭐ ATURAN WAJIB koordinat: SELALU ukur posisi via `PIL.Image.crop()` pada file screenshot
+   ASLI (1080×2340), JANGAN kalikan 1.17 dari gambar preview 923×2000 yang ditampilkan ke
+   Claude.** Estimasi visual langsung dari preview meleset ratusan pixel berkali-kali sesi ini
+   (salah tap ke item riwayat obrolan / composer "+" padahal niat ke tombol Pengaturan/Sesi
+   aktif). Alur andal: `screencap` → crop region kecil (150–300px) di sekitar target dugaan →
+   baca offset presisi dari hasil crop → `tap(offset_x_dalam_crop, crop_y0 + offset_y_dalam_crop)`.
+4. **Hash-routing (`location.hash='#settings/<ID>'`) via RDP jauh lebih tahan-jebakan** dibanding
+   navigasi klik berlapis — pakai ini sebagai jalur utama untuk lompat ke section Settings mana
+   pun ke depan, koordinat cadangan hanya untuk isi form yang butuh interaksi fisik (toggle,
+   input teks).
+
+### 10.8 TODO pemetaan lanjutan
+Tab **Umum** (isi penuh, cuma sempat lihat banner "Siapkan MFA" + Tampilan/Kontras/Warna
+aksen/Bahasa), **Notifikasi**, **Personalisasi**, **Penyimpanan**, **Analitik**, **Akun**
+(kalau ada tab terpisah dari menu akun) — belum digali isinya sesi ini.
