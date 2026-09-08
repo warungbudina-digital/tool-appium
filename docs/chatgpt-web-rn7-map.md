@@ -499,12 +499,56 @@ email umpan balik" (UNCHECKED).
 |---|---|---|
 | **Sempurnakan model untuk semua orang** | link → toggle di sub-halaman | **Aktif** (data chat BOLEH dipakai training OpenAI) |
 | Lokasi | tombol "Nyalakan" | OFF (belum diizinkan) |
-| Informasi yang dibagikan dengan aplikasi | link (`>`) | belum digali |
+| Informasi yang dibagikan dengan aplikasi | link (`>`) | ✅ digali, lihat §10.12a |
 | Tautan yang dibagikan | tombol "Kelola" | — |
 | Obrolan yang diarsipkan | tombol "Kelola" | — |
 | Arsipkan semua obrolan | tombol aksi | — |
 | Hapus semua obrolan | tombol aksi (merah, destruktif) | **JANGAN tap tanpa izin eksplisit** |
-| Ekspor data | (terpotong di scroll, ada tombol "Ekspor") | belum digali |
+| Ekspor data | tombol "Ekspor" | ✅ digali, **DIBATALKAN sebelum eksekusi nyata** — lihat §10.12b |
+| Privasi pemasaran | link (`>`) — **BARU DITEMUKAN 8/9, tak kelihatan di §10.3 sesi sebelumnya (muncul lebih bawah dari batas scroll saat itu)** | ✅ digali, lihat §10.12c |
+
+## 10.12 Sub-halaman Kontrol Data terakhir (2026-09-08)
+
+**a) "Informasi yang dibagikan dengan aplikasi"** — halaman pendek 1 bagian:
+**"Aplikasi dengan akses"**: *"Kelola aplikasi yang dapat mengisi informasi kontak Anda secara
+otomatis."* Status akun ini: *"Saat ini tidak ada aplikasi yang diizinkan menerima informasi
+ini."* — kosong, nol app terhubung dapat autofill kontak (konsisten "Masuk aman dengan ChatGPT"
+§10.9e yg juga belum pernah dipakai — dua fitur sama-sama nol aktivitas, akun ini belum pernah
+menghubungkan ChatGPT ke situs/app pihak-3 manapun).
+
+**b) "Ekspor data"** ⚠️ **tombol "Ekspor" memicu REQUEST NYATA, bukan cuma preview** — begitu
+ditekan, muncul dialog konfirmasi:
+> **"Minta ekspor data - Anda yakin?"**
+> - Detail akun dan obrolan Anda akan disertakan dalam hasil ekspor.
+> - Data akan dikirimkan ke email Anda yang terdaftar dalam bentuk file yang dapat diunduh.
+> - Tautan unduhan akan berakhir 24 jam setelah Anda menerimanya.
+> - Pemrosesan mungkin memerlukan waktu. Anda akan diberi tahu ketika sudah siap.
+>
+> tombol: **Batal** / **Konfirmasi ekspor**
+
+**Sengaja DIBATALKAN (tap "Batal"), TIDAK sampai konfirmasi** — tombol "Konfirmasi ekspor" akan
+benar-benar mengirim email berisi link unduh data akun ke `clawapp810@gmail.com`, ini aksi nyata
+di luar sekadar dokumentasi UI (bukan destruktif thd data, tapi menghasilkan efek samping nyata:
+email terkirim + proses server OpenAI berjalan) — **JANGAN tap "Konfirmasi ekspor" kecuali user
+memang eksplisit minta ekspor datanya sungguhan.**
+
+**c) "Privasi pemasaran"** (item BARU, sebelumnya luput krn ada di bawah "Ekspor data" — di luar
+area scroll yg tercapai sesi 8/9 sebelumnya) — 2 toggle, **KEDUANYA AKTIF**:
+| Toggle | Status | Deskripsi |
+|---|---|---|
+| Pengukuran pemasaran | **ON** | "Cookie ini membantu kami mengukur efektivitas kampanye pemasaran kami." |
+| Pemasaran terpersonalisasi | **ON** | "Ini membantu kami mempersonalisasi dan mengukur pemasaran OpenAI di platform pihak ketiga." |
+
+**Kesimpulan privasi akun ini:** tracking cookie marketing OpenAI (measurement + personalized-ads
+di platform pihak-3) **AKTIF by-default**, belum pernah dimatikan user — beda dari "Kontrol data"
+inti (Improve-model/Location) yg sudah dicek sebelumnya, ini kategori privasi TERPISAH (cookie
+consent, bukan data-training).
+
+### Status akhir pemetaan (2026-09-08): SEMUA sub-halaman Kontrol Data TUNTAS
+Urutan lengkap tab "Kontrol data" (atas→bawah): Sempurnakan-model, Lokasi,
+Informasi-dibagikan-aplikasi, Tautan-dibagikan, Obrolan-diarsipkan, Arsipkan-semua,
+Hapus-semua(destruktif), Ekspor-data(trigger-email-nyata), Privasi-pemasaran. Tak ada lagi item
+tersembunyi di tab ini yg belum tersentuh.
 
 ### 10.4 Tab "Keamanan" (`#settings/Security`) — **"Keamanan dan masuk"**
 
@@ -624,7 +668,10 @@ dari sesi sebelumnya). ✅ "Izinkan risiko rendah" + 4 item Plugin (§10.9), "Ga
 (§10.10), "Kelola" Ringkasan Memori (§10.11), matriks channel Notifikasi lengkap (§10.3b),
 "Pilih peliharaan" 9 preset (§10.3c) — SEMUA DITUNTASKAN. **Sisa TODO minor** (sub-halaman kecil,
 prioritas rendah, belum ada kebutuhan spesifik): "Informasi yang dibagikan dengan aplikasi" (Data
-Controls), "Ekspor data" (Data Controls), "Buat peliharaan dengan ChatGPT" (generate custom pet).
+Controls) ✅ TUNTAS §10.12, "Ekspor data" (Data Controls) ✅ TUNTAS §10.12 (dibatalkan sebelum
+eksekusi nyata), "Privasi pemasaran" (Data Controls, item baru ditemukan) ✅ TUNTAS §10.12. **Sisa
+TODO benar-benar minor terakhir:** "Buat peliharaan dengan ChatGPT" (generate custom pet via
+deskripsi bebas — butuh interaksi generatif, bukan cuma baca UI).
 
 ## 10.9 Sub-halaman Plugin — detail penuh (2026-09-08)
 
