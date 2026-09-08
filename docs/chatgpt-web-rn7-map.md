@@ -496,8 +496,102 @@ termasuk yang sedang dipakai, "dapat memakan waktu hingga 30 menit").
 ### 10.8 Status pemetaan — TUNTAS 15/15 tab (2026-09-08)
 Semua tab Pengaturan sudah dipetakan isinya penuh (§10.3 a–l + Kontrol data §10.3/Keamanan §10.4
 dari sesi sebelumnya). **Sisa TODO minor** (bukan tab utuh, cuma sub-halaman di dalam tab yang
-belum ditembus): "Kelola" Ringkasan Memori (Personalization), "Izinkan risiko rendah" level-izin
-Plugin, 4 item list tab Plugin (Deep Research/Plugin Management/Jelajahi plugin/Mode pengembang),
-"Pilih peliharaan" (Personalization), "Informasi yang dibagikan dengan aplikasi" (Data Controls),
-"Ekspor data" (Data Controls). Semua ini sub-halaman kedua, bukan tab tersendiri — prioritas
-rendah, gali kalau ada kebutuhan spesifik.
+belum ditembus): "Kelola" Ringkasan Memori (Personalization), "Pilih peliharaan" (Personalization),
+"Informasi yang dibagikan dengan aplikasi" (Data Controls), "Ekspor data" (Data Controls). ✅
+"Izinkan risiko rendah" + 4 item Plugin (§10.9) dan "Gambar"/"File" storage (§10.10) DITUNTASKAN
+di bawah.
+
+## 10.9 Sub-halaman Plugin — detail penuh (2026-09-08)
+
+Semua item di tab Plugin (§10.3d) sudah ditembus isinya. Pola navigasi: tap item → sub-halaman
+dgn header "< Kembali" (kecuali "Jelajahi plugin" yg pindah ROUTE PENUH, bukan sub-panel modal —
+lihat catatan khusus di §10.9c).
+
+**a) "Izin" (level permission plugin secara global)** — 3 radio pilihan:
+| Opsi | Deskripsi |
+|---|---|
+| Selalu tanya | "ChatGPT akan meminta izin sebelum membaca atau membuat perubahan." |
+| Izinkan akses baca | "ChatGPT dapat membaca tanpa meminta izin, tetapi akan meminta izin sebelum melakukan perubahan." |
+| **Izinkan tindakan berisiko rendah** ✅ (aktif saat ini) | "ChatGPT akan secara otomatis menyetujui tindakan berisiko rendah, tetapi dapat menolak tindakan yang melibatkan informasi sensitif." |
+
+**b) "Deep Research"** (koneksi bawaan, ikon teleskop) — Koneksi="Riset Mendalam". **"Belum ada
+tindakan aplikasi yang tersedia"** (tak ada custom action, murni internal). Informasi: Pengembang=
+**OpenAI**, Situs web (link), Kebijakan Privasi (link).
+
+**c) "Plugin Management"** (koneksi bawaan, ikon plus-hijau) — Koneksi="Plugin Management". Ini
+**meta-plugin yang memberi ChatGPT kemampuan mengelola plugin LAIN via bahasa natural**
+(instal/uninstall/atur-izin), terbukti dari **Skill: `plugin-management`** + daftar tindakan:
+- **Tindakan baca**: "Get app permissions" (Inspect one named ChatGPT plugin's global/default and
+  plugin-specific permission…), "Get plugin dependencies" (Resolve the canonical public plugins
+  declared by one plugin's app manifest…)
+- **Tindakan menulis**: "Uninstall app" (Uninstall ChatGPT plugins only for explicit
+  uninstall/remove/disconnect intent…), "Update app permissions" (Update global ChatGPT plugin
+  permissions or a plugin-specific override…)
+
+Informasi: Pengembang=OpenAI, Situs web + Kebijakan Privasi (link).
+
+**d) "Jelajahi plugin"** ⚠️ **BUKAN sub-panel modal seperti item lain — pindah ROUTE PENUH**
+(`chatgpt.com/plugins`, keluar dari konteks `#settings/...`, "Kembali" browser diperlukan utk
+balik ke Settings, atau set ulang hash manual). Ini **marketplace connector penuh** OpenAI — jauh
+lebih besar dari sekadar 4-item list, berisi PULUHAN connector pihak-3 lintas kategori:
+- **Terinstal**: cuma Deep Research + Plugin Management (2 bawaan, tak bisa dilepas).
+- **Populer**: Gmail, GitHub, Google Drive, Slack, Outlook Email, Canva.
+- **Small Business**: Dropbox, HubSpot, Stripe, Canva, Figma, Slack (+ Shopify/Wix, "lihat lainnya").
+- **(kategori developer)**: alat build/deploy web app — Railway dkk (+ Neon/Base44, "lihat lainnya").
+- **Business & Operasional**: HubSpot, Shopify, Windsor.ai, **Metricool for Social Media**
+  ("Review analytics, plan posts"), **vidIQ** ("YouTube stats and keywords"), **Ubersuggest**
+  ("Find keywords and SEO insights") + ZoomInfo/Lusha ("lihat lainnya") — ⚠️ **3 connector ini
+  relevan langsung ke [[project_medsos_agent]]** kalau suatu saat mau sambungkan ChatGPT ke
+  analitik medsos/SEO Go Go Bud secara resmi (bukan scraping).
+- **(kategori edukasi)**: Explain Video Generator, Acumen by Talarion, SciSpace, Kahoot! (+
+  Scite/Quizlet, "lihat lainnya").
+- **Penelitian Ilmiah**: Undermind, Tamarind Bio, Boltz, Inductive Bio.
+- Setiap kartu punya tombol **"+"** (install langsung dari list, belum dicoba — kemungkinan minta
+  OAuth pihak-3).
+- **Pencarian jalan via query param URL**: `chatgpt.com/plugins?q=<keyword>` (terverifikasi
+  `?q=youtube` → tampil kategori "Publik": YouTube Conversation, Yaps Video Captions, vidIQ).
+  Field bisa diisi via RDP `HTMLInputElement` native setter + dispatch event `input` (dokumentasi
+  teknik di §10.9e).
+
+**e) "Mode pengembang"** ⚠️ **halaman berisiko tinggi, badge merah "RISIKO LEBIH TINGGI"** — 3
+toggle SEMUA OFF di akun ini:
+| Toggle | Status | Deskripsi |
+|---|---|---|
+| Mode pengembang | OFF | "Memungkinkan Anda menambahkan konektor **tidak terverifikasi** yang dapat memodifikasi atau menghapus data secara **permanen**. Risiko ditanggung sendiri." |
+| Terapkan CSP dalam mode developer | OFF | "Saat diaktifkan, aplikasi mode pengembang tanpa CSP yang dideklarasikan akan mendapatkan CSP default terbatas... alih-alih akses jaringan tanpa batas." |
+| Aktifkan otorisasi kode perangkat untuk Codex | OFF | "Gunakan masuk kode perangkat untuk lingkungan headless atau jarak jauh... **kode perangkat dapat di-phishing, jangan pernah membagikannya**." |
+
+Plus section terpisah **"Masuk aman dengan ChatGPT"** ("Sign in with ChatGPT" — OAuth SSO OpenAI
+ke situs/app pihak-3): *"Anda belum menggunakan ChatGPT untuk masuk ke situs web atau aplikasi
+apa pun."* — kosong, belum pernah dipakai akun ini.
+
+**Cara reusable isi search field via RDP (dipakai utk `?q=youtube` di atas), teknik ini WAJIB
+utk React-controlled input yang tak merespons `.value=` biasa:**
+```js
+const input = document.querySelector('input[type="text"], input[type="search"]');
+const setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+setter.call(input, 'kata kunci');
+input.dispatchEvent(new Event('input', {bubbles:true}));
+```
+
+## 10.10 Sub-halaman Penyimpanan (Storage) — File & Gambar (2026-09-08)
+
+Tap "File" ATAU "Gambar" di tab Penyimpanan (§10.3h) **sama-sama pindah ROUTE PENUH** ke
+**`chatgpt.com/library`** (bukan sub-panel modal) — parameter `?tab=images` atau `?tab=files`
+membuka **halaman "Pustaka" (Library) pre-filtered**. Ini KONFIRMASI arsitektur: menu
+"Penyimpanan→Gambar/File" BUKAN fitur terpisah, cuma pintu masuk ke halaman Library yang sama
+dengan item sidebar "Pustaka" (§4).
+
+**Struktur halaman Library:**
+- Header "Pustaka" + tombol **"Baru ⌄"** (buat konten baru, dropdown — isi belum digali).
+- Kotak pencarian "Cari".
+- 3 tab filter: **Semua / Gambar / Dokumen** (pill selector).
+- Toolbar kanan: ikon filter (`≡` corong) + ikon ganti tampilan list/grid (`☰•••`).
+- Kolom "Nama" (header tabel — menunjukkan mode tampilan LIST aktif; ganti ke grid via ikon
+  toolbar, belum dicoba).
+- **State kosong** (akun ini, 0 gambar/0 file sesuai §10.3h): ikon kaca-pembesar + teks **"Tidak
+  ditemukan file"**.
+
+**Kesimpulan:** akun `clawapp810` benar-benar belum pernah generate gambar atau upload
+dokumen — konsisten dgn plan Free, `0 B / 512 MB`, dan riwayat 6 percakapan yang semuanya
+teks (VN editing, ide konten, dst).
