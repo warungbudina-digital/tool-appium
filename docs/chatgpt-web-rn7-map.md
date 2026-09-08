@@ -493,6 +493,68 @@ termasuk yang sedang dipakai, "dapat memakan waktu hingga 30 menit").
    pun ke depan, koordinat cadangan hanya untuk isi form yang butuh interaksi fisik (toggle,
    input teks).
 
+## 10.11 "Kelola" Ringkasan Memori — isi lengkap (2026-09-08)
+
+Tap tombol **"Kelola"** di baris "Ringkasan memori" (§10.3c, Personalization) membuka panel
+**"Ringkasan memori"** — bukan daftar mentah, tapi **rangkuman naratif hasil sintesis AI** dari
+seluruh riwayat obrolan. Header: `Diperbarui <N> menit lalu` (dinamis, live).
+
+**Isi rangkuman akun `clawapp810` saat digali (3 bagian narasi + 1 bagian saran):**
+1. **Ringkasan (overview umum)**: *"Anda terutama menggunakan ChatGPT untuk membantu pekerjaan
+   yang berhubungan dengan pembuatan konten video pendek dan penghitungan belanja. Anda lebih
+   menyukai jawaban yang terstruktur, konkret, dan langsung dapat diterapkan, terutama dalam
+   bahasa Indonesia."*
+2. **Editing Video VN**: *"Anda mengedit video pendek untuk Reels dan TikTok menggunakan VN Video
+   Editor (VlogNow) di Android. Anda menyukai penjelasan yang membahas teknik editing secara
+   praktis, seperti cutting mengikuti beat, transisi, speed ramp, keyframe, filter, teks, serta
+   gaya editing untuk konten brand makanan dan lifestyle. Anda juga tertarik menganalisis tutorial
+   dari kreator lain menjadi langkah-langkah yang jelas, termasuk nama teknik, fitur VN yang
+   dipakai, parameter yang spesifik bila tersedia, urutan pengerjaan, dan kapan teknik tersebut
+   cocok digunakan."*
+3. **Perhitungan Belanja**: *"Untuk tugas menghitung belanja, Anda menginginkan peran yang sangat
+   spesifik: hanya menghitung total secara akurat tanpa memberikan rekomendasi tambahan. Anda
+   menyebutkan bahwa perintah akan diberikan melalui pesan suara. Anda juga ingin setiap hasil
+   menampilkan pemetaan semua nominal yang disebutkan sebelum memberikan total akhir, termasuk
+   tetap mengikuti koreksi atau perubahan ucapan apabila terjadi saat berbicara."*
+4. **"Gali Lebih Dalam"** — 2 prompt siap-klik (link, auto-kirim ke chat kalau ditap):
+   - "Lihat rangkumkan teknik editing VN yang paling sering diminta beserta tujuan penggunaannya."
+   - "Bandingkan preferensi format jawaban untuk editing video dan perhitungan belanja."
+
+**Kotak input di bawah** (`"Tanya atau perbarui"`) memungkinkan chat langsung dgn ringkasan ini —
+bisa MINTA UPDATE memori via bahasa natural di sini (belum dicoba kirim pesan, hanya diverifikasi
+field-nya ada).
+
+**Menu "⋯" (pojok kanan-atas panel) — 2 item:**
+| Item | Fungsi |
+|---|---|
+| Tentang memori | Dialog info: *"ChatGPT secara otomatis mengingat informasi penting tentang Anda dan memperbaruinya. Halaman ringkasan ini hanya gambaran singkat tentang yang diingat—bukan daftar lengkap."* (tombol Pelajari-selengkapnya / Mengerti) |
+| **Hapus dan nonaktifkan memori** | ⚠️ **DESTRUKTIF** (teks merah) — belum dicoba, JANGAN tap tanpa izin eksplisit user |
+
+### ⚠️ Sub-temuan: link "Memori Tersimpan" (legacy) — HATI-HATI jebakan konfirmasi destruktif
+Di deskripsi "Ringkasan memori" ada link **"Memori Tersimpan"** (bukan tombol Kelola) yang membuka
+panel TERPISAH **"Memori tersimpan"** — ini versi LAMA sistem memori ChatGPT (pre-summary, daftar
+item diskrit satu-per-satu), sudah **deprecated**: *"Ini adalah versi lama memori yang sudah tidak
+digunakan lagi. Memori ChatGPT yang ditingkatkan otomatis selalu diperbarui, sehingga jawabannya
+lebih relevan dan bermanfaat."*
+
+**Isi list lama akun ini: HANYA 1 item** (dikonfirmasi via query DOM langsung, bukan cuma yg
+kelihatan di layar): *"Pengguna ingin setiap hasil perhitungan belanja diberikan sebagai total
+lengkap, dengan angka-angka yang dipetakan dari setiap nominal yang disebutkan."* — cocok persis
+dgn bagian "Perhitungan Belanja" di ringkasan baru, sisa satu-satunya entri diskrit dari SEBELUM
+sistem upgrade ke model ringkasan-naratif.
+
+**🔴 JEBAKAN NYATA (kejadian sesi ini, dicatat keras):** panel ini punya tombol
+**"Kembali ke pengalaman ini"** yang TAMPAK seperti tombol netral/dismiss, TAPI sebenarnya
+**memicu dialog konfirmasi DESTRUKTIF**: *"Kembalikan ke pengalaman memori tersimpan versi lama?
+Memori ChatGPT mungkin menjadi usang seiring waktu."* (tombol merah "Kembalikan" vs "Batalkan") —
+**kalau tertekan (mis. salah tap koordinat), ini akan MENGUBAH SETELAN AKUN** (revert ke mode
+memori lama, effectively menonaktifkan sistem ringkasan-otomatis yang baru). **Kejadian nyata:
+coordinate-tap meleset & TIDAK SENGAJA menekan tombol ini** — untung berhasil di-"Batalkan" tepat
+waktu (via RDP klik-by-text, bukan koordinat, JAUH lebih aman utk kasus begini). **How to apply:
+di halaman "Memori Tersimpan", JANGAN PERNAH tap area dekat "Kembali ke pengalaman ini" via
+koordinat blind — kalau perlu berinteraksi di panel ini, SELALU pakai RDP `querySelector` cari
+tombol by exact text, supaya tak pernah salah sasaran ke tombol berkonsekuensi permanen.**
+
 ### 10.8 Status pemetaan — TUNTAS 15/15 tab (2026-09-08)
 Semua tab Pengaturan sudah dipetakan isinya penuh (§10.3 a–l + Kontrol data §10.3/Keamanan §10.4
 dari sesi sebelumnya). **Sisa TODO minor** (bukan tab utuh, cuma sub-halaman di dalam tab yang
