@@ -367,17 +367,80 @@ Array.from(document.querySelectorAll('[role="tab"]')).map(e => ({
 tinggi**=ON (toggle, "otomatis pakai tingkat kecerdasan lebih tinggi utk pertanyaan kompleks") ·
 **Aktifkan Dikte**=ON (toggle).
 
-**b) Notifikasi (`Notifications`)** — 10 kategori, tiap baris punya dropdown independen berisi
-kombinasi `Push`/`Email`/`Push, Email`: Codex, Kesehatan, Obrolan grup, Pemasaran, Penggunaan
-(=Push,Email), Proyek (=Email), Pustaka (=Email), Respons (=Push), Tips personal (=Push,Email),
-Tugas (=Push,Email, + link "Kelola tugas").
+**b) Notifikasi (`Notifications`)** — 10 kategori. **⚠️ PENTING (digali detail 8/9): label yang
+tampil di baris (mis. "Push") HANYA menunjukkan channel yang AKTIF — bukan daftar channel yang
+TERSEDIA.** Tiap kategori sebenarnya punya SET CHANNEL TETAP berbeda-beda (sebagian cuma
+Push-only, sebagian Email-only, sebagian dua-duanya independen togglenya) — dikonfirmasi dgn
+membuka tiap dropdown via DOM (`role="menuitemcheckbox"`, `aria-checked`), bukan cuma baca teks
+label:
+
+| Kategori | Channel TERSEDIA | Status saat ini |
+|---|---|---|
+| Codex | Push saja | Push **ON** |
+| Kesehatan | Push saja | Push **ON** |
+| Obrolan grup | Push saja | Push **ON** |
+| **Pemasaran** | Push **+ Email** | Push ON, **Email OFF** ⚠️ (tak kelihatan di label ringkas krn OFF) |
+| Penggunaan | Push + Email | Keduanya ON |
+| Proyek | Email saja | Email ON |
+| Pustaka | Email saja | Email ON |
+| Respons | Push saja | Push ON |
+| Tips personal | Push + Email | Keduanya ON |
+| Tugas | Push + Email | Keduanya ON (+ link "Kelola tugas") |
+
+**Temuan kunci: "Pemasaran" (marketing/promo ChatGPT) TERNYATA punya opsi Email juga, cuma
+sengaja di-OFF-kan** — kalau cuma baca label ringkas ("Push") tanpa buka dropdown, ini tak
+kelihatan sama sekali.
+
+**Cara reusable buka dropdown notifikasi via RDP (WAJIB, sentuhan biasa/`.click()` TIDAK
+memicu Radix UI trigger ini — beda dari tombol lain di app):**
+```js
+const btn = document.getElementById('radix-_r_XX_'); // id tiap kategori beda per render
+const rect = btn.getBoundingClientRect();
+const opts = {bubbles:true, cancelable:true, pointerId:1, pointerType:'mouse',
+              clientX: rect.x+rect.width/2, clientY: rect.y+rect.height/2};
+btn.dispatchEvent(new PointerEvent('pointerdown', opts));
+btn.dispatchEvent(new MouseEvent('mousedown', opts));
+await new Promise(r=>setTimeout(r,50));
+btn.dispatchEvent(new PointerEvent('pointerup', opts));
+btn.dispatchEvent(new MouseEvent('mouseup', opts));
+btn.dispatchEvent(new MouseEvent('click', opts));
+// lalu baca: document.querySelector('[role="menu"] [role="menuitemcheckbox"]')
+```
+`btn.click()` polos (dan bahkan `input tap` via adb ke koordinat yang benar) **TERBUKTI TIDAK
+CUKUP** utk trigger Radix dropdown ini — WAJIB urutan pointerdown→mousedown→jeda→pointerup→
+mouseup→click penuh. ID tiap kategori berpola `radix-_r_71_`(Codex)`_75_`(Kesehatan)`_79_`(Obrolan
+grup)`_7d_`(Pemasaran)`_7h_`(Penggunaan)`_7l_`(Proyek)`_7p_`(Pustaka)`_7t_`(Respons)`_81_`(Tips
+personal)`_85_`(Tugas) — urutan ini KEMUNGKINAN stabil (sesuai urutan render DOM) tapi ID
+persisnya sendiri (`_r_71_` dst) bisa berubah tiap page-load baru, jangan hardcode literal,
+selalu resolve ulang via `document.querySelectorAll('button[aria-haspopup="menu"]')` urut index.
 
 **c) Personalisasi (`Personalization`)** — bagian terpanjang, 4 sub-grup:
 - **Gaya & Karakteristik**: Gaya dan nada dasar=Default (dropdown) + 4 slider Karakteristik
   (Hangat/Antusias/Judul & Daftar/Emoji, semua=Default) + **Jawaban cepat**=ON (toggle) +
   **Instruksi khusus** (textarea kosong).
-- **Peliharaan**: "Pilih pendamping yang bekerja bersama Anda" → link "Pilih peliharaan >"
-  (fitur AI-companion pet, belum dikonfigurasi = "Default").
+- **Peliharaan**: "Pilih pendamping yang bekerja bersama Anda" → link "Pilih peliharaan >" (label
+  "Default" = belum dipilih satu pun). **Digali penuh 8/9 — fitur "AI companion pet" bertema
+  developer/programmer, halaman "Pilih peliharaan Anda" berisi:**
+  - **"Buat peliharaan dengan ChatGPT"** (opsi generate custom via deskripsi bebas, belum dicoba).
+  - **9 peliharaan preset** (avatar ilustrasi + nama + tagline satu-baris):
+
+    | Nama | Tagline |
+    |---|---|
+    | Codex | "Pendamping Codex asli." |
+    | Dewey | "Pendamping tenang untuk hari-hari fokus di Workspace." |
+    | Fireball | "Energi penuh untuk iterasi cepat." |
+    | Hoots | "Burung hantu jeli untuk kerja rapi dalam sekejap." |
+    | Rocky | "Teman seteguh batu saat kotak email mulai tak terkendali." |
+    | Seedy | "Tunas hijau kecil untuk ide baru." |
+    | Stacky | "Tumpukan seimbang untuk kerja fokus." |
+    | BSOD | "Gremlin layar biru mungil." (lucu — referensi Blue Screen of Death) |
+    | Null Signal | "Sinyal sunyi dari kehampaan." |
+  - **"Jangan tampilkan peliharaan"** — opsi terakhir di list, **INI YANG AKTIF SAAT INI** (centang
+    biru), konsisten dgn label "Default" di halaman sebelumnya = fitur ini memang belum dipakai
+    akun `clawapp810`.
+  - Semua 9 preset pakai radio-button kosong (belum ada yg dipilih) — tak ada yang dites lebih
+    jauh (klik pilih salah satu akan mengganti tampilan mascot di UI, dianggap kosmetik murni,
+    tidak dicoba krn di luar scope audit).
 - **Tentang Anda**: 3 field teks kosong — Nama panggilan, Pekerjaan (placeholder contoh
   "Mahasiswa teknik di Universitas Waterloo"), Selengkapnya tentang Anda.
 - **Memori**: **Aktifkan memori**=ON (toggle, "izinkan ChatGPT mempersonalisasi berdasarkan
@@ -557,11 +620,11 @@ tombol by exact text, supaya tak pernah salah sasaran ke tombol berkonsekuensi p
 
 ### 10.8 Status pemetaan — TUNTAS 15/15 tab (2026-09-08)
 Semua tab Pengaturan sudah dipetakan isinya penuh (§10.3 a–l + Kontrol data §10.3/Keamanan §10.4
-dari sesi sebelumnya). **Sisa TODO minor** (bukan tab utuh, cuma sub-halaman di dalam tab yang
-belum ditembus): "Kelola" Ringkasan Memori (Personalization), "Pilih peliharaan" (Personalization),
-"Informasi yang dibagikan dengan aplikasi" (Data Controls), "Ekspor data" (Data Controls). ✅
-"Izinkan risiko rendah" + 4 item Plugin (§10.9) dan "Gambar"/"File" storage (§10.10) DITUNTASKAN
-di bawah.
+dari sesi sebelumnya). ✅ "Izinkan risiko rendah" + 4 item Plugin (§10.9), "Gambar"/"File" storage
+(§10.10), "Kelola" Ringkasan Memori (§10.11), matriks channel Notifikasi lengkap (§10.3b),
+"Pilih peliharaan" 9 preset (§10.3c) — SEMUA DITUNTASKAN. **Sisa TODO minor** (sub-halaman kecil,
+prioritas rendah, belum ada kebutuhan spesifik): "Informasi yang dibagikan dengan aplikasi" (Data
+Controls), "Ekspor data" (Data Controls), "Buat peliharaan dengan ChatGPT" (generate custom pet).
 
 ## 10.9 Sub-halaman Plugin — detail penuh (2026-09-08)
 
