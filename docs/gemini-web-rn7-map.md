@@ -184,8 +184,38 @@ ini.
 | **Pembelajaran Terpandu** | Mode "Belajar" — utk sesi belajar terpandu step-by-step. Placeholder *"Tanyakan apa saja, claw."* (mode aktif ditandai chip, bukan teks placeholder beda drpd default — perlu cek chip via `aria-label` bukan cuma teks). |
 | **Buat gambar** | Bukan mode-pill, tapi NAVIGASI ke `/images` (halaman landing terpisah) — lihat §5. |
 | **Notebooks** | **✅ DIPASTIKAN 9/9.** Klik → dialog consent generik ("Membuat konten dari gambar dan file", Batal/Setuju — dialog ini SHARED dgn semua sumber upload lain, bukan spesifik Notebooks) → dialog KEDUA **"Tambahkan notebook"**: *"Gabungkan beberapa sumber, seperti dokumen dan situs, ke dalam sebuah notebook untuk mendapatkan bantuan yang terfokus pada suatu topik atau project"* → tombol **"Coba Gemini Notebook"** = link `<a href="https://notebooklm.google.com?utm_source=gemini&utm_medium=referral">` yg REDIRECT ke `https://notebook.google.com/notebook/<uuid>` (produk **"Gemini Notebook"**, rebrand dari NotebookLM lama, domain baru `notebook.google.com`). Auto-login sesi sama (`clawapp810`), notebook baru otomatis dibuat. Interface: tab Sumber/Chat/Studio, "0 sumber" saat baru dibuat. **Produk terpisah dari Gemini utama** — mapping detailnya di luar cakupan doc ini (bisa jadi dokumen sendiri kalau user minta). |
-| **Kamera / Foto / File / Drive / Google Foto** | Sumber upload standar (native file picker Android / Google Drive picker) — belum ditest end-to-end (upload file sungguhan), tapi tombolnya konsisten ada & clickable. |
+| **Foto** | **✅ TERUJI END-TO-END 9/9** — lihat §4a di bawah. Upload gambar + tes vision sungguhan, hasil akurat sempurna. |
+| **Kamera / File / Drive / Google Foto** | Belum ditest (pola sama dgn Foto kemungkinan besar, tinggal ganti sumbernya). |
 | **Buat musik / Labs / Kecerdasan Personal** (duplikat entry) | Belum ditest — "Kecerdasan Personal" di sini kemungkinan cuma shortcut ke halaman settings yg sama §6b. |
+
+### 4a. Upload gambar + vision — TERUJI END-TO-END (9/9)
+Tes nyata: screenshot home-screen RN7 (jam 22.40, ikon ChatGPT/Gemini/WireGuard/VN/Canva/Galeri/
+Setelan, wallpaper Bima Sakti+tebing) diupload lalu diminta dideskripsikan. **Hasil 100% akurat** —
+Gemini sebut jam persis "22.40", identifikasi SEMUA ikon dgn benar (termasuk detail kecil "WireGuard
+ikon merah angka 8/naga"), dan deskripsi wallpaper sempurna ("langit malam bertabur bintang/Milky Way
+... tebing pegunungan batu cokelat keemasan"). Vision capability genuinely bekerja, bukan cuma OCR
+teks — bisa deskripsikan wallpaper/pemandangan yg tak ada teksnya sama sekali.
+
+**Alur upload gambar via native Android Photo Picker (reusable, LEBIH RUMIT dari yg dikira):**
+1. Klik `Upload & alat` → `Foto` (via `.click()` RDP pada elemen teks, BUKAN via `aria-label` button
+   langsung — kadang mismatch, cek `document.body.innerText` utk pastikan menu ke-render lengkap
+   13-item dulu sebelum klik sub-item, kalau cuma sebagian, `location.reload()`+buka ulang).
+2. Muncul **native Android chooser** ("Kamera" vs "Pemilih media") — BUKAN langsung picker. Cari
+   bounds via `uiautomator dump`, tap "Pemilih media".
+3. **Photo Picker Android native terbuka** (`com.android.providers.media.module`) — tab "Foto"/
+   "Album", grid thumbnail "Terbaru". Cari `content-desc="Foto diambil pada <tanggal>, <jam> PM/AM"`
+   via uiautomator dump utk identifikasi file yg benar (nama file `.png` custom TAK muncul di
+   content-desc, cuma timestamp) — kalau grep gagal (pernah kejadian sesi ini, sebab tak jelas),
+   verifikasi visual via screenshot+cocokkan thumbnail, lalu tap.
+4. Setelah tap thumbnail, checkbox tercentang + tombol berubah jadi **"Tambahkan (N)"** — **WAJIB
+   verifikasi N=1** sebelum tap (pelajaran lama dari sesi ChatGPT-Canva: kalau N>1 berarti nyasar
+   pilih >1 file, batalkan & ulangi).
+5. Tap "Tambahkan (N)" → kembali ke Gemini, gambar muncul sbg **thumbnail attachment** di atas kotak
+   input (dgn tombol X kecil utk hapus) — BARU SEKARANG ketik prompt (via `.ql-editor`+`execCommand
+   insertText` spt biasa) lalu klik `Kirim pesan`.
+
+⚠️ **Screenshot `adb shell screencap` ke `/sdcard/Download/` TETAP muncul di Photo Picker** (sempat
+diragukan apakah perlu media-scan manual) — ternyata tak perlu langkah tambahan, langsung terdeteksi.
 
 **Cara aktifkan/tutup mode (reusable):**
 ```js
@@ -385,9 +415,15 @@ ambigu di pemetaan awal, sekarang jelas: Aplikasi Terhubung = ekosistem 9 grup a
 Search/Foto/YouTube/YouTube-Music/Gemini-Notebook/Profil-Bisnis/Kontak/Verify-AI) tiap grup 1 toggle
 master; Notebooks = pintu masuk ke produk terpisah "Gemini Notebook" (`notebook.google.com`, rebrand
 NotebookLM).
+✅ **Upload gambar + vision TERUJI END-TO-END dgn hasil nyata (§4a)** — bukan cuma tombol clickable,
+tapi round-trip penuh: pilih foto via native Photo Picker → attach → Gemini describe isi gambar
+100% akurat (jam, ikon app, wallpaper). Ini bukti kuat kemampuan vision Gemini genuinely jalan via
+jalur Fennec-RN7, siap dipakai utk automasi berbasis gambar (mis. analisa screenshot, verifikasi
+visual, dll).
 ⏳ Masih belum: isi nyata tiap Gem bawaan (baru nama+deskripsi, belum dicoba chat), generate Canvas/
 Deep Research end-to-end (baru aktivasi mode, belum tes hasil), identitas pasti 2 dari 9 toggle
 Aplikasi Terhubung yg ON, mapping detail produk "Gemini Notebook" itu sendiri (di luar scope —
-produk terpisah), upload file/foto/drive end-to-end, "Buat musik"/"Labs". Kedalaman sekarang setara
-ChatGPT §1-9 (bukan §10-15 audit keamanan/notifikasi granular) — cukup utk kerja otomasi produktif,
-lanjutkan digali kalau user butuh fitur spesifik dari daftar "belum" di atas.
+produk terpisah), upload via Kamera/File/Drive/Google-Foto (pola kemungkinan sama dgn Foto, tinggal
+verifikasi), "Buat musik"/"Labs". Kedalaman sekarang setara ChatGPT §1-9 (bukan §10-15 audit
+keamanan/notifikasi granular) — cukup utk kerja otomasi produktif, lanjutkan digali kalau user butuh
+fitur spesifik dari daftar "belum" di atas.
