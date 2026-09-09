@@ -180,7 +180,7 @@ ini.
 | Tool | Perilaku terverifikasi |
 |---|---|
 | **Deep Research** | Aktifkan mode riset — tombol baru muncul: `Sumber, Google Penelusuran dipilih` (bisa ganti sumber) + `Upload file` (tambah dokumen sbg bahan riset). Placeholder input berubah jadi *"Yuk kita mulai, claw"*. |
-| **Canvas** | Mode dokumen/kode kolaboratif (nama SAMA persis dgn fitur "Canvas" ChatGPT, kebetulan/konvergensi — bukan integrasi lintas produk). Placeholder *"Sebaiknya kita mulai dari mana?"*. Belum digenerate isi nyata (butuh prompt lanjutan). |
+| **Canvas** | **✅ TERUJI GENERATE NYATA 9/9.** Mode dokumen/kode kolaboratif (nama SAMA persis dgn fitur "Canvas" ChatGPT, kebetulan/konvergensi — bukan integrasi lintas produk). Diminta buat "kartu ucapan selamat ulang tahun HTML, latar biru teks putih di tengah" → Gemini genuinely generate kode HTML sungguhan (bukan cuma deskripsi): *"Kartu ucapan selamat ulang tahun telah berhasil dibuat. Kartu ini didesain secara responsif dengan latar belakang gradasi warna biru yang elegan, posisi teks yang seimbang di tengah, serta tombol..."* — artifact HTML nyata ter-render (analog Canvas ChatGPT/Artifacts Claude). |
 | **Pembelajaran Terpandu** | Mode "Belajar" — utk sesi belajar terpandu step-by-step. Placeholder *"Tanyakan apa saja, claw."* (mode aktif ditandai chip, bukan teks placeholder beda drpd default — perlu cek chip via `aria-label` bukan cuma teks). |
 | **Buat gambar** | Bukan mode-pill, tapi NAVIGASI ke `/images` (halaman landing terpisah) — lihat §5. |
 | **Notebooks** | **✅ DIPASTIKAN 9/9.** Klik → dialog consent generik ("Membuat konten dari gambar dan file", Batal/Setuju — dialog ini SHARED dgn semua sumber upload lain, bukan spesifik Notebooks) → dialog KEDUA **"Tambahkan notebook"**: *"Gabungkan beberapa sumber, seperti dokumen dan situs, ke dalam sebuah notebook untuk mendapatkan bantuan yang terfokus pada suatu topik atau project"* → tombol **"Coba Gemini Notebook"** = link `<a href="https://notebooklm.google.com?utm_source=gemini&utm_medium=referral">` yg REDIRECT ke `https://notebook.google.com/notebook/<uuid>` (produk **"Gemini Notebook"**, rebrand dari NotebookLM lama, domain baru `notebook.google.com`). Auto-login sesi sama (`clawapp810`), notebook baru otomatis dibuat. Interface: tab Sumber/Chat/Studio, "0 sumber" saat baru dibuat. **Produk terpisah dari Gemini utama** — mapping detailnya di luar cakupan doc ini (bisa jadi dokumen sendiri kalau user minta). |
@@ -343,6 +343,18 @@ sama konsep Custom GPT ChatGPT). Deskripsi resmi: *"Gem adalah Gemini versi kust
 memberikan respons sesuai kebutuhan Anda... Anda dapat menyesuaikan Gem bawaan atau membuat Gem
 baru menggunakan petunjuk yang Anda tetapkan."*
 
+**✅ TERUJI NYATA 9/9 — chat sungguhan dgn Gem "Editor tulisan":** klik Gem → URL jadi
+`https://gemini.google.com/gem/writing-editor` (tiap Gem punya slug bersih sendiri, bawaan Google
+konsisten `gem/<slug-kebab-case>`). Dikirim kalimat berantakan berbahasa Indonesia (`"teh nya"`,
+`"rasa nya"`, `"di minum"` — kesalahan spasi kata ganti/imbuhan), hasil: **koreksi presisi & benar
+100%** (`teh nya→tehnya`, `rasa nya→rasanya`, `di minum→diminum`, plus analisis run-on-sentence +
+kalimat pengganti yg lebih efektif) — respons terstruktur rapi (Masukan Umum/Editan Ejaan/Editan
+Tata Bahasa/Saran Struktur/Opsi Kalimat Efektif) + tombol quick-reply lanjutan.
+**⭐ Temuan selector penting:** respons dari Gem diawali **nama Gem sendiri**, BUKAN generik "Gemini
+berkata" — `model-response` isinya `"<Nama Gem>\n<Nama Gem> mengatakan\n\n<jawaban>"` (di sini:
+`"Editor tulisan\nEditor tulisan mengatakan..."`). Kalau otomasi perlu parsing jawaban murni, strip
+2 baris pertama itu dulu (nama beda-beda tiap Gem, tak bisa hardcode "Gemini berkata" doang).
+
 ### 6e. Link publik Anda (`/sharing`)
 "Anda dapat membagikan percakapan secara utuh ataupun satu demi satu perintah & respons... kelola
 link publik yang telah dibuat dan lihat detailnya di sini." Kosong di akun ini.
@@ -420,10 +432,14 @@ tapi round-trip penuh: pilih foto via native Photo Picker → attach → Gemini 
 100% akurat (jam, ikon app, wallpaper). Ini bukti kuat kemampuan vision Gemini genuinely jalan via
 jalur Fennec-RN7, siap dipakai utk automasi berbasis gambar (mis. analisa screenshot, verifikasi
 visual, dll).
-⏳ Masih belum: isi nyata tiap Gem bawaan (baru nama+deskripsi, belum dicoba chat), generate Canvas/
-Deep Research end-to-end (baru aktivasi mode, belum tes hasil), identitas pasti 2 dari 9 toggle
-Aplikasi Terhubung yg ON, mapping detail produk "Gemini Notebook" itu sendiri (di luar scope —
-produk terpisah), upload via Kamera/File/Drive/Google-Foto (pola kemungkinan sama dgn Foto, tinggal
+✅ **Gem "Editor tulisan" & Canvas TERUJI GENERATE NYATA (re-verifikasi 9/9)** — bukan cuma aktivasi
+mode, keduanya menghasilkan output sungguhan berkualitas (koreksi tata bahasa presisi 100% & kode
+HTML kartu ucapan). Round-trip inti (`.ql-editor`/`Kirim pesan`/`model-response`) di-re-cek ulang,
+**tak ada drift** dari mapping sebelumnya.
+⏳ Masih belum: isi nyata Gem bawaan LAIN (baru "Editor tulisan" yg dites, 5 Gem lain blm dicoba),
+generate Deep Research end-to-end (baru aktivasi mode), identitas pasti 2 dari 9 toggle Aplikasi
+Terhubung yg ON, mapping detail produk "Gemini Notebook" itu sendiri (di luar scope — produk
+terpisah), upload via Kamera/File/Drive/Google-Foto (pola kemungkinan sama dgn Foto, tinggal
 verifikasi), "Buat musik"/"Labs". Kedalaman sekarang setara ChatGPT §1-9 (bukan §10-15 audit
 keamanan/notifikasi granular) — cukup utk kerja otomasi produktif, lanjutkan digali kalau user butuh
 fitur spesifik dari daftar "belum" di atas.
