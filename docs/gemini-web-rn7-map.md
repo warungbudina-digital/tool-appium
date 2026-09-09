@@ -168,9 +168,36 @@ Klik `button[aria-label="Upload & alat"]` → daftar:
 `Kamera` · `Foto` · `File` · `Drive` · `Google Foto` · `Notebooks` · `Buat gambar` · `Buat musik` ·
 `Canvas` · `Deep Research` · `Pembelajaran Terpandu` · `Kecerdasan Personal` · `Labs`
 
-Belum dieksplor satu-per-satu (di luar cakupan pemetaan awal ini) — kandidat kuat utk sesi lanjutan
-kalau user minta fitur spesifik (mis. "Deep Research" atau "Buat gambar" sbg pengganti/pelengkap
-Canva-via-ChatGPT).
+**⭐ Temuan kunci arsitektur 9/9: sebagian besar item di sini BUKAN halaman terpisah, tapi
+MODE TOGGLE** — klik item → sebuah "pill"/chip nama mode muncul menempel di area input (mis.
+`Deep Research`, `Canvas`, `Belajar`), URL TETAP `/app`, dan tombol `close <Nama Mode>` muncul utk
+keluar mode. Prompt berikutnya diproses dalam konteks mode itu. Ini beda dari ChatGPT yg sebagian
+besar fiturnya (Canvas ChatGPT, Plugin) juga per-percakapan tapi tanpa "mode pill" eksplisit sejelas
+ini.
+
+**Digali langsung (9/9):**
+
+| Tool | Perilaku terverifikasi |
+|---|---|
+| **Deep Research** | Aktifkan mode riset — tombol baru muncul: `Sumber, Google Penelusuran dipilih` (bisa ganti sumber) + `Upload file` (tambah dokumen sbg bahan riset). Placeholder input berubah jadi *"Yuk kita mulai, claw"*. |
+| **Canvas** | Mode dokumen/kode kolaboratif (nama SAMA persis dgn fitur "Canvas" ChatGPT, kebetulan/konvergensi — bukan integrasi lintas produk). Placeholder *"Sebaiknya kita mulai dari mana?"*. Belum digenerate isi nyata (butuh prompt lanjutan). |
+| **Pembelajaran Terpandu** | Mode "Belajar" — utk sesi belajar terpandu step-by-step. Placeholder *"Tanyakan apa saja, claw."* (mode aktif ditandai chip, bukan teks placeholder beda drpd default — perlu cek chip via `aria-label` bukan cuma teks). |
+| **Buat gambar** | Bukan mode-pill, tapi NAVIGASI ke `/images` (halaman landing terpisah) — lihat §5. |
+| **Notebooks** | Klik sempat tak konsisten (kadang cuma re-render menu tools, bukan navigasi) — kemungkinan link keluar ke NotebookLM (`notebooklm.google.com`, produk Google terpisah). **Belum dipastikan, cek ulang sesi depan kalau perlu dipakai.** |
+| **Kamera / Foto / File / Drive / Google Foto** | Sumber upload standar (native file picker Android / Google Drive picker) — belum ditest end-to-end (upload file sungguhan), tapi tombolnya konsisten ada & clickable. |
+| **Buat musik / Labs / Kecerdasan Personal** (duplikat entry) | Belum ditest — "Kecerdasan Personal" di sini kemungkinan cuma shortcut ke halaman settings yg sama §6b. |
+
+**Cara aktifkan/tutup mode (reusable):**
+```js
+// buka menu tools
+document.querySelector('button[aria-label="Upload & alat"]').click();
+// klik salah satu tool by nama persis
+Array.from(document.querySelectorAll('*'))
+  .find(e => e.children.length===0 && e.textContent.trim()==='Deep Research').click();
+// tutup mode aktif
+Array.from(document.querySelectorAll('button'))
+  .find(b => (b.getAttribute('aria-label')||'').indexOf('close')>-1).click();
+```
 
 ---
 
@@ -193,19 +220,79 @@ internal Google — jangan dikira typo kalau ketemu lagi).
 
 ---
 
-## 6. Setelan (avatar akun di sidebar → gear icon)
+## 6. Setelan (avatar akun di sidebar → gear icon) — DIGALI DETAIL 9/9
 
-Bottom-sheet native (bukan WebView — bisa `uiautomator dump` kalau perlu koordinat presisi), isi:
+⚠️ **Koreksi:** ini bottom-sheet **WebView** (bagian dari halaman Gemini), BUKAN native Android —
+`document.querySelector`/klik via RDP bekerja normal, `uiautomator dump` TAK PERLU (beda dari menu
+browser Fennec ⋮ di §7 yg genuinely native).
 
-`Aktivitas` · `Kecerdasan Personal` · `Impor memori ke Gemini` · `Batas penggunaan` · `Gem` ·
-`Link publik Anda` · `Tema` · `Lihat langganan` · `Upgrade ke Google AI Plus` · `Gemini Notebook` ·
-`Watermark media` · `Kirim masukan` · `Bantuan`
+Isi (12-13 item, "Impor memori ke Gemini" kadang muncul kadang tidak — kemungkinan cuma tampil
+sekali/kondisional): `Aktivitas` · `Kecerdasan Personal` · `Impor memori ke Gemini` · `Batas
+penggunaan` · `Gem` · `Link publik Anda` · `Tema` · `Lihat langganan` · `Upgrade ke Google AI Plus` ·
+`Gemini Notebook` · `Watermark media` · `Kirim masukan` · `Bantuan` + footer **"Kota Denpasar, Bali,
+Indonesia — Dari alamat IP Anda"** + tombol "Perbarui lokasi".
 
-+ info lokasi di footer: **"Kota Denpasar, Bali, Indonesia — Dari alamat IP Anda"** + tombol
-"Perbarui lokasi".
+**Cara klik item settings (reusable):**
+```js
+(function(){
+  var el = Array.from(document.querySelectorAll('*'))
+    .find(function(e){ return e.children.length===0 && e.textContent.trim()==='<Nama Item>'; });
+  el.click();
+})()
+```
+⚠️ Beberapa item navigasi ke URL baru TAPI sheet settings-nya sendiri **tetap menutupi konten** —
+kalau `location.href` berubah tapi `innerText` masih nunjukkan daftar menu, itu normal, konten asli
+ada DI BAWAH sheet (baca lewat RDP tetap jalan krn DOM-nya ada, cuma ketutup visual).
 
-Belum digali per-tab (beda dari ChatGPT yg sampai §15/15 tab tuntas) — cukup utk sesi ini krn user
-cuma minta pemetaan awal + verifikasi jalan, bukan audit keamanan mendalam spt ChatGPT.
+### 6a. Aktivitas
+Link ke Google Activity (`myactivity.google.com`) — riwayat aktivitas akun Google secara umum,
+bukan spesifik Gemini. Klik via RDP tak selalu terdaftar sbg navigasi tab baru (perlu dicoba lagi
+kalau perlu, belum konsisten).
+
+### 6b. Kecerdasan Personal (`/personalization-settings`) — 3 sub-fitur
+| Fitur | Detail |
+|---|---|
+| **Memori** | Toggle **ON** (biru+centang) di akun ini. "Gemini belajar dari percakapan sebelumnya untuk lebih memahami Anda." + link "Kelola dan hapus" |
+| **Aplikasi Terhubung** | Card dgn chevron `>` — pilih agar Gemini pakai insight dari app terhubung lain utk personalisasi. Belum masuk detail (klik RDP sempat gagal, kandidat cek ulang sesi depan kalau perlu) |
+| **Petunjuk untuk Gemini** | Custom instructions — analog "Personalisasi" ChatGPT. Contoh placeholder: *"Gunakan poin butir untuk paragraf panjang"* |
+
+### 6c. Batas penggunaan (`/usage`)
+```
+Penggunaan saat ini: 1% digunakan — Direset pukul 02.50
+Batas mingguan: 0% digunakan — Direset pada 16 Sep pukul 21.50
+```
+Quota tracker harian+mingguan, mirip konsep "Batas penggunaan" tapi Gemini pisah 2 window waktu
+(ChatGPT cuma 1 metrik penggunaan sederhana).
+
+### 6d. Gem (`/gems/view`) — analog "Explore GPTs" ChatGPT
+```
+Buat aplikasi AI, Gem baru dari Google Labs
+Pengelola Gem
+```
+**Gem bawaan Google** (6): `Storybook` (buku bergambar kustom) · `Pencari ide` (ide pesta/hadiah/
+bisnis) · `Konsultan karier` (rencana skill+tujuan karier) · `Partner coding` (bantuan coding+
+belajar) · `Pembimbing Belajar` (bantu pelajari konsep baru) · `Editor tulisan` (saran tata bahasa+
+struktur kalimat).
+**Gem Saya** — kosong di akun ini, tombol **"Gem Baru"** utk buat custom Gem (instruksi sendiri,
+sama konsep Custom GPT ChatGPT). Deskripsi resmi: *"Gem adalah Gemini versi kustom yang dapat
+memberikan respons sesuai kebutuhan Anda... Anda dapat menyesuaikan Gem bawaan atau membuat Gem
+baru menggunakan petunjuk yang Anda tetapkan."*
+
+### 6e. Link publik Anda (`/sharing`)
+"Anda dapat membagikan percakapan secara utuh ataupun satu demi satu perintah & respons... kelola
+link publik yang telah dibuat dan lihat detailnya di sini." Kosong di akun ini.
+
+### 6f. Tema
+Submenu kecil (bukan halaman terpisah): **Sistem** / **Terang** / **Gelap** (radio, current terlihat
+"Sistem" default).
+
+### 6g. Watermark media
+Toggle **inline** langsung di daftar settings (bukan submenu terpisah): **Aktif / Nonaktif** —
+kemungkinan besar kontrol SynthID watermark pada gambar hasil generate (`Buat gambar`/Nano Banana 2).
+
+### 6h. Item belum digali detail (di luar scope sesi ini)
+`Lihat langganan`/`Upgrade ke Google AI Plus` (upsell, low priority), `Gemini Notebook` (mungkin
+sama dgn sidebar Notebook §2), `Kirim masukan`/`Bantuan` (generic, self-explanatory).
 
 ---
 
@@ -252,7 +339,14 @@ adb -s 10.66.66.6:5555 shell cat /sdcard/ui.xml | grep -o 'text="Tambahkan ke Be
 ## Status pemetaan
 
 ✅ Selector kirim/baca pesan (§1) — **teruji round-trip penuh**, siap dipakai otomasi lanjutan.
-✅ Sidebar, model picker, menu alat, shortcut home — dipetakan & diverifikasi jalan.
-⏳ Belum digali: isi detail tiap item Setelan (§6), fitur individual di menu "Upload & alat" (§4:
-Canvas/Deep Research/Notebooks/Labs dll), alur generate-gambar penuh (§5), fitur "Gem" (custom
-persona, analog "GPTs"-nya ChatGPT). Lanjutkan kalau user minta fitur spesifik.
+✅ Sidebar, model picker, shortcut home — dipetakan & diverifikasi jalan.
+✅ **Setelan §6 digali detail 9/9** — 6 dari 8 item substansial sudah dibuka isinya (Kecerdasan
+Personal 3-subfitur, Batas penggunaan, Gem lengkap 6 bawaan+custom, Link publik, Tema, Watermark).
+✅ **Upload & alat §4 digali 9/9** — ditemukan arsitektur "mode pill" (Deep Research/Canvas/
+Pembelajaran Terpandu terverifikasi aktivasi+deaktivasi), berbeda dari dugaan awal "menu navigasi
+biasa".
+⏳ Masih belum: isi nyata tiap Gem bawaan (baru nama+deskripsi, belum dicoba chat), generate Canvas/
+Deep Research end-to-end (baru aktivasi mode, belum tes hasil), "Aplikasi Terhubung", "Notebooks"
+(ambigu vs NotebookLM eksternal), upload file/foto/drive end-to-end, "Buat musik"/"Labs". Kedalaman
+sekarang setara ChatGPT §1-9 (bukan §10-15 audit keamanan/notifikasi granular) — cukup utk kerja
+otomasi produktif, lanjutkan digali kalau user butuh fitur spesifik dari daftar "belum" di atas.
