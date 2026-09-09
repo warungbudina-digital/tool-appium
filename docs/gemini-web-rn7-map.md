@@ -183,7 +183,7 @@ ini.
 | **Canvas** | Mode dokumen/kode kolaboratif (nama SAMA persis dgn fitur "Canvas" ChatGPT, kebetulan/konvergensi — bukan integrasi lintas produk). Placeholder *"Sebaiknya kita mulai dari mana?"*. Belum digenerate isi nyata (butuh prompt lanjutan). |
 | **Pembelajaran Terpandu** | Mode "Belajar" — utk sesi belajar terpandu step-by-step. Placeholder *"Tanyakan apa saja, claw."* (mode aktif ditandai chip, bukan teks placeholder beda drpd default — perlu cek chip via `aria-label` bukan cuma teks). |
 | **Buat gambar** | Bukan mode-pill, tapi NAVIGASI ke `/images` (halaman landing terpisah) — lihat §5. |
-| **Notebooks** | Klik sempat tak konsisten (kadang cuma re-render menu tools, bukan navigasi) — kemungkinan link keluar ke NotebookLM (`notebooklm.google.com`, produk Google terpisah). **Belum dipastikan, cek ulang sesi depan kalau perlu dipakai.** |
+| **Notebooks** | **✅ DIPASTIKAN 9/9.** Klik → dialog consent generik ("Membuat konten dari gambar dan file", Batal/Setuju — dialog ini SHARED dgn semua sumber upload lain, bukan spesifik Notebooks) → dialog KEDUA **"Tambahkan notebook"**: *"Gabungkan beberapa sumber, seperti dokumen dan situs, ke dalam sebuah notebook untuk mendapatkan bantuan yang terfokus pada suatu topik atau project"* → tombol **"Coba Gemini Notebook"** = link `<a href="https://notebooklm.google.com?utm_source=gemini&utm_medium=referral">` yg REDIRECT ke `https://notebook.google.com/notebook/<uuid>` (produk **"Gemini Notebook"**, rebrand dari NotebookLM lama, domain baru `notebook.google.com`). Auto-login sesi sama (`clawapp810`), notebook baru otomatis dibuat. Interface: tab Sumber/Chat/Studio, "0 sumber" saat baru dibuat. **Produk terpisah dari Gemini utama** — mapping detailnya di luar cakupan doc ini (bisa jadi dokumen sendiri kalau user minta). |
 | **Kamera / Foto / File / Drive / Google Foto** | Sumber upload standar (native file picker Android / Google Drive picker) — belum ditest end-to-end (upload file sungguhan), tapi tombolnya konsisten ada & clickable. |
 | **Buat musik / Labs / Kecerdasan Personal** (duplikat entry) | Belum ditest — "Kecerdasan Personal" di sini kemungkinan cuma shortcut ke halaman settings yg sama §6b. |
 
@@ -253,8 +253,43 @@ kalau perlu, belum konsisten).
 | Fitur | Detail |
 |---|---|
 | **Memori** | Toggle **ON** (biru+centang) di akun ini. "Gemini belajar dari percakapan sebelumnya untuk lebih memahami Anda." + link "Kelola dan hapus" |
-| **Aplikasi Terhubung** | Card dgn chevron `>` — pilih agar Gemini pakai insight dari app terhubung lain utk personalisasi. Belum masuk detail (klik RDP sempat gagal, kandidat cek ulang sesi depan kalau perlu) |
+| **Aplikasi Terhubung** | Card dgn chevron `>` → link `/apps`. **Digali detail 9/9, lihat §6b-lanjutan** |
 | **Petunjuk untuk Gemini** | Custom instructions — analog "Personalisasi" ChatGPT. Contoh placeholder: *"Gunakan poin butir untuk paragraf panjang"* |
+
+### 6b-lanjutan. Aplikasi Terhubung (`/apps`) — digali detail 9/9
+Elemen klik BUKAN di teks judul, tapi `<a aria-label="Buka bagian Aplikasi Terhubung" href="/apps">`
+tersembunyi di dalam section — cari via `section.querySelectorAll('a')` kalau klik langsung ke teks
+gagal.
+
+Halaman berisi 2 tab (**"Dari Google"** / **"Lainnya"**), tiap grup App punya **toggle master**
+sendiri (bukan per-app individual utk Workspace — 6 app Google Workspace berbagi SATU toggle):
+
+**Dari Google:**
+| Grup | Toggle (saat dicek) | Isi/contoh prompt |
+|---|---|---|
+| **Google Workspace** | **OFF** (abu-abu, terverifikasi visual) | Gmail·Calendar·Dokumen·Drive·Keep·Tasks — 1 toggle utk semua 6 |
+| **Cari layanan** (Search/Maps/Shopping/Berita/Google Penerbangan&Hotel) | — | *"Tunjukkan pola tersembunyi dalam penelusuran Google saya"* |
+| **Google Foto** | — | *"Buat itinerari liburan... terinspirasi dari foto perjalanan saya"* |
+| **YouTube** | — | *"Rekomendasikan film berdasarkan riwayat YouTube saya"* |
+| **YouTube Music** (`@YouTube Music`) | — | *"putar musik"* |
+| **Gemini Notebook** (`@Gemini Notebook`) | — | *"Buat notebook baru untuk proyek penelitian saya"* — ⭐ dikonfirmasi resmi: *"Notebook menggunakan Aplikasi Gemini dan Gemini Notebook serta membagikan dan menyinkronkan info di antara kedua produk tersebut"* |
+| **Profil Bisnis Google** (`@Profil Bisnis Google`) | — | *"Analisis performa bisnis saya selama 30 hari terakhir"* |
+
+**Lainnya:**
+| Grup | Isi |
+|---|---|
+| **Kontak** | insight dari daftar kontak |
+| **Verify AI** (`@Verify AI`) | *"Tool to verify provenance of media. Can read C2PA content credentials and detect the SynthID watermark used by Google AI."* — ini yg dimaksud toggle "Watermark media" §6g |
+
+9 toggle `button[role=switch]` total ditemukan (1 per grup di atas), **2 dari 9 berstatus ON** saat
+dicek — identitas pasti 2 grup mana belum sempat dikonfirmasi 1-per-1 (Workspace dipastikan OFF via
+screenshot, sisanya cuma lewat query DOM tanpa korelasi visual penuh — kalau perlu presisi, screenshot
+tiap grup satu-per-satu, JANGAN andalkan urutan DOM query mentah).
+
+Footer halaman: **"Konten premium Anda"** (kelola langganan berbayar yg ditautkan, prioritas jawaban)
++ link keluar **"Hub Privasi Aplikasi Gemini"** (penjelasan resmi data sharing).
+
+**Cara ke halaman ini langsung:** `location.href='https://gemini.google.com/apps'`
 
 ### 6c. Batas penggunaan (`/usage`)
 ```
@@ -345,8 +380,14 @@ Personal 3-subfitur, Batas penggunaan, Gem lengkap 6 bawaan+custom, Link publik,
 ✅ **Upload & alat §4 digali 9/9** — ditemukan arsitektur "mode pill" (Deep Research/Canvas/
 Pembelajaran Terpandu terverifikasi aktivasi+deaktivasi), berbeda dari dugaan awal "menu navigasi
 biasa".
+✅ **"Aplikasi Terhubung" (§6b-lanjutan) & "Notebooks" (§4) TUNTAS dipastikan** — keduanya sempat
+ambigu di pemetaan awal, sekarang jelas: Aplikasi Terhubung = ekosistem 9 grup app (Workspace/
+Search/Foto/YouTube/YouTube-Music/Gemini-Notebook/Profil-Bisnis/Kontak/Verify-AI) tiap grup 1 toggle
+master; Notebooks = pintu masuk ke produk terpisah "Gemini Notebook" (`notebook.google.com`, rebrand
+NotebookLM).
 ⏳ Masih belum: isi nyata tiap Gem bawaan (baru nama+deskripsi, belum dicoba chat), generate Canvas/
-Deep Research end-to-end (baru aktivasi mode, belum tes hasil), "Aplikasi Terhubung", "Notebooks"
-(ambigu vs NotebookLM eksternal), upload file/foto/drive end-to-end, "Buat musik"/"Labs". Kedalaman
-sekarang setara ChatGPT §1-9 (bukan §10-15 audit keamanan/notifikasi granular) — cukup utk kerja
-otomasi produktif, lanjutkan digali kalau user butuh fitur spesifik dari daftar "belum" di atas.
+Deep Research end-to-end (baru aktivasi mode, belum tes hasil), identitas pasti 2 dari 9 toggle
+Aplikasi Terhubung yg ON, mapping detail produk "Gemini Notebook" itu sendiri (di luar scope —
+produk terpisah), upload file/foto/drive end-to-end, "Buat musik"/"Labs". Kedalaman sekarang setara
+ChatGPT §1-9 (bukan §10-15 audit keamanan/notifikasi granular) — cukup utk kerja otomasi produktif,
+lanjutkan digali kalau user butuh fitur spesifik dari daftar "belum" di atas.
