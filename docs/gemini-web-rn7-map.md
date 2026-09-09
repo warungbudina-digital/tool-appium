@@ -94,8 +94,27 @@ Gemini pakai **custom Angular elements**, jauh lebih bersih drpd ChatGPT (`[data
 | Upload & alat | `button[aria-label="Upload & alat"]` | lihat §4 |
 
 **Resep kirim prompt + baca jawaban (teruji, round-trip penuh via RDP):**
+
+⚠️ **KOREKSI 9/9 (jangan percaya versi lama di bawah tanpa seleksi-range):** klaim awal "Quill TIDAK
+butuh trik seleksi-range" **TERBUKTI TAK RELIABLE** saat dipakai berulang di `ai_wiki_query.py` —
+kadang cuma keisi 1 karakter, reproducible. **WAJIB pakai seleksi-range juga**, sama pola ChatGPT/
+Claude:
 ```js
-// 1. isi input — Quill TIDAK butuh trik seleksi-range spt ProseMirror ChatGPT
+(function(){
+  var el = document.querySelector('.ql-editor');
+  el.focus();
+  var sel = window.getSelection();
+  var range = document.createRange();
+  range.selectNodeContents(el);
+  sel.removeAllRanges();
+  sel.addRange(range);
+  document.execCommand('insertText', false, 'teks prompt di sini');
+  // WAJIB verifikasi el.innerText panjangnya masuk akal sebelum lanjut klik kirim
+})()
+```
+Resep versi LAMA (dibiarkan sbg catatan sejarah, JANGAN dipakai lagi):
+```js
+// 1. isi input — versi lama, TERNYATA TAK RELIABLE (lihat koreksi di atas)
 (function(){
   var el = document.querySelector('.ql-editor');
   el.focus();
