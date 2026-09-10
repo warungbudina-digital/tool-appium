@@ -85,14 +85,19 @@ class RDP:
                 return p
         return None
 
-    def find_console(self, url_substr):
+    def find_console(self, domain):
+        """Cari tab yg URL-nya benar2 situs `domain` (match di AWAL url, bukan
+        substring sembarang) - substring longgar pernah kena false-positive
+        nyata 11/9: tab lain (interstisial Google) yg query-string-nya
+        KEBETULAN mengandung teks "gemini.google.com" ikut ke-match."""
         self._send({"to": "root", "type": "listTabs"})
         tabs = self._wait_for(lambda p: "tabs" in p)
         if not tabs:
             raise RDPError("listTabs gagal / timeout")
-        matches = [t for t in tabs["tabs"] if url_substr in (t.get("url") or "")]
+        prefix = "https://" + domain
+        matches = [t for t in tabs["tabs"] if (t.get("url") or "").startswith(prefix)]
         if not matches:
-            raise RDPError(f"Tak ada tab cocok '{url_substr}'. Tab terbuka: "
+            raise RDPError(f"Tak ada tab yg URL-nya diawali '{prefix}'. Tab terbuka: "
                             + ", ".join(t.get("url", "") for t in tabs["tabs"]))
         tab = matches[0]
         self._send({"to": tab["actor"], "type": "getTarget"})
@@ -139,8 +144,25 @@ def adb(*args, timeout=30):
     return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
 
-def foreground_url(url):
-    """Buka/paksa-foreground tab Fennec ke url tertentu."""
+def foreground_app():
+    """Bawa app Fennec ke foreground TANPA intent-data (cuma resume ke state
+    terakhir) - socket RDP butuh app 'visible' baru muncul di /proc/net/unix
+    (fakta lama, lihat map), tapi INI TAK BOLEH bawa data-URL: `am start -a
+    VIEW -d <url>` kalau tab tujuan sudah 'drift' (URL beda dari saat dibuka,
+    mis. sudah masuk /c/<id> stlh kirim pesan) bikin Fennec buka TAB BARU
+    alih-alih reuse - persis penyebab duplikasi tab nyata 11/9. Reuse tab
+    SELALU lewat RDP (location.href), bukan lewat intent."""
+    adb("shell", "am", "start", "-n", f"{FENNEC_PKG}/org.mozilla.fenix.HomeActivity")
+    time.sleep(LOAD_WAIT_S)
+
+
+def bootstrap_tab(url):
+    """HANYA dipanggil kalau tab utk situs itu belum ada sama sekali (RDP
+    listTabs nggak nemu) - buka via intent VIEW. Sekali per situs per 'siklus
+    hidup' tab; sesudahnya query_site() selalu reuse via RDP, tak pernah
+    manggil ini lagi selama tab masih ada (walau di-discard GeckoView -
+    am start dgn url yg PERSIS SAMA akan wake tab lama, bukan bikin baru,
+    karena masih 'exact URL match' saat itu)."""
     adb("shell", "am", "start", "-a", "android.intent.action.VIEW",
         "-d", url, FENNEC_PKG)
     time.sleep(LOAD_WAIT_S)
@@ -149,6 +171,49 @@ def foreground_url(url):
 def ensure_rdp_forward():
     adb("forward", f"tcp:{RDP_PORT}",
         f"localabstract:{FENNEC_PKG}/firefox-debugger-socket")
+
+
+TAB_SWITCHER_ICON = (838, 165)  # posisi tetap toolbar Fennec, 1080x2340 (verifikasi 11/9)
+
+
+def dedupe_parked_tabs(canonical_title, keep=1, max_rounds=6):
+    """Tutup tab EKSTRA yg judulnya PERSIS `canonical_title` (mis. "ChatGPT"),
+    sisakan `keep`. Dipakai HANYA setelah bootstrap_tab() - GeckoView men-
+    discard tab yg tak lagi 'selected' (fakta ditemukan 11/9: RDP listTabs
+    sama sekali tak bisa lihat tab ter-discard, walau tab itu MASIH ADA di
+    tab-switcher) sehingga query_site() bisa salah kira "tab belum ada" &
+    bootstrap tab BARU - hasilnya 2 tab utk situs sama menumpuk pelan2 tiap
+    kali terjadi. Exact-title-match AMAN krn tiap situs, saat idle/fresh di
+    root (dipaksa oleh reset di akhir query_site), SELALU py judul canonical
+    yg SAMA - tab lain yg lagi berisi percakapan aktif py judul beda/
+    deskriptif, TAK TERSENTUH (sengaja, default aman: jangan tutup percakapan
+    yg mungkin masih dipakai user).
+    Murni via uiautomator dump (native UI Fennec, BUKAN konten WebView) -
+    tanpa screenshot/PIL, ringan. Re-dump tiap ronde krn bounds card lain
+    bisa geser sesudah 1 card ditutup."""
+    closed = 0
+    for _ in range(max_rounds):
+        adb("shell", "input", "tap", str(TAB_SWITCHER_ICON[0]), str(TAB_SWITCHER_ICON[1]))
+        time.sleep(1)
+        adb("shell", "uiautomator", "dump", "/sdcard/_aiq_tabs.xml")
+        xml = adb("shell", "cat", "/sdcard/_aiq_tabs.xml").stdout
+        pat = r'content-desc="Tutup tab (' + re.escape(canonical_title) + r')"[^>]*bounds="\[(\d+),(\d+)\]\[(\d+),(\d+)\]"'
+        cards = re.findall(pat, xml)
+        if len(cards) <= keep:
+            adb("shell", "input", "keyevent", "4")  # keluar tab-switcher
+            break
+        # Tutup dari DEPAN (tab terlama) - tab BARU yg baru dibuat bootstrap
+        # SELALU nampil PALING BELAKANG di grid (terverifikasi empiris 11/9:
+        # tab baru selalu muncul di posisi terakhir) - salah arah bisa
+        # menutup tab yg justru baru dibuat & ingin dipertahankan.
+        _title, x1, y1, x2, y2 = cards[0]
+        cx, cy = (int(x1) + int(x2)) // 2, (int(y1) + int(y2)) // 2
+        adb("shell", "input", "tap", str(cx), str(cy))
+        time.sleep(0.8)
+        closed += 1
+    else:
+        adb("shell", "input", "keyevent", "4")
+    return closed
 
 
 # ---------------------------------------------------------------------------
@@ -186,6 +251,7 @@ SITES = {
         "label": "ChatGPT",
         "new_chat_url": "https://chatgpt.com/",
         "url_match": "chatgpt.com",
+        "parked_title": "ChatGPT",  # document.title persis ini saat idle di root (terverifikasi 11/9)
         "input_sel": "#prompt-textarea",
         "fill_template": FILL_WITH_RANGE_SELECT,
         "send_ready_js": '!!document.querySelector(\'[data-testid="send-button"]\')',
@@ -209,6 +275,7 @@ SITES = {
         "label": "Gemini",
         "new_chat_url": "https://gemini.google.com/app",
         "url_match": "gemini.google.com",
+        "parked_title": "Google Gemini",  # verifikasi 11/9
         "input_sel": ".ql-editor",
         "fill_template": FILL_WITH_RANGE_SELECT,
         "send_ready_js": (
@@ -236,6 +303,7 @@ SITES = {
         "label": "Claude",
         "new_chat_url": "https://claude.ai/new",
         "url_match": "claude.ai",
+        "parked_title": "Chat baru - Claude",  # verifikasi 11/9
         "input_sel": ".ProseMirror",
         "fill_template": FILL_WITH_RANGE_SELECT,
         "send_ready_js": '!!document.querySelector(\'[data-testid="chat-input-send"]\')',
@@ -270,21 +338,39 @@ def query_site(site_key, prompt, verbose=True):
         if verbose:
             print(f"[{label}] {msg}", file=sys.stderr)
 
-    log(f"membuka tab: {cfg['new_chat_url']}")
-    foreground_url(cfg["new_chat_url"])
+    log("foreground Fennec (resume, tanpa buka URL)")
+    foreground_app()
 
     ensure_rdp_forward()
     rdp = RDP()
+    console = None
     try:
-        # `am start -a VIEW` di Fennec kadang cuma SWITCH ke tab lama yg URL-nya
-        # kebetulan sama, TANPA reload - state basi (chat lama, input tersisa)
-        # ikut kebawa. Paksa navigasi ulang via RDP supaya SELALU landing di
-        # halaman chat kosong yg fresh, apa pun state tab-nya sebelumnya.
-        console, tab = rdp.find_console(cfg["url_match"])
+        # REUSE tab yg sudah ada via RDP - JANGAN `am start -a VIEW -d url`
+        # tiap panggilan (itu yg bikin tab baru numpuk kalau tab lama sudah
+        # 'drift' dari URL semula). Bootstrap (buka tab baru) HANYA kalau
+        # RDP sama sekali tak nemu tab situs itu (pertama kali / tab ditutup
+        # user / ke-discard total oleh GeckoView).
+        try:
+            console, tab = rdp.find_console(cfg["url_match"])
+        except RDPError:
+            log("tab tak kelihatan RDP (kemungkinan di-discard GeckoView) - bootstrap")
+            bootstrap_tab(cfg["new_chat_url"])
+            console, tab = rdp.find_console(cfg["url_match"])
+            # Bootstrap BISA nyisain tab lama yg ke-discard (RDP tak bisa
+            # lihat dia utk ditutup manual - dia tetap ADA di tab-switcher).
+            # Beresin skrg selagi tahu persis situs apa yg baru di-bootstrap,
+            # drpd numpuk pelan2 tiap kali discard kejadian lagi ke depan.
+            n = dedupe_parked_tabs(cfg["parked_title"])
+            if n:
+                log(f"beres-beres: {n} tab lama '{cfg['parked_title']}' basi ditutup")
+
+        # Paksa navigasi ulang via RDP (location.href, SAMA tab, bukan tab
+        # baru) supaya SELALU landing di halaman chat kosong yg fresh, apa
+        # pun state tab-nya sebelumnya (chat lama/percakapan drift/dst).
         rdp.eval_js(console, f"location.href = {json.dumps(cfg['new_chat_url'])}")
         time.sleep(LOAD_WAIT_S)
         console, tab = rdp.find_console(cfg["url_match"])
-        log(f"tab siap (fresh): {tab.get('url')}")
+        log(f"tab siap (fresh, reused): {tab.get('url')}")
 
         input_ready = rdp.wait_for_truthy(
             console, f"!!document.querySelector('{cfg['input_sel']}')", timeout_s=25)
@@ -355,6 +441,15 @@ def query_site(site_key, prompt, verbose=True):
         log("TIMEOUT menunggu jawaban stabil, pakai teks terakhir apa adanya")
         return clean_response_text(last_text or "") or "[TIMEOUT: tak ada jawaban terbaca]"
     finally:
+        # Parkir tab balik ke root (judul jadi canonical spt "ChatGPT") biar
+        # BEBAS PERCAKAPAN sebelum idle - ini yg bikin dedupe_parked_tabs()
+        # bisa diandalkan next run kalau tab ini nanti ke-discard GeckoView.
+        # Best-effort: jangan sampai gagal di sini menutupi hasil/exception asli.
+        try:
+            if console:
+                rdp.eval_js(console, f"location.href = {json.dumps(cfg['new_chat_url'])}")
+        except Exception:
+            pass
         rdp.close()
 
 
@@ -416,13 +511,36 @@ def write_wiki_entry(wiki_dir, title, prompt, answers):
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("title", help="Judul topik (dipakai jadi nama file)")
-    ap.add_argument("prompt", help="Pertanyaan/prompt yang dikirim ke ketiga AI")
+    ap.add_argument("title", nargs="?", help="Judul topik (dipakai jadi nama file). Diabaikan kalau pakai --raw.")
+    ap.add_argument("prompt_pos", metavar="prompt", nargs="?",
+                     help="Pertanyaan/prompt. Diabaikan kalau pakai --raw (pakai --prompt).")
     ap.add_argument("--only", default="chatgpt,gemini,claude",
                      help="Subset situs, pisah koma (default: semua)")
     ap.add_argument("--wiki-dir", default="wiki",
                      help="Folder output wiki (default: ./wiki)")
+    ap.add_argument("--raw", metavar="SITE",
+                     help="Mode pipeline/n8n: query 1 AI (chatgpt|gemini|claude), "
+                          "cetak JSON {ok,site,answer|error} ke stdout, TANPA tulis "
+                          "file wiki. Pakai bareng --prompt. Exit code 0=sukses, 1=gagal.")
+    ap.add_argument("--prompt", help="Prompt teks, dipakai bareng --raw.")
     args = ap.parse_args()
+
+    if args.raw:
+        if args.raw not in SITES:
+            ap.error(f"situs tak dikenal: {args.raw} (pilihan: {', '.join(SITES)})")
+        prompt = args.prompt
+        if not prompt:
+            ap.error("--raw butuh --prompt \"...\"")
+        try:
+            answer = query_site(args.raw, prompt, verbose=True)
+            print(json.dumps({"ok": True, "site": args.raw, "answer": answer}, ensure_ascii=False))
+            sys.exit(0)
+        except Exception as e:
+            print(json.dumps({"ok": False, "site": args.raw, "error": str(e)}, ensure_ascii=False))
+            sys.exit(1)
+
+    if not args.title or not args.prompt_pos:
+        ap.error("butuh 'title' dan 'prompt' (atau pakai --raw SITE --prompt \"...\")")
 
     sites = [s.strip() for s in args.only.split(",") if s.strip()]
     for s in sites:
@@ -433,12 +551,12 @@ def main():
     answers = {}
     for s in sites:
         try:
-            answers[s] = query_site(s, args.prompt)
+            answers[s] = query_site(s, args.prompt_pos)
         except Exception as e:
             print(f"[{SITES[s]['label']}] ERROR: {e}", file=sys.stderr)
             answers[s] = f"[ERROR: {e}]"
 
-    path = write_wiki_entry(args.wiki_dir, args.title, args.prompt, answers)
+    path = write_wiki_entry(args.wiki_dir, args.title, args.prompt_pos, answers)
     print(f"\n=== Selesai. Wiki tersimpan: {path} ===", file=sys.stderr)
     print(path)
 
