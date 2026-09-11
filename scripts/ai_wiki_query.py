@@ -531,13 +531,33 @@ def main():
         prompt = args.prompt
         if not prompt:
             ap.error("--raw butuh --prompt \"...\"")
-        try:
-            answer = query_site(args.raw, prompt, verbose=True)
-            print(json.dumps({"ok": True, "site": args.raw, "answer": answer}, ensure_ascii=False))
-            sys.exit(0)
-        except Exception as e:
-            print(json.dumps({"ok": False, "site": args.raw, "error": str(e)}, ensure_ascii=False))
+        label = SITES[args.raw]["label"]
+        # Retry 1x (total maks 2 percobaan) - utk kestabilan pipeline/n8n:
+        # sesekali flake (RDP timeout nunggu jawaban stabil, atau exception
+        # RDP/socket) terbukti nyata 11/9 tapi retry bersih langsung sukses.
+        # Retry SEKALI cukup (bukan loop tanpa batas) - kalau 2x tetap gagal,
+        # lebih baik lapor error drpd nyoba berkali² & bikin n8n nunggu lama.
+        last_answer, last_err = None, None
+        for attempt in range(2):
+            try:
+                answer = query_site(args.raw, prompt, verbose=True)
+                if answer.startswith("[TIMEOUT") and attempt == 0:
+                    print(f"[{label}] jawaban timeout, retry 1x...", file=sys.stderr)
+                    last_answer = answer
+                    continue
+                print(json.dumps({"ok": True, "site": args.raw, "answer": answer}, ensure_ascii=False))
+                sys.exit(0)
+            except Exception as e:
+                last_err = e
+                if attempt == 0:
+                    print(f"[{label}] error ({e}), retry 1x...", file=sys.stderr)
+                    continue
+        # Kedua percobaan gagal/timeout - lapor apa adanya (jangan diam2 sukses palsu)
+        if last_err is not None:
+            print(json.dumps({"ok": False, "site": args.raw, "error": str(last_err)}, ensure_ascii=False))
             sys.exit(1)
+        print(json.dumps({"ok": True, "site": args.raw, "answer": last_answer}, ensure_ascii=False))
+        sys.exit(0)
 
     if not args.title or not args.prompt_pos:
         ap.error("butuh 'title' dan 'prompt' (atau pakai --raw SITE --prompt \"...\")")
