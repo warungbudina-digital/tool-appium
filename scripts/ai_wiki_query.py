@@ -144,25 +144,20 @@ def adb(*args, timeout=30):
     return subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
 
 
-def foreground_app():
-    """Bawa app Fennec ke foreground TANPA intent-data (cuma resume ke state
-    terakhir) - socket RDP butuh app 'visible' baru muncul di /proc/net/unix
-    (fakta lama, lihat map), tapi INI TAK BOLEH bawa data-URL: `am start -a
-    VIEW -d <url>` kalau tab tujuan sudah 'drift' (URL beda dari saat dibuka,
-    mis. sudah masuk /c/<id> stlh kirim pesan) bikin Fennec buka TAB BARU
-    alih-alih reuse - persis penyebab duplikasi tab nyata 11/9. Reuse tab
-    SELALU lewat RDP (location.href), bukan lewat intent."""
-    adb("shell", "am", "start", "-n", f"{FENNEC_PKG}/org.mozilla.fenix.HomeActivity")
-    time.sleep(LOAD_WAIT_S)
-
-
 def bootstrap_tab(url):
-    """HANYA dipanggil kalau tab utk situs itu belum ada sama sekali (RDP
-    listTabs nggak nemu) - buka via intent VIEW. Sekali per situs per 'siklus
-    hidup' tab; sesudahnya query_site() selalu reuse via RDP, tak pernah
-    manggil ini lagi selama tab masih ada (walau di-discard GeckoView -
-    am start dgn url yg PERSIS SAMA akan wake tab lama, bukan bikin baru,
-    karena masih 'exact URL match' saat itu)."""
+    """Dipanggil SETIAP query_site() (bukan cuma sekali) - `am start -a VIEW
+    -d <url>` sekaligus (a) foreground-kan app Fennec (RDP socket butuh app
+    'visible', lihat map lama) DAN (b) SELECT tab target biar bener2 visible/
+    aktif - fakta baru 11/9: RDP BISA isi+kirim pesan di tab background, tapi
+    generate jawaban AI MACET TOTAL kalau tab itu tak jadi tab yg dilihat
+    (dugaan GeckoView throttle streaming network tab non-visible).
+    AMAN dari duplikasi tab selama dipanggil dgn `url` PERSIS SAMA dgn yg tab
+    itu sedang tampilkan - query_site() SELALU 'memparkir' tab balik ke
+    persis `url` ini di akhir (finally), jadi panggilan berikutnya ketemu
+    exact-URL-match -> Android/Fennec SELECT tab existing, BUKAN bikin baru
+    (terverifikasi empiris). Kalau tab ternyata drift/hilang (mis. dipakai
+    manual oleh user di antara run script), BISA sesekali bikin duplikat -
+    self-heal via dedupe_parked_tabs() di query_site()."""
     adb("shell", "am", "start", "-a", "android.intent.action.VIEW",
         "-d", url, FENNEC_PKG)
     time.sleep(LOAD_WAIT_S)
@@ -338,22 +333,33 @@ def query_site(site_key, prompt, verbose=True):
         if verbose:
             print(f"[{label}] {msg}", file=sys.stderr)
 
-    log("foreground Fennec (resume, tanpa buka URL)")
-    foreground_app()
+    # ⚠️ TEMUAN 11/9 (penting): RDP BISA isi+kirim pesan di tab yg TAK
+    # sedang 'selected' (background di dalam app), TAPI generate jawaban
+    # AI-nya sendiri MACET TOTAL (TIMEOUT 150dtk, nol progres) kalau tab
+    # itu tak divisualkan - kemungkinan GeckoView throttle streaming
+    # network utk tab non-visible. Jadi tab TARGET WAJIB benar2 ke-SELECT
+    # (bukan cuma app di-resume ke tab TERAKHIR yg dipakai user manual).
+    #
+    # FIX: `am start -a VIEW -d <new_chat_url>` SETIAP kali (bukan
+    # `foreground_app()` generik) - ini AMAN dari duplikasi krn tab yg
+    # dikelola skrip ini SELALU 'diparkir' balik ke persis `new_chat_url`
+    # di akhir tiap query_site() (lihat finally di bawah) - intent-match
+    # URL PERSIS SAMA = Android/Fennec SELECT tab existing, BUKAN bikin
+    # baru (terverifikasi empiris sesi2 sebelumnya). Kalau tab ternyata
+    # drift/hilang (dipakai manual user di antara run script), bisa
+    # SESEKALI bikin duplikat - self-heal via dedupe_parked_tabs() di
+    # bawah, dijalankan tiap kali fallback RDP diperlukan.
+    log(f"select/buka tab: {cfg['new_chat_url']}")
+    bootstrap_tab(cfg["new_chat_url"])
 
     ensure_rdp_forward()
     rdp = RDP()
     console = None
     try:
-        # REUSE tab yg sudah ada via RDP - JANGAN `am start -a VIEW -d url`
-        # tiap panggilan (itu yg bikin tab baru numpuk kalau tab lama sudah
-        # 'drift' dari URL semula). Bootstrap (buka tab baru) HANYA kalau
-        # RDP sama sekali tak nemu tab situs itu (pertama kali / tab ditutup
-        # user / ke-discard total oleh GeckoView).
         try:
             console, tab = rdp.find_console(cfg["url_match"])
         except RDPError:
-            log("tab tak kelihatan RDP (kemungkinan di-discard GeckoView) - bootstrap")
+            log("tab tak kelihatan RDP walau baru di-select - coba sekali lagi")
             bootstrap_tab(cfg["new_chat_url"])
             console, tab = rdp.find_console(cfg["url_match"])
             # Bootstrap BISA nyisain tab lama yg ke-discard (RDP tak bisa
